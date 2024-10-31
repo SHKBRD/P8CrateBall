@@ -52,8 +52,8 @@ function init_actors()
 	
 	for pot=0,13 do
 		repeat
-		rx = 8*flr(rnd(14))+16
-		ry = 8*flr(rnd(12))+16
+		rx = 8*flr(rnd(15))+16
+		ry = 8*flr(rnd(13))+16
 		until not is_actor_there(rx, ry)
 		load_actor(10, rx, ry)
 		
@@ -65,7 +65,7 @@ function init_actors()
 	for fire=0,3 do
 		repeat
 		rx = 8*flr(rnd(14))+16
-		ry = 8*flr(rnd(12))+16
+		ry = 8*flr(rnd(13))+16
 		until not is_actor_there(rx, ry)
 		load_actor(26, rx, ry)
 		
@@ -297,8 +297,8 @@ function will_hit_wall(ac, future)
  ac.x = 128
  ac.vx *= -1
  end
- if cy >= 104 then
- ac.y = 104
+ if cy >= 112 then
+ ac.y = 112
  ac.vy *= -1
  end
  
@@ -494,11 +494,11 @@ function _init()
 function draw_base_map()
 	// map draw
  for i=0,17 do
-		for f=0,14 do
+		for f=0,15 do
 			if (i<=1 or i>=17) then
 				mset(i, f, 17)
 			else
-				if (f<=1 or f>=14) then
+				if (f<=1 or f>=15) then
 					mset(i, f, 17)
 				else
 					mset(i, f, 19)
@@ -619,8 +619,8 @@ function player_tick(player)
 	 	pos = 16 vel *= -0.75
 	 	if (vel>0.275) sfx(0, -1)
 	 	if (vel>1.5) camoff[1+(loop/2)] -= 1
-	 elseif pos >= 128 or (loop==2 and pos >= 104) then
-	 	if loop == 2 then pos = 104 else pos = 128 end
+	 elseif pos >= 128 or (loop==2 and pos >= 112) then
+	 	if loop == 2 then pos = 112 else pos = 128 end
 	 	
 	 	vel *= -0.75
 	 	
