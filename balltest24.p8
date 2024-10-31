@@ -723,15 +723,40 @@ end
 -->8
 --hud
 
+chrs = {
+	[":"] = 40,
+	["?"] = 44,
+	["!"] = 48,
+	["."] = 52
+}
+
 --[[
 
 assumes all numbers in tile gfx
 are consecutive
 
 ]]
-function draw_numchar(num, x, y)
-	char_ind = num*4
-	sspr(nx+char_ind, ny, 4, 6, x, y)
+function draw_char(inp, x, y)
+	orded = ord(tostr(inp))
+	if orded >=48 and orded <= 57 then
+		char_ind = inp*4
+		sspr(nx+char_ind, ny, 4, 6, x, y)
+	else
+		char = chrs[inp]
+		sspr(nx+char, ny, 4, 6, x, y)
+	end
+end
+
+function draw_letter(letter, x, y)
+	if (ord(letter) < 97) draw_char(letter, x, y)
+	sspr((ord(letter)-97)*4, 40, 4, 6, x, y)
+end
+
+function draw_str(str, x, y)
+	for ind=1,#str do
+		draw_letter(str[ind], x, y)
+		x += 4
+	end
 end
 
 function draw_clock()
