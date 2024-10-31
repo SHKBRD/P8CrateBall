@@ -413,7 +413,7 @@ end
 function _init()
 	count = 1
 	
-	// init the player variables
+	--init the player variables
 	p = {}
 	for pcount=0,0 do
 		--[[
@@ -454,9 +454,9 @@ function _init()
 		add(o, c)
 		
 	end
-	// particles
-	prt = {}
 	
+	-- particles
+	prt = {}
 	prtcol = {10, 9, 4, 0}
 	
 	--[[
@@ -468,10 +468,11 @@ function _init()
 	pal(3,12)
 	]]
 	
+	--layout loading
 	level_map_load()
-	
 	init_actors()
 	
+	--camera
 	camabs = {}
 	camabs.x = 12
 	camabs.y = 12
@@ -690,7 +691,6 @@ function _draw()
 	 draw_actors()
 	 
  end
- 
  end
 -->8
 --helper
