@@ -287,8 +287,8 @@ function will_hit_wall(ac, future)
  ac.y = 16
  ac.vy *= -1
  end
- if cx >= 120 then
- ac.x = 120
+ if cx >= 128 then
+ ac.x = 128
  ac.vx *= -1
  end
  if cy >= 104 then
@@ -583,8 +583,8 @@ function player_tick(player)
 	 	pos = 16 vel *= -0.75
 	 	if (vel>0.275) sfx(0, -1)
 	 	if (vel>1.5) camoff[1+(loop/2)] -= 1
-	 elseif pos >= 120 or (loop==2 and pos >= 104) then
-	 	if loop == 2 then pos = 104 else pos = 120 end
+	 elseif pos >= 128 or (loop==2 and pos >= 104) then
+	 	if loop == 2 then pos = 104 else pos = 128 end
 	 	
 	 	vel *= -0.75
 	 	
