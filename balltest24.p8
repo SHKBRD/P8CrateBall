@@ -761,13 +761,15 @@ end
 
 function draw_clock()
 	
+	draw_str("timer:", 14, 131)
+	
 	per_num_offx = 0
 	for val in all(clk) do
 		local offx = clkx+per_num_offx
 		num = val%10
 		
-		draw_numchar(flr(val-num), offx, clky)
-		draw_numchar(num, offx+4, clky)
+		draw_char(flr(val-num), offx, clky)
+		draw_char(num, offx+4, clky)
 		
 		--[[
 		
@@ -777,7 +779,7 @@ function draw_clock()
 		
 		]]
 		if per_num_offx != 24 then
-			sspr(nx+40, ny, 4, 6, offx+8, clky)
+			draw_char(":", offx+8, clky)
 		end
 		
 		per_num_offx += 12
