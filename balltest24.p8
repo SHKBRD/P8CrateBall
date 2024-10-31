@@ -488,7 +488,7 @@ function _init()
 	--clock
 	--[minutes, seconds, millis]
 	clk = {3, 0, 0}
-	clkx = 16
+	clkx = 39
 	clky = 131
 	
 	end
