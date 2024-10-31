@@ -489,7 +489,7 @@ function _init()
 	--[minutes, seconds, millis]
 	clk = {3, 0, 0}
 	clkx = 16
-	clky = 128
+	clky = 131
 	
 	end
 
