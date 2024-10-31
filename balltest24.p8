@@ -413,6 +413,8 @@ end
 function _init()
 	count = 1
 	
+	debug = true
+	
 	--init the player variables
 	p = {}
 	for pcount=0,0 do
@@ -758,8 +760,22 @@ function draw_clock()
 	end
 end
 
+function draw_mem()
+	mem = stat(0)
+	cpu = stat(1)
+		
+	print(mem, 16, 16, 8)
+	print(cpu, 16, 22, 8)
+		
+end
+
+function draw_debug()
+	draw_mem()
+end
+
 function draw_hud()
 	draw_clock()
+	if (debug) draw_debug()
 end
 __gfx__
 00000000001111000099990000000000000000000000000000000000000000000000000000000000499999940999490409949904000000000000000000000000
