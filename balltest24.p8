@@ -662,6 +662,7 @@ function _update60()
  
  particle_physics()
  tick_actors()
+ tick_clock(false)
  
 end
 	
@@ -736,6 +737,27 @@ assumes all numbers in tile gfx
 are consecutive
 
 ]]
+
+function tick_clock(dir)
+	frame = 1/.6
+	if (dir == true) then
+		
+	else
+		clk[3] -= frame
+		if clk[3] < 0 then
+			clk[3] = 100+clk[3]
+			clk[2] -= 1
+			if clk[2] < 0 then
+				clk[2] = 60+clk[2]
+				clk[1] -= 1
+				if clk[1] < 0 then
+					clk[1], clk[2], clk[3] = 0
+				end
+			end
+		end
+	end
+end
+
 function draw_char(inp, x, y)
 	orded = ord(tostr(inp))
 	if orded >=48 and orded <= 57 then
@@ -765,10 +787,11 @@ function draw_clock()
 	
 	per_num_offx = 0
 	for val in all(clk) do
+		val = flr(val)
 		local offx = clkx+per_num_offx
 		num = val%10
 		
-		draw_char(flr(val-num), offx, clky)
+		draw_char((val-num)/10, offx, clky)
 		draw_char(num, offx+4, clky)
 		
 		--[[
@@ -793,6 +816,9 @@ function draw_mem()
 		
 	print(mem, 16, 16, 8)
 	print(cpu, 16, 22, 8)
+	print(clk[1], 16, 28, 8)
+	print(clk[2], 16, 34, 8)
+	print(clk[3], 16, 40, 8)
 		
 end
 
