@@ -487,7 +487,7 @@ function _init()
 	
 	--clock
 	--[minutes, seconds, millis]
-	clk = {3, 0, 0}
+	clk = {0, 10, 0}
 	clkx = 39
 	clky = 131
 	
@@ -751,7 +751,9 @@ function tick_clock(dir)
 				clk[2] = 60+clk[2]
 				clk[1] -= 1
 				if clk[1] < 0 then
-					clk[1], clk[2], clk[3] = 0
+					clk[1] = 0 
+					clk[2] = 0
+					clk[3] = 0
 				end
 			end
 		end
