@@ -487,7 +487,7 @@ function _init()
 	
 	--clock
 	--[minutes, seconds, millis]
-	clk = {0, 10, 0}
+	clk = {99, 50, 0}
 	clkx = 39
 	clky = 131
 	
@@ -662,7 +662,7 @@ function _update60()
  
  particle_physics()
  tick_actors()
- tick_clock(false)
+ tick_clock(true)
  
 end
 	
@@ -741,7 +741,20 @@ are consecutive
 function tick_clock(dir)
 	frame = 1/.6
 	if (dir == true) then
-		
+		clk[3] += frame
+		if clk[3] > 99 then
+			clk[3] = clk[3]-100
+			clk[2] += 1
+			if clk[2] > 59 then
+				clk[2] = clk[2]-60
+				clk[1] += 1
+				if clk[1] > 99 then
+					clk[1] = 99
+					clk[2] = 59
+					clk[3] = 99
+				end
+			end
+		end
 	else
 		clk[3] -= frame
 		if clk[3] < 0 then
