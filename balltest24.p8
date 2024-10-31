@@ -86,12 +86,12 @@ end
 
 
 function will_physa_hit(a1, a2, future)
-	res = {false, false, false, false}
+	local res = {false, false, false, false}
 	
-	spx = a1.colspx
-	epx = a1.colepx
-	spy = a1.colspy
-	epy = a1.colepy
+	local spx = a1.colspx
+	local epx = a1.colepx
+	local spy = a1.colspy
+	local epy = a1.colepy
 	
 	if future then
 		spx += a1.vx
@@ -101,10 +101,10 @@ function will_physa_hit(a1, a2, future)
 	end
 	
 	-- check if each side of a1 intersects with a2
-	l_int = a2.colspx < spx and spx < a2.colepx
-	r_int = a2.colspx < epx and epx < a2.colepx
-	t_int = a2.colspy < spy and spy < a2.colepy
-	b_int = a2.colspy < epy and epy < a2.colepy
+	local l_int = a2.colspx < spx and spx < a2.colepx
+	local r_int = a2.colspx < epx and epx < a2.colepx
+	local t_int = a2.colspy < spy and spy < a2.colepy
+	local b_int = a2.colspy < epy and epy < a2.colepy
 		
 	res[1] = l_int
 	res[2] = r_int
