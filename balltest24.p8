@@ -520,15 +520,11 @@ function draw_base_map()
 			end
 		end
 	end
-end
-
-function draw_ball_spawn()
 	mset(9, 8, 0)
 end
 
 function level_map_load()
 	draw_base_map()
-	draw_ball_spawn()
 end
 	
 function add_boom_part(player)
@@ -735,11 +731,11 @@ function draw_trapdoor()
 end
 	
 function _update60()
-  for loop=1,#p do
+ 
+ level_state_process()
+ 
+ for loop=1,#p do
  	player_tick(loop)
- 	if btn(5, loop-1) and p[loop].blast_cool <= 0 then
- 			player_blast(loop)
- 	end
  end
  
  particle_physics()
@@ -759,6 +755,19 @@ function draw_particles()
 	foreach(prt, draw_prt_ind)
 end
 
+function draw_players()
+	for pnum=1,#p do
+	 // ball explode anim
+	 count = count + .01
+	 // player draw
+	 if p[pnum].blast_mode and (p[pnum].blast_cool % 2 == 1) then
+			spr(2, p[pnum].x, p[pnum].y)
+	 else
+	 	spr(1, p[pnum].x, p[pnum].y)
+	 end
+ end
+end
+
 function _draw()
  cls(0)
  
@@ -768,27 +777,23 @@ function _draw()
 	camoff[2] = 0
  
  map(0, 0, 0, 0, 18, 18)
- 
- for pnum=1,#p do
-	 // ball explode anim
-	 count = count + .01
-	-- circfill(p[pnum].x+3.5, p[pnum].y+3.5, sin(count)*3+10, 1)
-	-- circfill(p[pnum].x+3.5, p[pnum].y+3.5, (sin(count)*3)+9, 3)
 	
-	 draw_particles()
+	p_under = play_state == 1 and trpdrx<4
 	 
-	 // player draw
-	 if p[pnum].blast_mode and (p[pnum].blast_cool % 2 == 1) then
-			spr(2, p[pnum].x, p[pnum].y)
-	 else
-	 	spr(1, p[pnum].x, p[pnum].y)
-	 end
-	 
-	 draw_actors()
-	 draw_hud()
-	 
+ if p_under then
+ 	draw_players()
  	draw_trapdoor()
+	end
+	
+	draw_particles()
+ 
+ if not p_under then
+ 	draw_trapdoor()
+ 	draw_players()
  end
+ 
+	draw_actors()
+ draw_hud()
  end
 -->8
 --helper
