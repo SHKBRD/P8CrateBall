@@ -35,6 +35,7 @@ function load_actor(t, x, y)
 	a.snapped = false
 	a.frames = 0
 	a.despawn = -1
+	a.control = false
 	
 	add(o, a)
 end
@@ -451,6 +452,7 @@ function _init()
 		c.blast_cool = 0
 		c.blast_mode = false
 		c.despawn = -1
+		c.control = false
 		
 		add(p, c)
 		add(o, c)
@@ -490,6 +492,16 @@ function _init()
 	clk = {99, 50, 0}
 	clkx = 39
 	clky = 131
+	
+	--gamestate
+	floor_level = 1
+	play_state = 1
+	
+	--trapdoor
+	trpdrx = 0
+	trpdrvx = 0
+	trpdrax = 0.04
+	trpcooldown = 60
 	
 	end
 
@@ -578,6 +590,16 @@ function particle_physics()
 end
 	
 function player_tick(player)
+	if p[player].control then
+		player_control(player)
+	end
+end
+	
+function player_control(player)
+	
+	if btn(5, player-1) and p[player].blast_cool <= 0 then
+		player_blast(player)
+	end
 	
 	// set first calc vars for x
 	pos = p[player].x
@@ -652,6 +674,66 @@ function player_tick(player)
 	end	
 end
 	
+function trpupdate(open)
+	
+	if open then
+		trpdrvx += trpdrax
+		trpdrx += trpdrvx
+	else
+		trpdrvx -= trpdrax
+		trpdrxx -= trpdrvx
+	end
+	
+	if trpdrx > 4 then 
+		trpdrx = 4
+		trpdrvx -= trpdrax
+		if play_state == 1 then
+			play_state = 2
+			p[1].control = true
+		end
+	elseif trpdrx < 0 then
+		
+	end
+	
+end
+	
+function start_floor_tick()
+	trpcooldown -= 1
+	
+	if trpcooldown <= 0 then
+		trpcooldown = 0
+		trpupdate(true)
+	end
+end
+
+function playing_floor_tick()
+	
+end
+
+function end_floor_tick()
+	
+end
+	
+function level_state_process()
+	if play_state == 1 then
+		start_floor_tick()
+	elseif play_state == 2 then
+		playing_floor_tick()
+	elseif play_state == 3 then
+		end_floor_tick()
+	end
+end
+	
+function draw_trapdoor()
+	move = trpdrx
+	palt(0, false)
+	--left hatch
+	sspr(32+flr(trpdrx), 8, 4-flr(trpdrx), 8, 72, 64)
+	--right hatch
+	sspr(36, 8, 4-flr(trpdrx), 8, 76+move, 64)
+	palt(0, true)
+end
+	
 function _update60()
   for loop=1,#p do
  	player_tick(loop)
@@ -705,6 +787,7 @@ function _draw()
 	 draw_actors()
 	 draw_hud()
 	 
+ 	draw_trapdoor()
  end
  end
 -->8
