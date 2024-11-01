@@ -51,7 +51,7 @@ end
 
 function init_actors()
 	
-	for pot=0,13 do
+	for pot=0,9 do
 		repeat
 		rx = 8*flr(rnd(15))+16
 		ry = 8*flr(rnd(13))+16
@@ -63,7 +63,7 @@ function init_actors()
 		
 	end
 	
-	for fire=0,3 do
+	for fire=0,1 do
 		repeat
 		rx = 8*flr(rnd(14))+16
 		ry = 8*flr(rnd(13))+16
@@ -489,7 +489,7 @@ function _init()
 	
 	--clock
 	--[minutes, seconds, millis]
-	clk = {99, 50, 0}
+	clk = {0, 0, 0}
 	clkx = 39
 	clky = 131
 	
@@ -919,9 +919,9 @@ function draw_mem()
 		
 	print(mem, 16, 16, 8)
 	print(cpu, 16, 22, 8)
-	print(clk[1], 16, 28, 8)
-	print(clk[2], 16, 34, 8)
-	print(clk[3], 16, 40, 8)
+	print(p[1].x, 16, 28, 8)
+	print(p[1].y, 16, 34, 8)
+	draw_str(124, 16, 50)
 		
 end
 
