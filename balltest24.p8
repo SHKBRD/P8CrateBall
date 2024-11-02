@@ -8,48 +8,7 @@ function _init()
 	
 	debug = true
 	
-	--init the player variables
-	p = {}
-	for pcount=0,0 do
-		--[[
-		c stands for...
-		copy?
-		i think it makes sense.
-		]]
-		local c = {}
-		c.t = 1
-		c.x = 72
-		c.y = 64
-		c.px = c.x
-		c.py = c.y
-		c.vx = 0
-		c.vy = 0
-		c.pvx = c.vx
-		c.pvy = c.vy
-		c.colx = 0.5
-		c.coly = 0.5
-		c.colw = 7
-		c.colh = 7
-		--actor's collision start points
-		c.colspx = c.x + c.colx
-		c.colspy = c.x + c.coly
-		--actor's collision end points
-		c.colepx = c.colspx + c.colw
-		c.colepy = c.colspy + c.colh
-		c.ax = 0
-		c.ay = 0
-		c.weight = 1.5
-		c.frames = 0
-		c.snapped = false
-		c.blast_cool = 0
-		c.blast_mode = false
-		c.despawn = -1
-		c.control = false
-		
-		add(p, c)
-		add(o, c)
-		
-	end
+	player_init()
 	
 	-- particles
 	prt = {}
@@ -104,8 +63,52 @@ function _init()
 	--layout loading
 	level_map_load()
 	init_actors()
-	
+end
+
+function player_init()
+	--init the player variables
+	p = {}
+	for pcount=0,0 do
+		--[[
+		c stands for...
+		copy?
+		i think it makes sense.
+		]]
+		local c = {}
+		c.t = 1
+		c.x = 72
+		c.y = 64
+		c.px = c.x
+		c.py = c.y
+		c.vx = 0
+		c.vy = 0
+		c.pvx = c.vx
+		c.pvy = c.vy
+		c.colx = 0.5
+		c.coly = 0.5
+		c.colw = 7
+		c.colh = 7
+		--actor's collision start points
+		c.colspx = c.x + c.colx
+		c.colspy = c.x + c.coly
+		--actor's collision end points
+		c.colepx = c.colspx + c.colw
+		c.colepy = c.colspy + c.colh
+		c.ax = 0
+		c.ay = 0
+		c.weight = 1.5
+		c.frames = 0
+		c.snapped = false
+		c.blast_cool = 0
+		c.blast_mode = false
+		c.despawn = -1
+		c.control = false
+		
+		add(p, c)
+		add(o, c)
+		
 	end
+end
 
 function draw_base_map()
 	// map draw
