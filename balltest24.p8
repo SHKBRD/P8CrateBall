@@ -1,414 +1,6 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
---actors
-
-o={}
-
-function load_actor(t, x, y)
-	a = {}
-	
-	a.t = t
-	a.x = x
-	a.y = y
-	a.px = a.x
-	a.py = a.y
-	a.vx = 0
-	a.vy = 0
-	a.pvx = a.vx
-	a.pvy = a.vy
-	a.ax = 0
-	a.ay = 0
-	a.colx = 0.5
-	a.coly = 0.5
-	a.colw = 7
-	a.colh = 7
-	--actor's collision start points
-	a.colspx = a.x + a.colx
-	a.colspy = a.x + a.coly
-	--actor's collision end points
-	a.colepx = a.colspx + a.colw
-	a.colepy = a.colspy + a.colh
- a.fric = 0.1
-	a.weight = 1
-	a.phys_obj = false
-	a.snapped = false
-	a.frames = 0
-	a.despawn = -1
-	a.control = false
-	
-	add(o, a)
-end
-
-function is_actor_there(x, y)
-	for ac in all(o) do
-		if ac.x == x and ac.y == y then
-			return true
-		end
-	end
-	return false
-end
-
-function init_actors()
-	
-	for pot=0,9 do
-		repeat
-		rx = 8*flr(rnd(15))+16
-		ry = 8*flr(rnd(13))+16
-		until not is_actor_there(rx, ry)
-		load_actor(10, rx, ry)
-		
-		o[#o].phys_obj = true
-		o[#o].damage = 0
-		
-	end
-	
-	for fire=0,1 do
-		repeat
-		rx = 8*flr(rnd(14))+16
-		ry = 8*flr(rnd(13))+16
-		until not is_actor_there(rx, ry)
-		load_actor(26, rx, ry)
-		
-		o[#o].frametimer = 0
-		o[#o].coly = 3.5
-		o[#o].colh = 4
-		o[#o].colx = 1.5
-		o[#o].colw = 5
-		o[#o].phys_obj = false
-		dirx = sgn(rnd(1)-1)
-		diry = sgn(rnd(1)-1)
-		o[#o].vx = 0.5*dirx
-		o[#o].vy = 0.3*diry
-		o[#o].fric = 0
-	end
-	
-end
-
-
-function will_physa_hit(a1, a2, future)
-	local res = {false, false, false, false}
-	
-	local spx = a1.colspx
-	local epx = a1.colepx
-	local spy = a1.colspy
-	local epy = a1.colepy
-	
-	if future then
-		spx += a1.vx
-		epx += a1.vx
-		spy += a1.vy
-		epy += a1.vy
-	end
-	
-	-- check if each side of a1 intersects with a2
-	local l_int = a2.colspx < spx and spx < a2.colepx
-	local r_int = a2.colspx < epx and epx < a2.colepx
-	local t_int = a2.colspy < spy and spy < a2.colepy
-	local b_int = a2.colspy < epy and epy < a2.colepy
-		
-	res[1] = l_int
-	res[2] = r_int
-	res[3] = t_int
-	res[4] = b_int
-	
-	return res
-end
-
---[[ returns a list
-	    
-]]
---[[
-function is_in_actor(a1, a2, ...)
-	arg = {...}
-	if arg[1] != nil then
-		res = arg[1]
-	else
-		res = hit_physactor_check(a1, a2)
-	end
-		
-	return (res[1] or res[2]) and (res[3] or res[4])
-end
-
-]]
-
-function will_a_touch(a1, a2, future)
-	spx = a1.colspx
-	epx = a1.colepx
-	spy = a1.colspy
-	epy = a1.colepy
-	
-	if future then
-		spx += a1.vx
-		epx += a1.vx
-		spy += a1.vy
-		epy += a1.vy
-	end
-	xcomp1 = max(spx, a2.colspx)
-	ycomp1 = max(spy, a2.colspy)
-	xcomp2 = min(epx, a2.colepx)
-	ycomp2 = min(epy, a2.colepy)
-	
-	if xcomp1<xcomp2 
-	and ycomp1<ycomp2 then
-	 return true
-	end
-	
-	return false
-end
-
-function actor_collide(a1, a2)
-	
-	if will_a_touch(a1, a2, true) then
-	 gener_hit(a1, a2)
-	 hit_action(a1, a2)
-		hit_action(a2, a1)
-	end
-	
-end
-
-function hit_action(a1, a2)
-	if (not a2.phys_obj == true) return false
-	for player in all(p) do
-		if a1 == player then
-			hit_res1 = will_physa_hit(a1, a2, false)
-			hit_res2 = will_physa_hit(a1, a2, true)
-			
-			
-			for bit=1,4 do
-				if not hit_res1[bit] and hit_res2[bit] then
-					if not a1.blast_mode then
-						if bit == 1 then
-							if sgn(a1.vx) == -1 then
-								a1.x = a2.colepx-a2.colx
-								a1.vx *= -0.8
-							--else
-							--	a1.x = a2.x-a1.colw
-							--	a1.vx *= -0.8
-							end
-						elseif bit == 2 then
-							if sgn(a1.vx) == 1 then
-								a1.x = a2.x-a1.colw
-								a1.vx *= -0.8
-							--else
-							--	a1.x = a2.colepx-a2.colx
-							--	a1.vx *= -0.8
-							end
-						elseif bit == 3 then
-							if sgn(a1.vy) == -1 then
-								a1.y = a2.colepy
-								a1.vy *= -0.8
-							--else
-							--	a1.y = a2.y-a1.colh
-							--	a1.vy *= -0.8
-							end
-						else
-							if sgn(a1.vy) == 1 then
-								a1.y = a2.y-a1.colh
-								a1.vy *= -0.8
-							--else
-							--	a1.y = a2.colepy
-							--	a1.vy *= -0.8
-							end
-						end
-					end
-					--pot
-					if a2.t >= 10 and a2.t <= 13 then
-						pot_damage(a2, a1.blast_mode, true)
-					end
-					
-					
-					
-					end
-			end
-			
-		--actors
-		else
-			--pot
-			if a1.t >= 10 and a1.t <= 13 then
-				
-			end
-			
-			--fire
-			if a1.t >= 26 and a1.t <= 29 then
-				--pot interaction
-				if a2.t >= 10 and a2.t <= 13 then
-					local res1 = will_a_touch(a1, a2, false)
-					local res2 = will_a_touch(a1, a2, true)
-					if not res1 and res2 then
-						pot_damage(a2, false, false)
-					end
-				end			
-			end
-			
-		end
-		break
-	end
-end
-
-function pot_damage(ac, instant, player)
-	
-	if (ac.t == 13) return
-	
-	if instant then
-		ac.t = 13
-		damage = 100
-	else
-		ac.damage += 1
-		ac.t += 1
-	end
-	
-	if ac.t == 13 then
-		ac.phys_obj = false
-		ac.despawn = 300
-	end
-	if (player) sfx(3, 3)
-end
-
-function actor_col()
- for a1 in all(o) do 
- 	for a2 in all(o) do
- 		if a1 != a2 then
- 			actor_collide(a1, a2)
- 		end
- 	end
- end
-end
-
-function will_hit_wall(ac, future)
-	if ac.blast_mode == nil then
- 
- cx = ac.x
- cy = ac.y
- 
- if future then
- 	cx += ac.vx
- 	cy += ac.vy
- end
- 
- if cx <= 16 then
- ac.x = 16
- ac.vx *= -1
- end
- if cy <= 16 then
- ac.y = 16
- ac.vy *= -1
- end
- if cx >= 128 then
- ac.x = 128
- ac.vx *= -1
- end
- if cy >= 112 then
- ac.y = 112
- ac.vy *= -1
- end
- 
- return false
- end
-end
-
-function gener_hit(a1, a2)
- 
-end
-
-function actor_hit_actions()
-
-end
-
-function actor_phys_apply()
-	for act in all(o) do
-		isplayer = false
-		for player in all(p) do
-			if (act == player) isplayer = true
-			if not isplayer then
-				actvarapply(act)
-			end
-				actor_col_upd(act)
-		end
-	end
-end
-
-function actor_col_upd(a1)
-	local a = a1
-	--actor's collision start points
-	a.colspx = a.x + a.colx
-	a.colspy = a.y+ a.coly
-	--actor's collision end points
-	a.colepx = a.colspx + a.colw
-	a.colepy = a.colspy + a.colh
-end
-
-function actvarapply(act)
-	act.pvx = act.vx
-	act.pvy = act.vy
-	act.px = act.x
-	act.py = act.y
-	act.vx -= a.fric * act.vx/abs(act.vx)
-	act.vy -= a.fric * act.vy/abs(act.vy)	
-	if sgn(act.vx) != sgn(act.pvx) then
-		act.vx = 0
-	end
-	if sgn(act.vy) != sgn(act.pvy) then
-		act.vy = 0
-	end
-	act.vx += act.ax
-	act.vy += act.ay
-	act.x += act.vx
-	act.y += act.vy
-	act.snapped = false
-end
-
-function actor_specific()
-	for ac in all(o) do 
-		--fire
-		if ac.t <= 29 and ac.t >= 26 then
-			ac.frametimer += rnd(10)/20
-			ac.frametimer %= 4
-			ac.t = 26 + flr(ac.frametimer)
-			will_hit_wall(ac, false)
-		end
-		
-	end
-end
-
-function actor_decay()
-	for i=1,#o do
-	if (i > #o) break
-		if o[i].despawn == 0 then
-			del(o, o[i])
-			i -= 1
-		elseif o[i].despawn > 0 then
-			o[i].despawn -= 1
-		end
-	end
-end
-
-function tick_actors()
-	actor_col()
-	actor_phys_apply()
-	actor_specific()
-	actor_decay()
-end
-
-function draw_actors()
-	for act in all(o) do
-		for player in all(p) do
-			if act != player then
-				print(act.t)
-				
-				if act.despawn > 0 then
-					if act.despawn % 2 == 0
-					   or act.despawn > 60 then
-						spr(act.t, act.x, act.y)
-					end
-				else
-					spr(act.t, act.x, act.y)
-				end
-			end
-		end	
-	end
-end
--->8
 --prime
 
 function _init()
@@ -472,10 +64,6 @@ function _init()
 	pal(3,12)
 	]]
 	
-	--layout loading
-	level_map_load()
-	init_actors()
-	
 	--camera
 	camabs = {}
 	camabs.x = 12
@@ -495,13 +83,24 @@ function _init()
 	
 	--gamestate
 	floor_level = 1
+	floor_won = false
 	play_state = 1
+	cratesbroken = 0
+	cratestotal = 10
+	leave_state = 1
 	
 	--trapdoor
 	trpdrx = 0
 	trpdrvx = 0
 	trpdrax = 0.04
 	trpcooldown = 60
+	trpopen = true
+	
+	--functions
+	
+	--layout loading
+	level_map_load()
+	init_actors()
 	
 	end
 
@@ -669,45 +268,169 @@ function player_control(player)
 		p[player].blast_mode = false
 	end	
 end
+
+function did_player_enter_trap()
+	local temptrap = {}
+	temptrap.colspx = 72+3
+	temptrap.colepx = 72+3+2
+	temptrap.colspy = 64+3
+	temptrap.colepy = 64+3+2
+	for player in all(p) do
+		if will_a_touch(temptrap, player ,false) then
+			return true
+		end
+	end
+	return false
+end
+
+--returns an int about the ball state
+function player_leave_tick()
 	
-function trpupdate(open)
+	--[[
 	
-	if open then
-		trpdrvx += trpdrax
-		trpdrx += trpdrvx
-	else
-		trpdrvx -= trpdrax
-		trpdrxx -= trpdrvx
+	hasn't started leaving, 
+	first frame
+	
+	]]
+	if leave_state == 1 then
+	
+	p[1].blast_mode = false
+	p[1].blast_cool = 0
+	leave_state = 2
+	
+	--[[
+		
+	moving towards trapdoor center
+		
+	]]
+	elseif leave_state == 2 then
+	
+	p[1].x = lerp(72, p[1].x, 0.5)
+	p[1].y = lerp(64, p[1].y, 0.5)
+	if distance(p[1].x, p[1].y, 72, 64) < 1 then
+		p[1].x = 72
+		p[1].y = 64
+		leave_state = 3
 	end
 	
-	if trpdrx > 4 then 
+	--[[
+		
+	player inside, door shutting
+		
+	]]
+	elseif leave_state == 3 then
+	trpopen = false
+	trpupdate()
+	if trpdrx == 0 then
+		leave_state = 4
+	end
+	
+	--[[
+		
+	door shut, transitioning
+			
+	]]
+	elseif leave_state == 4 then
+	
+	end
+end
+	
+function trpupdate()
+	
+	if trpopen then
+		trpdrx += 0.25
+	else
+		trpdrx -= 0.25
+	end
+	
+	if trpopen and trpdrx >= 4 then 
 		trpdrx = 4
-		trpdrvx -= trpdrax
+
 		if play_state == 1 then
 			play_state = 2
 			p[1].control = true
 		end
-	elseif trpdrx < 0 then
-		
+		if play_state == 2 and cratesbroken <= cratestotal then
+			trpopen = false
+		elseif play_state == 2 and cratesbroken > cratestotal then
+			play_state = 3
+		end
+	elseif not trpopen and trpdrx <= 0 then
+		trpdrx = 0
 	end
 	
 end
 	
 function start_floor_tick()
 	trpcooldown -= 1
-	
 	if trpcooldown <= 0 then
+		trpopen = true
 		trpcooldown = 0
-		trpupdate(true)
+		trpupdate()
 	end
 end
 
 function playing_floor_tick()
+	--closing after trapdoor initially opens
+	if trpopen == false and not floor_won then
+		if p[1].x != 72 and p[1].y != 64 then
+			trpupdate()
+		end
+	end
 	
+	--levelend init
+	if cratesbroken > cratestotal then
+		if not trpopen then
+			trpopen = true
+		end
+		trpupdate()
+	end
+end
+
+function postwin_floor_tick()
+	trpupdate()
+	if did_player_enter_trap() then
+		play_state = 4
+		p[1].control = false
+	end
 end
 
 function end_floor_tick()
+	player_leave_tick()
 	
+	--[[
+	
+	hasn't started leaving, 
+	first frame
+	
+	]]
+	if leave_state == 1 then
+	
+	
+	--[[
+		
+	moving towards trapdoor center
+		
+	]]
+	elseif leave_state == 2 then
+	
+	
+	--[[
+		
+	player inside, door shutting
+		
+	]]
+	elseif leave_state == 3 then
+	
+	
+	--[[
+		
+	door shut, transitioning
+			
+	]]
+	elseif leave_state == 4 then
+	
+	end
 end
 	
 function level_state_process()
@@ -716,6 +439,8 @@ function level_state_process()
 	elseif play_state == 2 then
 		playing_floor_tick()
 	elseif play_state == 3 then
+		postwin_floor_tick()
+	elseif play_state == 4 then
 		end_floor_tick()
 	end
 end
@@ -780,14 +505,14 @@ function _draw()
 	
 	p_under = play_state == 1 and trpdrx<4
 	 
- if p_under then
+ if p_under or leave_state >= 3 then
  	draw_players()
  	draw_trapdoor()
 	end
 	
 	draw_particles()
  
- if not p_under then
+ if not p_under and leave_state < 3 then
  	draw_trapdoor()
  	draw_players()
  end
@@ -795,6 +520,419 @@ function _draw()
 	draw_actors()
  draw_hud()
  end
+
+-->8
+--actors
+
+o={}
+
+function load_actor(t, x, y)
+	a = {}
+	
+	a.t = t
+	a.x = x
+	a.y = y
+	a.px = a.x
+	a.py = a.y
+	a.vx = 0
+	a.vy = 0
+	a.pvx = a.vx
+	a.pvy = a.vy
+	a.ax = 0
+	a.ay = 0
+	a.colx = 0.5
+	a.coly = 0.5
+	a.colw = 7
+	a.colh = 7
+	--actor's collision start points
+	a.colspx = a.x + a.colx
+	a.colspy = a.x + a.coly
+	--actor's collision end points
+	a.colepx = a.colspx + a.colw
+	a.colepy = a.colspy + a.colh
+ a.fric = 0.1
+	a.weight = 1
+	a.phys_obj = false
+	a.snapped = false
+	a.frames = 0
+	a.despawn = -1
+	a.control = false
+	
+	add(o, a)
+end
+
+function is_actor_there(x, y)
+	for ac in all(o) do
+		if ac.x == x and ac.y == y then
+			return true
+		end
+	end
+	return false
+end
+
+function init_actors()
+	
+	for crate=0,cratestotal do
+		repeat
+		rx = 8*flr(rnd(15))+16
+		ry = 8*flr(rnd(13))+16
+		until not is_actor_there(rx, ry)
+		load_actor(10, rx, ry)
+		
+		o[#o].phys_obj = true
+		o[#o].damage = 0
+		
+	end
+	
+	for fire=0,1 do
+		repeat
+		rx = 8*flr(rnd(14))+16
+		ry = 8*flr(rnd(13))+16
+		until not is_actor_there(rx, ry)
+		load_actor(26, rx, ry)
+		
+		o[#o].frametimer = 0
+		o[#o].coly = 3.5
+		o[#o].colh = 4
+		o[#o].colx = 1.5
+		o[#o].colw = 5
+		o[#o].phys_obj = false
+		dirx = sgn(rnd(1)-1)
+		diry = sgn(rnd(1)-1)
+		o[#o].vx = 0.5*dirx
+		o[#o].vy = 0.3*diry
+		o[#o].fric = 0
+	end
+	
+end
+
+
+function will_physa_hit(a1, a2, future)
+	local res = {false, false, false, false}
+	
+	local spx = a1.colspx
+	local epx = a1.colepx
+	local spy = a1.colspy
+	local epy = a1.colepy
+	
+	if future then
+		spx += a1.vx
+		epx += a1.vx
+		spy += a1.vy
+		epy += a1.vy
+	end
+	
+	-- check if each side of a1 intersects with a2
+	local l_int = a2.colspx < spx and spx < a2.colepx
+	local r_int = a2.colspx < epx and epx < a2.colepx
+	local t_int = a2.colspy < spy and spy < a2.colepy
+	local b_int = a2.colspy < epy and epy < a2.colepy
+		
+	res[1] = l_int
+	res[2] = r_int
+	res[3] = t_int
+	res[4] = b_int
+	
+	return res
+end
+
+--[[ returns a list
+	    
+]]
+--[[
+function is_in_actor(a1, a2, ...)
+	arg = {...}
+	if arg[1] != nil then
+		res = arg[1]
+	else
+		res = hit_physactor_check(a1, a2)
+	end
+		
+	return (res[1] or res[2]) and (res[3] or res[4])
+end
+
+]]
+
+function will_a_touch(a1, a2, future)
+	spx = a1.colspx
+	epx = a1.colepx
+	spy = a1.colspy
+	epy = a1.colepy
+	
+	if future then
+		spx += a1.vx
+		epx += a1.vx
+		spy += a1.vy
+		epy += a1.vy
+	end
+	xcomp1 = max(spx, a2.colspx)
+	ycomp1 = max(spy, a2.colspy)
+	xcomp2 = min(epx, a2.colepx)
+	ycomp2 = min(epy, a2.colepy)
+	
+	if xcomp1<xcomp2 
+	and ycomp1<ycomp2 then
+	 return true
+	end
+	
+	return false
+end
+
+function actor_collide(a1, a2)
+	
+	if will_a_touch(a1, a2, true) then
+	 gener_hit(a1, a2)
+	 hit_action(a1, a2)
+		hit_action(a2, a1)
+	end
+	
+end
+
+function hit_action(a1, a2)
+	
+	for player in all(p) do
+		if a1 == player then
+			hit_res1 = will_physa_hit(a1, a2, false)
+			hit_res2 = will_physa_hit(a1, a2, true)
+			
+			if a2.phys_obj == true then
+				for bit=1,4 do
+					if not hit_res1[bit] and hit_res2[bit] then
+						if not a1.blast_mode then
+							if bit == 1 then
+								if sgn(a1.vx) == -1 then
+									a1.x = a2.colepx-a2.colx
+									a1.vx *= -0.8
+								--else
+								--	a1.x = a2.x-a1.colw
+								--	a1.vx *= -0.8
+								end
+							elseif bit == 2 then
+								if sgn(a1.vx) == 1 then
+									a1.x = a2.x-a1.colw
+									a1.vx *= -0.8
+								--else
+								--	a1.x = a2.colepx-a2.colx
+								--	a1.vx *= -0.8
+								end
+							elseif bit == 3 then
+								if sgn(a1.vy) == -1 then
+									a1.y = a2.colepy
+									a1.vy *= -0.8
+								--else
+								--	a1.y = a2.y-a1.colh
+								--	a1.vy *= -0.8
+								end
+							else
+								if sgn(a1.vy) == 1 then
+									a1.y = a2.y-a1.colh
+									a1.vy *= -0.8
+								--else
+								--	a1.y = a2.colepy
+								--	a1.vy *= -0.8
+								end
+							end
+						end
+						--crate
+						if a2.t >= 10 and a2.t <= 13 then
+							crate_damage(a2, a1.blast_mode, true)
+						end	
+					end
+				end
+			end
+		--actors
+		else
+			--crate
+			if a1.t >= 10 and a1.t <= 13 then
+				
+			end
+			
+			--fire
+			if a1.t >= 26 and a1.t <= 29 then
+				--crate interaction
+				if a2.t >= 10 and a2.t <= 13 then
+					local res1 = will_a_touch(a1, a2, false)
+					local res2 = will_a_touch(a1, a2, true)
+					if not res1 and res2 then
+						crate_damage(a2, false, false)
+					end
+				end			
+			end
+			
+		end
+		break
+	end
+end
+
+function crate_damage(ac, instant, player)
+	
+	if (ac.t == 13) return
+	
+	if instant then
+		ac.t = 13
+		damage = 100
+	else
+		ac.damage += 1
+		ac.t += 1
+	end
+	
+	if ac.t == 13 then
+		ac.phys_obj = false
+		ac.despawn = 300
+		sfx(2, 2)
+		cratesbroken += 1
+	end
+	if (player) sfx(3, 3)
+end
+
+function actor_col()
+ for a1 in all(o) do 
+ 	for a2 in all(o) do
+ 		if a1 != a2 then
+ 			actor_collide(a1, a2)
+ 		end
+ 	end
+ end
+end
+
+function will_hit_wall(ac, future)
+	if ac.blast_mode == nil then
+ 
+ cx = ac.x
+ cy = ac.y
+ 
+ if future then
+ 	cx += ac.vx
+ 	cy += ac.vy
+ end
+ 
+ if cx <= 16 then
+ ac.x = 16
+ ac.vx *= -1
+ end
+ if cy <= 16 then
+ ac.y = 16
+ ac.vy *= -1
+ end
+ if cx >= 128 then
+ ac.x = 128
+ ac.vx *= -1
+ end
+ if cy >= 112 then
+ ac.y = 112
+ ac.vy *= -1
+ end
+ 
+ return false
+ end
+end
+
+function gener_hit(a1, a2)
+ 
+end
+
+function actor_hit_actions()
+
+end
+
+function actor_phys_apply()
+	for act in all(o) do
+		isplayer = false
+		for player in all(p) do
+			if (act == player) isplayer = true
+		end
+		if not isplayer then
+			actvarapply(act)
+		end
+			actor_col_upd(act)
+	end
+end
+
+function actor_col_upd(a1)
+	local a = a1
+	--actor's collision start points
+	a.colspx = a.x + a.colx
+	a.colspy = a.y + a.coly
+	--actor's collision end points
+	a.colepx = a.colspx + a.colw
+	a.colepy = a.colspy + a.colh
+end
+
+function actvarapply(act)
+	act.pvx = act.vx
+	act.pvy = act.vy
+	act.px = act.x
+	act.py = act.y
+	act.vx -= a.fric * act.vx/abs(act.vx)
+	act.vy -= a.fric * act.vy/abs(act.vy)	
+	if sgn(act.vx) != sgn(act.pvx) then
+		act.vx = 0
+	end
+	if sgn(act.vy) != sgn(act.pvy) then
+		act.vy = 0
+	end
+	act.vx += act.ax
+	act.vy += act.ay
+	act.x += act.vx
+	act.y += act.vy
+	act.snapped = false
+end
+
+function actor_specific()
+	for ac in all(o) do 
+		--fire
+		if ac.t <= 29 and ac.t >= 26 then
+			ac.frametimer += rnd(10)/20
+			ac.frametimer %= 4
+			ac.t = 26 + flr(ac.frametimer)
+			will_hit_wall(ac, false)
+		end
+		
+		--stagehole
+		if ac.t == 3 then
+			 
+		end
+		
+	end
+end
+
+function actor_decay()
+	for i=1,#o do
+	if (i > #o) break
+		if o[i].despawn == 0 then
+			del(o, o[i])
+			i -= 1
+		elseif o[i].despawn > 0 then
+			o[i].despawn -= 1
+		end
+	end
+end
+
+function tick_actors()
+	actor_col()
+	actor_phys_apply()
+	actor_specific()
+	actor_decay()
+end
+
+function draw_actors()
+	for act in all(o) do
+		for player in all(p) do
+			if act != player then
+				print(act.t)
+				
+				if act.despawn > 0 then
+					if act.despawn % 2 == 0
+					   or act.despawn > 60 then
+						spr(act.t, act.x, act.y)
+					end
+				else
+					spr(act.t, act.x, act.y)
+				end
+			end
+		end	
+	end
+end
 -->8
 --helper
 function lerp(v1, v2, percent)
@@ -878,8 +1016,9 @@ function draw_letter(letter, x, y)
 end
 
 function draw_str(str, x, y)
-	for ind=1,#str do
-		draw_letter(str[ind], x, y)
+	strver = tostr(str)
+	for ind=1,#strver do
+		draw_letter(strver[ind], x, y)
 		x += 4
 	end
 end
@@ -894,19 +1033,14 @@ function draw_clock()
 		local offx = clkx+per_num_offx
 		num = val%10
 		
-		draw_char((val-num)/10, offx, clky)
-		draw_char(num, offx+4, clky)
+		dispstr = ""
 		
-		--[[
-		
-		lazy way of not drawing
-		the third colon w/o removing
-		the for in loop
-		
-		]]
+		dispstr ..= tostr((val-num)/10)
+		dispstr ..= tostr(num)
 		if per_num_offx != 24 then
-			draw_char(":", offx+8, clky)
+			dispstr ..= ":"
 		end
+		draw_str(dispstr, offx, clky)
 		
 		per_num_offx += 12
 		
@@ -1015,5 +1149,5 @@ __map__
 __sfx__
 000100002b6501c6500c6500365000650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000500003865031640276401a6300d620056100161000600096000360000600166001460011600106000e6000c600096000660005600036000260000600006000060000600006000060000600006000060000600
-000300003565028350306500c3002c6501d350296500d30023650113501c6500930015650043500b6500030001650003500060000600000000000000000000000000000000000000000000000000000000000000
+000300003565028300306500c3002a6301d300226300d3001a63011300116300930006630043000b6000030001600003000060000600000000000000000000000000000000000000000000000000000000000000
 000200002a6502a6501c3101b3001b310000001860000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
