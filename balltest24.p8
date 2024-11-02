@@ -298,7 +298,7 @@ function did_player_enter_trap()
 	return false
 end
 
---returns an int about the ball state
+
 function player_leave_tick()
 	
 	--[[
