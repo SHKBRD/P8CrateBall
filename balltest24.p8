@@ -84,10 +84,13 @@ function _init()
 	--gamestate
 	floor_level = 1
 	floor_won = false
-	play_state = 1
+	play_state = 0
 	cratesbroken = 0
 	cratestotal = 10
 	leave_state = 1
+	
+	loadincool = 0
+	loadoutcool = 0
 	
 	--trapdoor
 	trpdrx = 0
@@ -345,7 +348,7 @@ function trpupdate()
 	
 	if trpopen and trpdrx >= 4 then 
 		trpdrx = 4
-
+		
 		if play_state == 1 then
 			play_state = 2
 			p[1].control = true
@@ -359,6 +362,14 @@ function trpupdate()
 		trpdrx = 0
 	end
 	
+end
+
+function loadin_floor_tick()
+	loadincool += 0.0055
+	if loadincool >= 0.25 then
+		loacincool = 0.25
+		play_state = 1
+	end
 end
 	
 function start_floor_tick()
@@ -397,7 +408,7 @@ end
 
 function end_floor_tick()
 	player_leave_tick()
-	
+		
 	--[[
 	
 	hasn't started leaving, 
@@ -429,12 +440,18 @@ function end_floor_tick()
 			
 	]]
 	elseif leave_state == 4 then
-	
+		loadoutcool += 0.0055
+		if loadoutcool >= 0.25 then
+			loacoutcool = 0.25
+			play_state = 5
+		end
 	end
 end
 	
 function level_state_process()
-	if play_state == 1 then
+	if play_state == 0 then
+		loadin_floor_tick()
+	elseif play_state == 1 then
 		start_floor_tick()
 	elseif play_state == 2 then
 		playing_floor_tick()
@@ -495,6 +512,15 @@ function draw_players()
  end
 end
 
+function draw_transition_elements()
+ poke(0x5f34,0x2)
+ if play_state == 0 then
+	 circfill(75.5, 67.5, 89-cos(loadincool)*89, 0|0x1800)
+	elseif play_state >= 4 then
+		circfill(75.5, 67.5, 88+sin(loadoutcool)*89, 0|0x1800)
+	end
+end
+
 function _draw()
  cls(0)
  
@@ -505,7 +531,7 @@ function _draw()
  
  map(0, 0, 0, 0, 18, 18)
 	
-	p_under = play_state == 1 and trpdrx<4
+	p_under = play_state <= 1 and trpdrx<4
 	 
  if p_under or leave_state >= 3 then
  	draw_players()
@@ -518,8 +544,10 @@ function _draw()
  	draw_trapdoor()
  	draw_players()
  end
- 
 	draw_actors()
+	
+	draw_transition_elements()
+	
  draw_hud()
  end
 
