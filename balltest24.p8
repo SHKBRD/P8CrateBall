@@ -349,6 +349,17 @@ function player_leave_tick()
 	end
 end
 	
+function clear_floor()
+	o = {}
+end
+
+function next_level_init()
+	clear_floor()
+	
+	floor_level += 1
+	floor_init(floor_level)
+end
+	
 function trpupdate()
 	
 	if trpopen then
@@ -470,6 +481,15 @@ function level_state_process()
 		postwin_floor_tick()
 	elseif play_state == 4 then
 		end_floor_tick()
+	elseif play_state == 5 then 
+		--[[
+		
+		should only be run once
+		before next play_state
+		change is performed
+		
+		]]
+		next_level_init()
 	end
 end
 	
