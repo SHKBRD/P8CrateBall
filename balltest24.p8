@@ -271,10 +271,10 @@ end
 
 function did_player_enter_trap()
 	local temptrap = {}
-	temptrap.colspx = 72+3
-	temptrap.colepx = 72+3+2
-	temptrap.colspy = 64+3
-	temptrap.colepy = 64+3+2
+	temptrap.colspx = 72+2
+	temptrap.colepx = 72+2+4
+	temptrap.colspy = 64+2
+	temptrap.colepy = 64+2+4
 	for player in all(p) do
 		if will_a_touch(temptrap, player ,false) then
 			return true
