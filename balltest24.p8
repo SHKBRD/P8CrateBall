@@ -1073,6 +1073,9 @@ end
 function draw_crates_rem()
 	spr(10, 72, 130)
 	drawstr = ""
+	if cratestotal >= 10 and cratesbroken < 10 then
+		drawstr ..= "0"
+	end
 	drawstr ..= tostr(cratesbroken)
 	drawstr ..= "/"
 	drawstr ..= tostr(cratestotal)
