@@ -1048,19 +1048,24 @@ function draw_clock()
 end
 
 function draw_mem()
-	mem = stat(0)
-	cpu = stat(1)
-		
+	local mem = stat(0)
 	print(mem, 16, 16, 8)
+end
+
+function draw_cpu()
+	local cpu = stat(1)
 	print(cpu, 16, 22, 8)
+end
+
+function draw_player_stats()
 	print(p[1].x, 16, 28, 8)
 	print(p[1].y, 16, 34, 8)
-	draw_str(124, 16, 50)
-		
 end
 
 function draw_debug()
 	draw_mem()
+	draw_cpu()
+	draw_player_stats()
 end
 
 function draw_hud()
