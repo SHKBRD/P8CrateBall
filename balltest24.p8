@@ -9,8 +9,6 @@ function _init()
 	--cool flags here!
 	constant_init()
 	
-	player_init()
-	
 	match_init()
 end
 
@@ -70,6 +68,7 @@ function floor_init()
 	loadoutcool = 0
 	
 	--layout loading
+	player_init()
 	level_map_load()
 	init_actors()
 end
