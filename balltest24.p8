@@ -6,33 +6,39 @@ __lua__
 function _init()
 	count = 1
 	
-	debug = true
+	--cool flags here!
+	constant_init()
 	
 	player_init()
 	
+	match_init()
+end
+
+function constant_init()
+	
+	debug = true
+	
+	--number tile gfx position
+	--position of 0
+	nx = 0
+	ny = 32
+end
+
+function match_init()
+	match_persistent_init()
+	floor_init(1)
+end
+
+function match_persistent_init()
 	-- particles
 	prt = {}
 	prtcol = {10, 9, 4, 0}
-	
-	--[[
-	pal(12,10)
-	pal(13,9)
-	pal(14,4)
-	pal(15,0)
-	pal(2,13)
-	pal(3,12)
-	]]
 	
 	--camera
 	camabs = {}
 	camabs.x = 12
 	camabs.y = 12
 	camoff = {0, 0}
-	
-	--number tile gfx position
-	--position of 0
-	nx = 0
-	ny = 32
 	
 	--clock
 	--[minutes, seconds, millis]
@@ -42,15 +48,10 @@ function _init()
 	
 	--gamestate
 	floor_level = 1
-	floor_won = false
-	play_state = 0
-	cratesbroken = 0
-	cratestotal = 10
-	leave_state = 1
 	
-	loadincool = 0
-	loadoutcool = 0
-	
+end
+
+function floor_init()
 	--trapdoor
 	trpdrx = 0
 	trpdrvx = 0
@@ -58,7 +59,15 @@ function _init()
 	trpcooldown = 60
 	trpopen = true
 	
-	--functions
+	--gamestate
+	play_state = 0
+	cratesbroken = 0
+	cratestotal = 10
+	leave_state = 1
+	floor_won = false
+	
+	loadincool = 0
+	loadoutcool = 0
 	
 	--layout loading
 	level_map_load()
