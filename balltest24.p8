@@ -350,9 +350,9 @@ function trpupdate()
 			play_state = 2
 			p[1].control = true
 		end
-		if play_state == 2 and cratesbroken <= cratestotal then
+		if play_state == 2 and cratesbroken < cratestotal then
 			trpopen = false
-		elseif play_state == 2 and cratesbroken > cratestotal then
+		elseif play_state == 2 and cratesbroken >= cratestotal then
 			play_state = 3
 		end
 	elseif not trpopen and trpdrx <= 0 then
@@ -379,7 +379,7 @@ function playing_floor_tick()
 	end
 	
 	--levelend init
-	if cratesbroken > cratestotal then
+	if cratesbroken >= cratestotal then
 		if not trpopen then
 			trpopen = true
 		end
@@ -572,7 +572,7 @@ end
 
 function init_actors()
 	
-	for crate=0,cratestotal do
+	for crate=1,cratestotal do
 		repeat
 		rx = 8*flr(rnd(15))+16
 		ry = 8*flr(rnd(13))+16
@@ -584,7 +584,7 @@ function init_actors()
 		
 	end
 	
-	for fire=0,1 do
+	for fire=1,2 do
 		repeat
 		rx = 8*flr(rnd(14))+16
 		ry = 8*flr(rnd(13))+16
@@ -954,7 +954,10 @@ chrs = {
 	[":"] = 40,
 	["?"] = 44,
 	["!"] = 48,
-	["."] = 52
+	["."] = 52,
+	["/"] = 56,
+	["["] = 60,
+	["]"] = 64
 }
 
 --[[
@@ -965,6 +968,7 @@ are consecutive
 ]]
 
 function tick_clock(dir)
+	if (not p[1].control) return
 	frame = 1/.6
 	if (dir == true) then
 		clk[3] += frame
@@ -1084,6 +1088,7 @@ end
 function draw_hud()
 	draw_low_bg()
 	draw_clock()
+	draw_crates_rem()
 	if (debug) draw_debug()
 end
 __gfx__
