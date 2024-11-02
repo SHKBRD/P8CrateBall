@@ -454,10 +454,9 @@ function draw_trapdoor()
 	sspr(36, 8, 4-flr(trpdrx), 8, 76+move, 64)
 	palt(0, true)
 end
-	
-function _update60()
- 
- level_state_process()
+
+function match_loop()
+	level_state_process()
  
  for loop=1,#p do
  	player_tick(loop)
@@ -466,7 +465,10 @@ function _update60()
  particle_physics()
  tick_actors()
  tick_clock(true)
- 
+end
+
+function _update60()
+ match_loop()
 end
 	
 function draw_prt_ind(p)
