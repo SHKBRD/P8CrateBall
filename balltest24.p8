@@ -73,51 +73,6 @@ function floor_init()
 	init_actors()
 end
 
-function player_init()
-	--init the player variables
-	p = {}
-	for pcount=0,0 do
-		--[[
-		c stands for...
-		copy?
-		i think it makes sense.
-		]]
-		local c = {}
-		c.t = 1
-		c.x = 72
-		c.y = 64
-		c.px = c.x
-		c.py = c.y
-		c.vx = 0
-		c.vy = 0
-		c.pvx = c.vx
-		c.pvy = c.vy
-		c.colx = 0.5
-		c.coly = 0.5
-		c.colw = 7
-		c.colh = 7
-		--actor's collision start points
-		c.colspx = c.x + c.colx
-		c.colspy = c.x + c.coly
-		--actor's collision end points
-		c.colepx = c.colspx + c.colw
-		c.colepy = c.colspy + c.colh
-		c.ax = 0
-		c.ay = 0
-		c.weight = 1.5
-		c.frames = 0
-		c.snapped = false
-		c.blast_cool = 0
-		c.blast_mode = false
-		c.despawn = -1
-		c.control = false
-		
-		add(p, c)
-		add(o, c)
-		
-	end
-end
-
 function draw_base_map()
 	// map draw
  for i=0,17 do
@@ -139,51 +94,6 @@ end
 function level_map_load()
 	draw_base_map()
 end
-	
-function add_boom_part(player)
-	add(prt, {})
-	boom = prt[#prt]
-	boom.life = rnd(10)+5
-	boom.type = 0
-	boom.x = p[player].x
-	boom.y = p[player].y
-	boom.vx = rnd(4)-2
-	boom.vy = rnd(4)-2
-	prt[#prt] = boom
-end
-
-function player_blast(player)
-	l = btn(0, player-1)
-	r = btn(1, player-1)
-	u = btn(2, player-1)
-	d = btn(3, player-1)
-	
-	if l or r or u or d then
-	boost = 6
-		if l then
-			p[player].vx -= boost
-		end
-		if r then
-			p[player].vx += boost
-		end
-		if u then
-			p[player].vy -= boost
-		end
-		if d then
-			p[player].vy += boost
-		end
-		
-	for particles=1,30 do
-		add_boom_part(player)
-	end
-		
-	p[player].blast_cool = 120
-	p[player].blast_mode = true
-	sfx(1,2)	
-		
-	end
-	
-end
 
 function ind_part_phys(p)
 	p.life -= 1
@@ -196,157 +106,6 @@ end
 
 function particle_physics()
 	foreach(prt, ind_part_phys)
-end
-	
-function player_tick(player)
-	if p[player].control then
-		player_control(player)
-	end
-end
-	
-function player_control(player)
-	
-	if btn(5, player-1) and p[player].blast_cool <= 0 then
-		player_blast(player)
-	end
-	
-	// set first calc vars for x
-	pos = p[player].x
-	vel = p[player].vx
-	acc = p[player].ax
-	
-	// loop for both x and y calcs
-	for loop=0,2,2 do
-		
-		l = btn(0+loop, player-1)
-		r = btn(1+loop, player-1)
-		
-		// both directions pressed
-	 if (l and r) then
-	 	acc = 0
-	 else
-	 // 1 direction pressed
-	 	if l then 
-	 		acc = -0.15
-	 	elseif r then
-	  	acc = 0.15
-	 	else	
-	 		acc = 0
-	 	end
-	 end
-		
-		// apply acceleration
-		vel += acc
-		
-		// friction
-		vel -= 0.03 * vel
-		if abs(vel) < 0.01 then
-			vel = 0
-		end
-	 
-	 // apply velocity
-	 pos += vel
-	 
-	 // border check
-	 if pos <= 16 then
-	 	pos = 16 vel *= -0.75
-	 	if (vel>0.275) sfx(0, -1)
-	 	if (vel>1.5) camoff[1+(loop/2)] -= 1
-	 elseif pos >= 128 or (loop==2 and pos >= 112) then
-	 	if loop == 2 then pos = 112 else pos = 128 end
-	 	
-	 	vel *= -0.75
-	 	
-	 	if (vel<-0.275) sfx(0, -1)
-	 	if (vel<-1.5) camoff[1+(loop/2)] += 1
-	 end
-	 
-	 // switch calc vars to y
-	 if loop == 0 then
-	 	p[player].x = pos
-	 	pos = p[player].y
-	 	p[player].vx = vel
-	 	vel = p[player].vy
-	 	p[player].ax = acc
-	 	acc = p[player].ay
-	 else
-	 	p[player].y = pos
-	 	p[player].vy = vel
-	 	p[player].ay = acc
-		end	 
-	end
-	
-	p[player].blast_cool -= 1
-	
-	if (p[player].blast_cool <= 0) or not (abs(p[player].vx) + abs(p[player].vy) > 5) then
-		p[player].blast_mode = false
-	end	
-end
-
-function did_player_enter_trap()
-	local temptrap = {}
-	temptrap.colspx = 72+2
-	temptrap.colepx = 72+2+4
-	temptrap.colspy = 64+2
-	temptrap.colepy = 64+2+4
-	for player in all(p) do
-		if will_a_touch(temptrap, player ,false) then
-			return true
-		end
-	end
-	return false
-end
-
-
-function player_leave_tick()
-	
-	--[[
-	
-	hasn't started leaving, 
-	first frame
-	
-	]]
-	if leave_state == 1 then
-	
-	p[1].blast_mode = false
-	p[1].blast_cool = 0
-	leave_state = 2
-	
-	--[[
-		
-	moving towards trapdoor center
-		
-	]]
-	elseif leave_state == 2 then
-	
-	p[1].x = lerp(72, p[1].x, 0.5)
-	p[1].y = lerp(64, p[1].y, 0.5)
-	if distance(p[1].x, p[1].y, 72, 64) < 1 then
-		p[1].x = 72
-		p[1].y = 64
-		leave_state = 3
-	end
-	
-	--[[
-		
-	player inside, door shutting
-		
-	]]
-	elseif leave_state == 3 then
-	trpopen = false
-	trpupdate()
-	if trpdrx == 0 then
-		leave_state = 4
-	end
-	
-	--[[
-		
-	door shut, transitioning
-			
-	]]
-	elseif leave_state == 4 then
-	
-	end
 end
 	
 function clear_floor()
@@ -528,19 +287,6 @@ end
 	
 function draw_particles()
 	foreach(prt, draw_prt_ind)
-end
-
-function draw_players()
-	for pnum=1,#p do
-	 // ball explode anim
-	 count = count + .01
-	 // player draw
-	 if p[pnum].blast_mode and (p[pnum].blast_cool % 2 == 1) then
-			spr(2, p[pnum].x, p[pnum].y)
-	 else
-	 	spr(1, p[pnum].x, p[pnum].y)
-	 end
- end
 end
 
 function draw_transition_elements()
@@ -1155,6 +901,263 @@ function draw_hud()
 	draw_crates_rem()
 	if (debug) draw_debug()
 end
+-->8
+--player
+
+function player_init()
+	--init the player variables
+	p = {}
+	for pcount=0,0 do
+		--[[
+		c stands for...
+		copy?
+		i think it makes sense.
+		]]
+		local c = {}
+		c.t = 1
+		c.x = 72
+		c.y = 64
+		c.px = c.x
+		c.py = c.y
+		c.vx = 0
+		c.vy = 0
+		c.pvx = c.vx
+		c.pvy = c.vy
+		c.colx = 0.5
+		c.coly = 0.5
+		c.colw = 7
+		c.colh = 7
+		--actor's collision start points
+		c.colspx = c.x + c.colx
+		c.colspy = c.x + c.coly
+		--actor's collision end points
+		c.colepx = c.colspx + c.colw
+		c.colepy = c.colspy + c.colh
+		c.ax = 0
+		c.ay = 0
+		c.weight = 1.5
+		c.frames = 0
+		c.snapped = false
+		c.blast_cool = 0
+		c.blast_mode = false
+		c.despawn = -1
+		c.control = false
+		
+		add(p, c)
+		add(o, c)
+		
+	end
+end
+
+function add_boom_part(player)
+	add(prt, {})
+	boom = prt[#prt]
+	boom.life = rnd(10)+5
+	boom.type = 0
+	boom.x = p[player].x
+	boom.y = p[player].y
+	boom.vx = rnd(4)-2
+	boom.vy = rnd(4)-2
+	prt[#prt] = boom
+end
+
+function player_blast(player)
+	l = btn(0, player-1)
+	r = btn(1, player-1)
+	u = btn(2, player-1)
+	d = btn(3, player-1)
+	
+	if l or r or u or d then
+	boost = 6
+		if l then
+			p[player].vx -= boost
+		end
+		if r then
+			p[player].vx += boost
+		end
+		if u then
+			p[player].vy -= boost
+		end
+		if d then
+			p[player].vy += boost
+		end
+		
+	for particles=1,30 do
+		add_boom_part(player)
+	end
+		
+	p[player].blast_cool = 120
+	p[player].blast_mode = true
+	sfx(1,2)	
+		
+	end
+	
+end
+
+function player_tick(player)
+	if p[player].control then
+		player_control(player)
+	end
+end
+
+function player_control(player)
+	
+	if btn(5, player-1) and p[player].blast_cool <= 0 then
+		player_blast(player)
+	end
+	
+	// set first calc vars for x
+	pos = p[player].x
+	vel = p[player].vx
+	acc = p[player].ax
+	
+	// loop for both x and y calcs
+	for loop=0,2,2 do
+		
+		l = btn(0+loop, player-1)
+		r = btn(1+loop, player-1)
+		
+		// both directions pressed
+	 if (l and r) then
+	 	acc = 0
+	 else
+	 // 1 direction pressed
+	 	if l then 
+	 		acc = -0.15
+	 	elseif r then
+	  	acc = 0.15
+	 	else	
+	 		acc = 0
+	 	end
+	 end
+		
+		// apply acceleration
+		vel += acc
+		
+		// friction
+		vel -= 0.03 * vel
+		if abs(vel) < 0.01 then
+			vel = 0
+		end
+	 
+	 // apply velocity
+	 pos += vel
+	 
+	 // border check
+	 if pos <= 16 then
+	 	pos = 16 vel *= -0.75
+	 	if (vel>0.275) sfx(0, -1)
+	 	if (vel>1.5) camoff[1+(loop/2)] -= 1
+	 elseif pos >= 128 or (loop==2 and pos >= 112) then
+	 	if loop == 2 then pos = 112 else pos = 128 end
+	 	
+	 	vel *= -0.75
+	 	
+	 	if (vel<-0.275) sfx(0, -1)
+	 	if (vel<-1.5) camoff[1+(loop/2)] += 1
+	 end
+	 
+	 // switch calc vars to y
+	 if loop == 0 then
+	 	p[player].x = pos
+	 	pos = p[player].y
+	 	p[player].vx = vel
+	 	vel = p[player].vy
+	 	p[player].ax = acc
+	 	acc = p[player].ay
+	 else
+	 	p[player].y = pos
+	 	p[player].vy = vel
+	 	p[player].ay = acc
+		end	 
+	end
+	
+	p[player].blast_cool -= 1
+	
+	if (p[player].blast_cool <= 0) or not (abs(p[player].vx) + abs(p[player].vy) > 5) then
+		p[player].blast_mode = false
+	end	
+end
+
+function did_player_enter_trap()
+	local temptrap = {}
+	temptrap.colspx = 72+2
+	temptrap.colepx = 72+2+4
+	temptrap.colspy = 64+2
+	temptrap.colepy = 64+2+4
+	for player in all(p) do
+		if will_a_touch(temptrap, player ,false) then
+			return true
+		end
+	end
+	return false
+end
+
+function player_leave_tick()
+	
+	--[[
+	
+	hasn't started leaving, 
+	first frame
+	
+	]]
+	if leave_state == 1 then
+	
+	p[1].blast_mode = false
+	p[1].blast_cool = 0
+	leave_state = 2
+	
+	--[[
+		
+	moving towards trapdoor center
+		
+	]]
+	elseif leave_state == 2 then
+	
+	p[1].x = lerp(72, p[1].x, 0.5)
+	p[1].y = lerp(64, p[1].y, 0.5)
+	if distance(p[1].x, p[1].y, 72, 64) < 1 then
+		p[1].x = 72
+		p[1].y = 64
+		leave_state = 3
+	end
+	
+	--[[
+		
+	player inside, door shutting
+		
+	]]
+	elseif leave_state == 3 then
+	trpopen = false
+	trpupdate()
+	if trpdrx == 0 then
+		leave_state = 4
+	end
+	
+	--[[
+		
+	door shut, transitioning
+			
+	]]
+	elseif leave_state == 4 then
+	
+	end
+end
+
+function draw_players()
+	for pnum=1,#p do
+	 // ball explode anim
+	 count = count + .01
+	 // player draw
+	 if p[pnum].blast_mode and (p[pnum].blast_cool % 2 == 1) then
+			spr(2, p[pnum].x, p[pnum].y)
+	 else
+	 	spr(1, p[pnum].x, p[pnum].y)
+	 end
+ end
+end
+
+
 __gfx__
 00000000001111000099990000000000000000000000000000000000000000000000000000000000499999940999490409949904000000000000000000000000
 00000000011127100999a79000000000000000000000000000000000000000000000000000000000944444494444444944444449000000000000000000000000
