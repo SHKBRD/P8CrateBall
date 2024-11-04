@@ -359,7 +359,8 @@ function load_actor(t, x, y)
 	a.colepy = a.colspy + a.colh
  a.fric = 0.1
 	a.weight = 1
-	a.phys_obj = false
+	a.acts_col = false
+	a.gets_col = false
 	a.snapped = false
 	a.frames = 0
 	a.despawn = -1
@@ -386,8 +387,14 @@ function init_actors()
 		until not is_actor_there(rx, ry)
 		load_actor(10, rx, ry)
 		
-		o[#o].phys_obj = true
-		o[#o].damage = 0
+		local cr = o[#o]
+		
+		cr.acts_col = true
+		cr.damage = 0
+		cr.colx = 0.5
+		cr.coly = 0.5
+		cr.colw = 7
+		cr.colh = 7
 		
 	end
 	
@@ -403,7 +410,7 @@ function init_actors()
 		o[#o].colh = 4
 		o[#o].colx = 1.5
 		o[#o].colw = 5
-		o[#o].phys_obj = false
+		o[#o].acts_col = false
 		dirx = sgn(rnd(1)-1)
 		diry = sgn(rnd(1)-1)
 		o[#o].vx = 0.5*dirx
@@ -504,10 +511,10 @@ function hit_action(a1, a2)
 	for player in all(p) do
 		hit_crate = false
 		if a1 == player then
-			hit_res1 = will_physa_hit(a1, a2, false)
-			hit_res2 = will_physa_hit(a1, a2, true)
+			local hit_res1 = will_physa_hit(a1, a2, false)
+			local hit_res2 = will_physa_hit(a1, a2, true)
 			
-			if a2.phys_obj == true then
+			if a2.acts_col == true and a1.gets_col then
 				for bit=1,4 do
 					if not hit_res1[bit] and hit_res2[bit] then
 						if not a1.blast_mode then
@@ -592,7 +599,7 @@ function crate_damage(ac, instant, player)
 	end
 	
 	if ac.t == 13 then
-		ac.phys_obj = false
+		ac.acts_col = false
 		ac.despawn = 300
 		sfx(2, 2)
 		cratesbroken += 1
@@ -960,6 +967,7 @@ function player_init()
 		c.blast_mode = false
 		c.despawn = -1
 		c.control = false
+		c.gets_col = true
 		
 		add(p, c)
 		add(o, c)
