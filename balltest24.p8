@@ -485,8 +485,13 @@ function will_a_touch(a1, a2, future)
 	return false
 end
 
+function is_crate(a1)
+	if (a1.t >= 10 and a1.t <= 13) return true
+	return false
+end
+
 function actor_collide(a1, a2)
-	
+	if (is_crate(a1) and is_crate(a2)) return
 	if will_a_touch(a1, a2, true) then
 	 gener_hit(a1, a2)
 	 hit_action(a1, a2)
