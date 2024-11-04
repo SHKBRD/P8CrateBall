@@ -501,8 +501,8 @@ function actor_collide(a1, a2)
 end
 
 function hit_action(a1, a2)
-	
 	for player in all(p) do
+		hit_crate = false
 		if a1 == player then
 			hit_res1 = will_physa_hit(a1, a2, false)
 			hit_res2 = will_physa_hit(a1, a2, true)
@@ -547,7 +547,10 @@ function hit_action(a1, a2)
 						end
 						--crate
 						if a2.t >= 10 and a2.t <= 13 then
-							crate_damage(a2, a1.blast_mode, true)
+							if not hit_crate then
+								crate_damage(a2, a1.blast_mode, true)
+								hit_crate = true
+							end
 						end	
 					end
 				end
