@@ -67,24 +67,34 @@ function floor_init()
 	loadincool = 0
 	loadoutcool = 0
 	
-	--layout loading
+	--loading
 	player_init()
 	level_map_load()
 	init_actors()
 end
 
 function draw_base_map()
+	local offx = (15-lev_w)/2
+	local offy = (13-lev_h)/2	
+	mset(i, f, 17)
+	mset(i, f, 19)
+	
 	// map draw
- for i=0,17 do
-		for f=0,15 do
-			if (i<=1 or i>=17) then
+ for i=offx+1,offx+lev_w+2 do
+		for f=offy+1,offy+lev_h+2 do
+			if i==offx+1 or i==offx+lev_w+2 then
 				mset(i, f, 17)
-			else
-				if (f<=1 or f>=15) then
-					mset(i, f, 17)
-				else
-					mset(i, f, 19)
-				end
+			end
+			if f==offy+1 or f==offy+lev_h+2 then
+				mset(i, f, 17)
+			end
+			
+			if i>offx+1 and i<offx+lev_w+2 then
+				mset(i, f, 19)
+			end
+			--??
+			if f==offy+1 or f==offy+lev_h+2 then
+				mset(i, f, 17)
 			end
 		end
 	end
@@ -92,6 +102,9 @@ function draw_base_map()
 end
 
 function level_map_load()
+	lev_w = (flr(rnd(5))+2)*2+1
+	lev_h = (flr(rnd(4))+2)*2+1
+	
 	draw_base_map()
 end
 
@@ -468,6 +481,7 @@ end
 ]]
 
 function will_a_touch(a1, a2, future)
+	
 	spx = a1.colspx
 	epx = a1.colepx
 	spy = a1.colspy
@@ -1026,6 +1040,40 @@ function player_tick(player)
 	end
 end
 
+function player_border_check(player)
+	
+	local pl = p[player]
+	
+	//same as map offsets, but in pixels and added by one tile
+	local offx = (19-lev_w)*4
+	local offy = (17-lev_h)*4
+	local offex = offx+(lev_w-1)*8
+	local offey = offy+(lev_h-1)*8
+	
+	// border check
+ if pl.x < offx then
+ 	pl.x = offx pl.vx *= -0.75
+ 	if (pl.vx>0.275) sfx(0, -1)
+ 	if (pl.vx>1.5) camoff[1] -= 1
+ elseif pl.x > offex then
+		pl.x = offex pl.vx *= -0.75
+ 	
+ 	if (pl.vx<-0.275) sfx(0, -1)
+ 	if (pl.vx<-1.5) camoff[1] += 1
+ end
+
+ if pl.y < offy then
+ 	pl.y = offy pl.vy *= -0.75
+ 	if (pl.vy>0.275) sfx(0, -1)
+ 	if (pl.vy>1.5) camoff[2] -= 1
+ elseif pl.y > offey then
+		pl.y = offey pl.vy *= -0.75 	
+ 	if (pl.vy<-0.275) sfx(0, -1)
+ 	if (pl.vy<-1.5) camoff[2] += 1
+ end
+
+end
+
 function player_control(player)
 	
 	if btn(5, player-1) and p[player].blast_cool <= 0 then
@@ -1057,6 +1105,8 @@ function player_control(player)
 	 	end
 	 end
 		
+		player_border_check(player)
+		
 		// apply acceleration
 		vel += acc
 		
@@ -1069,19 +1119,7 @@ function player_control(player)
 	 // apply velocity
 	 pos += vel
 	 
-	 // border check
-	 if pos <= 16 then
-	 	pos = 16 vel *= -0.75
-	 	if (vel>0.275) sfx(0, -1)
-	 	if (vel>1.5) camoff[1+(loop/2)] -= 1
-	 elseif pos >= 128 or (loop==2 and pos >= 112) then
-	 	if loop == 2 then pos = 112 else pos = 128 end
-	 	
-	 	vel *= -0.75
-	 	
-	 	if (vel<-0.275) sfx(0, -1)
-	 	if (vel<-1.5) camoff[1+(loop/2)] += 1
-	 end
+	 player_border_check(player)
 	 
 	 // switch calc vars to y
 	 if loop == 0 then
