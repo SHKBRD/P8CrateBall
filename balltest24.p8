@@ -478,23 +478,6 @@ function will_physa_hit(a1, a2, future)
 	return res
 end
 
---[[ returns a list
-	    
-]]
---[[
-function is_in_actor(a1, a2, ...)
-	arg = {...}
-	if arg[1] != nil then
-		res = arg[1]
-	else
-		res = hit_physactor_check(a1, a2)
-	end
-		
-	return (res[1] or res[2]) and (res[3] or res[4])
-end
-
-]]
-
 function will_a_touch(a1, a2, future)
 	
 	spx = a1.colspx
