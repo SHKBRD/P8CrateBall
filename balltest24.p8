@@ -121,8 +121,17 @@ function particle_physics()
 	foreach(prt, ind_part_phys)
 end
 	
+function clear_map()
+	for i=0,17 do
+		for f=0,17 do
+			mset(i, f, 0)
+		end
+	end
+end
+	
 function clear_floor()
 	o = {}
+	clear_map()
 end
 
 function next_level_init()
