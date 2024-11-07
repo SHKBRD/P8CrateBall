@@ -402,10 +402,16 @@ end
 
 function init_actors()
 	
+	//same as map offsets, but in pixels and added by one tile
+	local offx = (19-lev_w)*4
+	local offy = (17-lev_h)*4
+	local offex = offx+(lev_w-1)*8
+	local offey = offy+(lev_h-1)*8
+	
 	for crate=1,cratestotal do
 		repeat
-		rx = 8*flr(rnd(15))+16
-		ry = 8*flr(rnd(13))+16
+		rx = 8*flr(rnd(lev_w))+offx
+		ry = 8*flr(rnd(lev_h))+offy
 		until not is_actor_there(rx, ry)
 		load_actor(10, rx, ry)
 		
