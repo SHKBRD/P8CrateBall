@@ -47,9 +47,12 @@ function match_persistent_init()
 	--gamestate
 	floor_level = 1
 	
+	init_actor_counts()
+	init_floor_dimens()
+	
 end
 
-function floor_init()
+function floor_init(floor)
 	--trapdoor
 	trpdrx = 0
 	trpdrvx = 0
@@ -69,8 +72,8 @@ function floor_init()
 	
 	--loading
 	player_init()
-	level_map_load()
-	init_actors()
+	level_map_load(floor)
+	init_actors(floor)
 end
 
 function draw_base_map()
@@ -101,9 +104,20 @@ function draw_base_map()
 	mset(9, 8, 0)
 end
 
-function level_map_load()
-	lev_w = (flr(rnd(5))+2)*2+1
-	lev_h = (flr(rnd(4))+2)*2+1
+function init_floor_dimens(floor)
+	
+	if floor == 1 then
+		lev_w = 13
+		lev_h = 3
+	else
+		lev_w = (flr(rnd(5))+2)*2+1
+		lev_h = (flr(rnd(4))+2)*2+1
+	end
+end
+
+function level_map_load(floor)
+	
+	init_floor_dimens(floor)
 	
 	draw_base_map()
 end
@@ -391,6 +405,25 @@ function load_actor(t, x, y)
 	add(o, a)
 end
 
+function init_actor_counts()
+	crt_cnt = {}
+	crt_cnt[1] = 20
+	crt_cnt[2] = 21
+end
+
+function set_floor_crates()
+	local crt = crt_cnt[floor_level]
+	
+	if crt != nil then
+		cratestotal = crt
+	else
+		cratestotal = ceil(sqrt(lev_w*lev_h), 0)
+	end
+	
+	return cratestotal
+	
+end
+
 function is_actor_there(x, y)
 	for ac in all(o) do
 		if ac.x == x and ac.y == y then
@@ -408,7 +441,11 @@ function init_actors()
 	local offex = offx+(lev_w-1)*8
 	local offey = offy+(lev_h-1)*8
 	
-	for crate=1,cratestotal do
+	crate_gen = set_floor_crates()
+	
+	stop(crate_gen)
+	
+	for crate=1,crate_gen do
 		repeat
 		rx = 8*flr(rnd(lev_w))+offx
 		ry = 8*flr(rnd(lev_h))+offy
