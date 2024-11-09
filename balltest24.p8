@@ -325,6 +325,22 @@ function draw_particles()
 	foreach(prt, draw_prt_ind)
 end
 
+function draw_bg()
+	if (frameoff == nil) frameoff = 0
+	
+	frameoff += 1/(4*60)
+	
+	frameoff %= 1
+	
+	for i=1,6 do
+		local col = (i%2)+1
+		if (col==2) pal(2, -15, 1)
+		circfill(76, 70, abs(cos(frameoff+(i/20)))*120, col)
+	end
+	
+	pal(0, 0, 0)
+end
+
 function draw_transition_elements()
  poke(0x5f34,0x2)
  if play_state == 0 then
@@ -341,6 +357,8 @@ function _draw()
 
 	camoff[1] = 0
 	camoff[2] = 0
+ 
+ draw_bg()
  
  map(0, 0, 0, 0, 18, 18)
 	
