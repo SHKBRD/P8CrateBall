@@ -1071,6 +1071,24 @@ function add_boom_part(player)
 	prt[#prt] = boom
 end
 
+function destroy_surr(p_ind)
+	pl = p[p_ind]
+	
+	dist = 2*8
+	
+	for ac in all(o) do
+		if ac != pl then
+			if ac.t >= 10 and ac.t <=12 then
+				if distance(ac.x, ac.y, pl.x, pl.y) <= dist then
+					crate_damage(ac, true, false)
+				end	
+			end
+		end
+	end
+	
+	
+end
+
 function player_blast(player)
 	l = btn(0, player-1)
 	r = btn(1, player-1)
@@ -1095,7 +1113,9 @@ function player_blast(player)
 	for particles=1,30 do
 		add_boom_part(player)
 	end
-		
+	
+	destroy_surr(player)
+	
 	p[player].blast_cool = 120
 	p[player].blast_mode = true
 	sfx(1,2)	
