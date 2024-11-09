@@ -201,7 +201,7 @@ end
 function playing_floor_tick()
 	--closing after trapdoor initially opens
 	if trpopen == false and not floor_won then
-		if p[1].x != 72 and p[1].y != 64 then
+		if p[1].x != 72 or p[1].y != 64 then
 			trpupdate()
 		end
 	end
