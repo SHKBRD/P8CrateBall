@@ -344,6 +344,8 @@ function _draw()
  
  map(0, 0, 0, 0, 18, 18)
 	
+	draw_actors()
+	
 	p_under = play_state <= 1 and trpdrx<4
 	 
  if p_under or leave_state >= 3 then
@@ -357,7 +359,6 @@ function _draw()
  	draw_trapdoor()
  	draw_players()
  end
-	draw_actors()
 	
 	draw_transition_elements()
 	
@@ -401,6 +402,7 @@ function load_actor(t, x, y)
 	a.frames = 0
 	a.despawn = -1
 	a.control = false
+	a.z = 0
 	
 	add(o, a)
 end
@@ -460,6 +462,7 @@ function init_actors()
 		cr.coly = 0.5
 		cr.colw = 7
 		cr.colh = 7
+		cr.z = 2
 		
 	end
 	
@@ -481,6 +484,7 @@ function init_actors()
 		o[#o].vx = 0.5*dirx
 		o[#o].vy = 0.3*diry
 		o[#o].fric = 0
+		o[#o].z = 7
 	end
 	
 end
@@ -779,6 +783,32 @@ function actor_decay()
 	end
 end
 
+function get_ordered_actors()
+	if (#o == 0) return {}
+	assemble = {}
+	clone = {}
+	
+	for ac in all(o) do
+		add(clone, ac)
+	end
+	
+	repeat
+		lowestind = 1
+		for i=2,#clone do
+			--stop(lowestind)
+			--stop(clone[lowestind])
+			if clone[lowestind].z > clone[i].z then
+				lowestind = i
+			end
+		end
+		add(assemble, clone[lowestind])
+		deli(clone, lowestind)
+	until #clone == 0
+	
+	return assemble
+	
+end
+
 function tick_actors()
 	actor_col()
 	actor_phys_apply()
@@ -787,7 +817,11 @@ function tick_actors()
 end
 
 function draw_actors()
-	for act in all(o) do
+	
+	--ordered objects
+	local oo = get_ordered_actors()
+	
+	for act in all(oo) do
 		for player in all(p) do
 			if act != player then
 				print(act.t)
@@ -1017,6 +1051,7 @@ function player_init()
 		c.despawn = -1
 		c.control = false
 		c.gets_col = true
+		c.z = 5
 		
 		add(p, c)
 		add(o, c)
