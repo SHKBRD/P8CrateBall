@@ -1095,19 +1095,22 @@ function player_blast(player)
 	u = btn(2, player-1)
 	d = btn(3, player-1)
 	
+	pvx = p[player].vx
+	pvy = p[player].vy
+	
 	if l or r or u or d then
 	boost = 6
 		if l then
-			p[player].vx -= boost
+			p[player].vx = boost*-1
 		end
 		if r then
-			p[player].vx += boost
+			p[player].vx = boost
 		end
 		if u then
-			p[player].vy -= boost
+			p[player].vy = boost*-1
 		end
 		if d then
-			p[player].vy += boost
+			p[player].vy = boost
 		end
 		
 	for particles=1,30 do
