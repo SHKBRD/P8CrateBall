@@ -445,8 +445,6 @@ function init_actors()
 	
 	crate_gen = set_floor_crates()
 	
-	stop(crate_gen)
-	
 	for crate=1,crate_gen do
 		repeat
 		rx = 8*flr(rnd(lev_w))+offx
@@ -824,7 +822,6 @@ function draw_actors()
 	for act in all(oo) do
 		for player in all(p) do
 			if act != player then
-				print(act.t)
 				
 				if act.despawn > 0 then
 					if act.despawn % 2 == 0
