@@ -489,18 +489,20 @@ function init_actors()
 		until not is_actor_there(rx, ry)
 		load_actor(26, rx, ry)
 		
-		o[#o].frametimer = 0
-		o[#o].coly = 3.5
-		o[#o].colh = 4
-		o[#o].colx = 1.5
-		o[#o].colw = 5
-		o[#o].acts_col = false
+		local fr = o[#o]
+		
+		fr.frametimer = 0
+		fr.coly = 3.5
+		fr.colh = 4
+		fr.colx = 1.5
+		fr.colw = 5
+		fr.acts_col = false
 		dirx = sgn(rnd(1)-1)
 		diry = sgn(rnd(1)-1)
-		o[#o].vx = 0.5*dirx
-		o[#o].vy = 0.3*diry
-		o[#o].fric = 0
-		o[#o].z = 7
+		fr.vx = 0.5*dirx
+		fr.vy = 0.3*diry
+		fr.fric = 0
+		fr.z = 7
 	end
 	
 end
