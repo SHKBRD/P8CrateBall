@@ -64,6 +64,7 @@ function floor_init(floor)
 	play_state = 0
 	cratesbroken = 0
 	cratestotal = 10
+	switchtotal = 3
 	leave_state = 1
 	floor_won = false
 	
@@ -503,6 +504,26 @@ function init_actors()
 		fr.vy = 0.3*diry
 		fr.fric = 0
 		fr.z = 7
+	end
+	
+	for switch=1,switchtotal do
+		repeat
+		rx = 8*flr(rnd(lev_w))+offx
+		ry = 8*flr(rnd(lev_h))+offy
+		until not is_actor_there(rx, ry)
+		
+		load_actor(58, rx, ry)
+		--[[
+		local sw = o[#o]
+		
+		sw.acts_col = false
+		sw.damage = 0
+		sw.colx = 0.5
+		sw.coly = 0.5
+		sw.colw = 7
+		sw.colh = 7
+		sw.z = 2
+		]]
 	end
 	
 end
