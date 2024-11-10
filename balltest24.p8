@@ -600,6 +600,7 @@ function actor_collide(a1, a2)
 end
 
 function hit_action(a1, a2)
+	--player
 	for player in all(p) do
 		hit_crate = false
 		if a1 == player then
@@ -654,27 +655,25 @@ function hit_action(a1, a2)
 					end
 				end
 			end
-		--actors
-		else
-			--crate
-			if a1.t >= 10 and a1.t <= 13 then
-				
-			end
-			
-			--fire
-			if a1.t >= 26 and a1.t <= 29 then
-				--crate interaction
-				if a2.t >= 10 and a2.t <= 13 then
-					local res1 = will_a_touch(a1, a2, false)
-					local res2 = will_a_touch(a1, a2, true)
-					if not res1 and res2 then
-						crate_damage(a2, false, false)
-					end
-				end			
-			end
-			
 		end
 		break
+	end
+	
+	--crate
+	if a1.t >= 10 and a1.t <= 13 then
+		
+	end
+	
+	--fire
+	if a1.t >= 26 and a1.t <= 29 then
+		--crate interaction
+		if a2.t >= 10 and a2.t <= 13 then
+			local res1 = will_a_touch(a1, a2, false)
+			local res2 = will_a_touch(a1, a2, true)
+			if not res1 and res2 then
+				crate_damage(a2, false, false)
+			end
+		end			
 	end
 end
 
