@@ -389,7 +389,7 @@ function _draw()
 o={}
 
 function load_actor(t, x, y)
-	a = {}
+	local a = {}
 	
 	a.t = t
 	a.x = x
@@ -756,8 +756,8 @@ function actvarapply(act)
 	act.pvy = act.vy
 	act.px = act.x
 	act.py = act.y
-	act.vx -= a.fric * act.vx/abs(act.vx)
-	act.vy -= a.fric * act.vy/abs(act.vy)	
+	act.vx -= act.fric * act.vx/abs(act.vx)
+	act.vy -= act.fric * act.vy/abs(act.vy)	
 	if sgn(act.vx) != sgn(act.pvx) then
 		act.vx = 0
 	end
