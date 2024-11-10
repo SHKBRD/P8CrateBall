@@ -801,10 +801,7 @@ function actor_specific()
 			will_hit_wall(ac, false)
 		end
 		
-		--stagehole
-		if ac.t == 3 then
-			 
-		end
+		
 		
 	end
 end
