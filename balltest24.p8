@@ -65,6 +65,8 @@ function floor_init(floor)
 	cratesbroken = 0
 	cratestotal = 10
 	switchtotal = 3
+	switchclear = false
+	if (switchtotal == 0) switchclear = true
 	leave_state = 1
 	floor_won = false
 	
@@ -207,13 +209,16 @@ function playing_floor_tick()
 		end
 	end
 	
+	check_switches()
+	
 	--levelend init
-	if cratesbroken >= cratestotal then
+	if cratesbroken >= cratestotal and switchclear then
 		if not trpopen then
 			trpopen = true
 		end
 		trpupdate()
 	end
+	
 end
 
 function postwin_floor_tick()
@@ -653,6 +658,30 @@ function switch_toggle(a1)
 		a1.t = 59
 	elseif a1.t == 59 then
 		a1.t = 58
+		a1.blink = 0
+	end
+end
+
+function confirm_switches()
+	for a1 in all(o) do
+		if a1.t == 59 then
+			a1.t = 60
+		end
+	end
+	sfx(8, 1)
+end
+
+function check_switches()
+	oncount = 0
+	for a1 in all(o) do
+		if a1.t == 59 then
+			oncount += 1
+		end
+	end
+	
+	if oncount == switchtotal then
+		switchclear = true
+		confirm_switches()
 	end
 end
 
