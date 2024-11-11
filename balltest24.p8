@@ -604,57 +604,7 @@ function hit_action(a1, a2)
 	for player in all(p) do
 		hit_crate = false
 		if a1 == player then
-			local hit_res1 = will_physa_hit(a1, a2, false)
-			local hit_res2 = will_physa_hit(a1, a2, true)
-			
-			if a2.acts_col == true and a1.gets_col then
-				for bit=1,4 do
-					if not hit_res1[bit] and hit_res2[bit] then
-						if not a1.blast_mode then
-							if bit == 1 then
-								if sgn(a1.vx) == -1 then
-									a1.x = a2.colepx-a2.colx
-									a1.vx *= -0.8
-								--else
-								--	a1.x = a2.x-a1.colw
-								--	a1.vx *= -0.8
-								end
-							elseif bit == 2 then
-								if sgn(a1.vx) == 1 then
-									a1.x = a2.x-a1.colw
-									a1.vx *= -0.8
-								--else
-								--	a1.x = a2.colepx-a2.colx
-								--	a1.vx *= -0.8
-								end
-							elseif bit == 3 then
-								if sgn(a1.vy) == -1 then
-									a1.y = a2.colepy
-									a1.vy *= -0.8
-								--else
-								--	a1.y = a2.y-a1.colh
-								--	a1.vy *= -0.8
-								end
-							else
-								if sgn(a1.vy) == 1 then
-									a1.y = a2.y-a1.colh
-									a1.vy *= -0.8
-								--else
-								--	a1.y = a2.colepy
-								--	a1.vy *= -0.8
-								end
-							end
-						end
-						--crate
-						if a2.t >= 10 and a2.t <= 13 then
-							if not hit_crate then
-								crate_damage(a2, a1.blast_mode, true)
-								hit_crate = true
-							end
-						end	
-					end
-				end
-			end
+			player_hit_actor(a1, a2)
 		end
 		break
 	end
@@ -1164,6 +1114,57 @@ end
 function player_tick(player)
 	if p[player].control then
 		player_control(player)
+	end
+end
+
+function player_bounce_actor(a1, a2, hr1, hr2)
+	local hit_res1 = will_physa_hit(a1, a2, false)
+	local hit_res2 = will_physa_hit(a1, a2, true)
+	
+	for bit=1,4 do
+		if not hit_res1[bit] and hit_res2[bit] then
+			if not a1.blast_mode then
+				sgnx = sgn(a1.vx)
+				sgny = sgn(a1.vy)
+				if bit == 1 and sgnx == -1 then
+					a1.x = a2.colepx-a2.colx
+					a1.vx *= -0.8
+				elseif bit == 2 and sgnx == 1 then
+					a1.x = a2.x-a1.colw
+					a1.vx *= -0.8
+				elseif bit == 3 and sgny == -1 then
+					a1.y = a2.colepy
+					a1.vy *= -0.8
+				elseif bit == 4 and sgny == 1 then
+					a1.y = a2.y-a1.colh
+					a1.vy *= -0.8
+				end
+			end
+			--crate
+			if a2.t >= 10 and a2.t <= 13 then
+				if not hit_crate then
+					crate_damage(a2, a1.blast_mode, true)
+					hit_crate = true
+				end
+			end	
+		end
+	end
+	
+end
+
+function player_hit_actor(a1, a2)
+	
+	if a2.acts_col then
+		if a1.gets_col then
+			player_bounce_actor(a1, a2)
+		else
+		
+		end
+	else
+		if a1.gets_col then
+		else
+		
+		end
 	end
 end
 
