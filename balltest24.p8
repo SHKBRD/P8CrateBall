@@ -524,7 +524,7 @@ function init_actors()
 		until not is_actor_there(rx, ry)
 		
 		load_actor(58, rx, ry)
-		--[[
+		
 		local sw = o[#o]
 		
 		sw.acts_col = false
@@ -534,7 +534,8 @@ function init_actors()
 		sw.colw = 7
 		sw.colh = 7
 		sw.z = 2
-		]]
+		sw.blink = 0
+		
 	end
 	
 end
@@ -842,6 +843,18 @@ function tick_actors()
 	actor_decay()
 end
 
+function draw_switch(a1)
+	a1.blink += 1
+	a1.blink %= 2
+	if a1.blink == 1 then
+		pal({[a1.t-48]=0})
+	end
+	
+	spr(a1.t, a1.x, a1.y)
+	pal()
+	
+end
+
 function draw_actors()
 	
 	--ordered objects
@@ -857,7 +870,11 @@ function draw_actors()
 						spr(act.t, act.x, act.y)
 					end
 				else
-					spr(act.t, act.x, act.y)
+					if act.t == 59 or act.t == 60 then
+						draw_switch(act)
+					else
+						spr(act.t, act.x, act.y)
+					end
 				end
 			end
 		end	
