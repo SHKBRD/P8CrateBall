@@ -648,6 +648,14 @@ function crate_damage(ac, instant, player)
 	if (player) sfx(3, 3)
 end
 
+function switch_toggle(a1)
+	if a1.t == 58 then
+		a1.t = 59
+	elseif a1.t == 59 then
+		a1.t = 58
+	end
+end
+
 function actor_col()
  for a1 in all(o) do 
  	for a2 in all(o) do
@@ -1162,6 +1170,13 @@ function player_hit_actor(a1, a2)
 		end
 	else
 		if a1.gets_col then
+			--switch
+			if a2.t == 58 or a2.t == 59 then
+				--if not already touching
+				if will_a_touch(a1, a2, false) == false then
+					switch_toggle(a2)
+				end
+			end
 		else
 		
 		end
