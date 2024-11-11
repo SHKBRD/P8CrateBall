@@ -337,6 +337,17 @@ function draw_particles()
 	foreach(prt, draw_prt_ind)
 end
 
+function draw_playbox()
+	if (trpcooldown == 60) boxy = -20
+	
+	cosy = cos((62-trpcooldown)/120)
+	cosy = cosy*cosy*cosy
+	
+	boxy += cosy*4
+	
+	rectfill(56, boxy, 56+9+6*5, boxy+20, 0)
+end
+
 function draw_bg()
 	if (frameoff == nil) frameoff = 0
 	
@@ -391,6 +402,8 @@ function _draw()
  end
 	
 	draw_transition_elements()
+	
+	draw_playbox()
 	
  draw_hud()
  end
