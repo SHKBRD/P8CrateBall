@@ -375,7 +375,7 @@ function draw_transition_elements()
 end
 
 function _draw()
- cls(0)
+ --cls(0)
  
  camera(camabs.x + camoff[1], camabs.y + camoff[2])
 
@@ -810,9 +810,6 @@ function actor_specific()
 			ac.t = 26 + flr(ac.frametimer)
 			will_hit_wall(ac, false)
 		end
-		
-		
-		
 	end
 end
 
