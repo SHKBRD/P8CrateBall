@@ -788,8 +788,6 @@ function get_ordered_actors()
 	repeat
 		lowestind = 1
 		for i=2,#clone do
-			--stop(lowestind)
-			--stop(clone[lowestind])
 			if clone[lowestind].z > clone[i].z then
 				lowestind = i
 			end
