@@ -160,6 +160,12 @@ end
 	
 function trpupdate()
 	
+	if trpopen and trpdrx == 0 then
+		sfx(6, 3)
+	elseif not trpopen and trpdrx == 4 then
+		sfx(7, 3)
+	end
+	
 	if trpopen then
 		trpdrx += 0.25
 	else
