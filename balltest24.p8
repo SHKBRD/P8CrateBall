@@ -428,8 +428,8 @@ end
 
 function init_actor_counts()
 	crt_cnt = {}
-	crt_cnt[1] = 20
-	crt_cnt[2] = 21
+	crt_cnt[1] = 25
+	crt_cnt[2] = 20
 end
 
 function set_floor_crates()
