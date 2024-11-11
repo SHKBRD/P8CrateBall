@@ -663,9 +663,11 @@ end
 function switch_toggle(a1)
 	if a1.t == 58 then
 		a1.t = 59
+		sfx(4, 2)
 	elseif a1.t == 59 then
 		a1.t = 58
 		a1.blink = 0
+		sfx(5, 2)
 	end
 end
 
