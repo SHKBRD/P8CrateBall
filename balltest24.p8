@@ -357,11 +357,12 @@ function draw_bg()
 	
 	for i=1,6 do
 		local col = (i%2)+1
-		if (col==2) pal(2, -15, 1)
+		if (col==2) pal(2, 2+128, 1)
 		circfill(76, 70, abs(cos(frameoff+(i/20)))*120, col)
+		pal()
 	end
 	
-	pal(0, 0, 0)
+	pal()
 end
 
 function draw_transition_elements()
