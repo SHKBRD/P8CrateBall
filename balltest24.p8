@@ -80,6 +80,9 @@ function floor_init(floor)
 	player_init()
 	level_map_load(floor)
 	init_actors(floor)
+	
+	--background
+	bg_type = 0
 end
 
 function draw_base_map()
@@ -351,8 +354,7 @@ function draw_playbox()
 	rectfill(56, boxy, 56+9+6*5, boxy+20, 0)
 end
 
-function draw_bg()
-	if (frameoff == nil) frameoff = 0
+function draw_bg_hole()
 	if (bgcircs == nil) then
 		bgcircs = {
 			{75, 3},
@@ -361,11 +363,6 @@ function draw_bg()
 			{0, 11}
 		}
 	end
-	frameoff += 2/60
-	
-	frameoff %= 60
-	
-	inswitch = false
 	
 	for bgc=1,#bgcircs do
 		bgcircs[bgc][1] += 0.75
@@ -376,12 +373,22 @@ function draw_bg()
 			bgcircs[#bgcircs][1] %= 100
 			del(bgcircs, bgcircs[bgc])
 			currad = bgcircs[bgc][1]
-			inswitch = not inswitch
 		end
 		col = bgcircs[bgc][2]
 		circfill(75, 68, currad*1.14, col)
 		fillp(█)
 	end
+end
+
+function draw_bg()
+	if (frameoff == nil) frameoff = 0
+	frameoff += 2/60
+	frameoff %= 60
+	
+	if bg_type == 0 then
+		draw_bg_hole()
+	end
+	
 end
 
 function draw_transition_elements()
