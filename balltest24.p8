@@ -23,6 +23,16 @@ function constant_init()
 	--position of 0
 	nx = 0
 	ny = 32
+	
+	bg_pals = {
+		{3,11},
+		{8,9},
+		{1,13},
+		{14,2},
+		{4,9},
+		{5,6},
+		{12,13}
+	}
 end
 
 function match_init()
@@ -82,7 +92,23 @@ function floor_init(floor)
 	init_actors(floor)
 	
 	--background
-	bg_type = 0
+	bg_types=2
+		
+	if bg_type==nil then
+		bg_type=flr(rnd(bg_types))
+	else
+		local last_type=bg_type
+		while bg_type==last_type do
+			bg_type=flr(rnd(bg_types))
+		end
+		//stop()
+	end	
+	
+	
+	bgpal = rnd(bg_pals)
+	bgpalpick=1+flr(rnd(2))
+	bgp1=bgpal[bgpalpick]
+	bgp2=bgpal[2-bgpalpick+1]
 end
 
 function draw_base_map()
@@ -357,10 +383,10 @@ end
 function draw_bg_hole()
 	if (bgcircs == nil) then
 		bgcircs = {
-			{75, 3},
-			{50, 11},
-			{25, 3},
-			{0, 11}
+			{75, 0},
+			{50, 1},
+			{25, 0},
+			{0, 1}
 		}
 	end
 	
@@ -374,19 +400,42 @@ function draw_bg_hole()
 			del(bgcircs, bgcircs[bgc])
 			currad = bgcircs[bgc][1]
 		end
-		col = bgcircs[bgc][2]
+		local colind = bgcircs[bgc][2]
+		local col = 1
+		if colind==0 then
+			col=bgp1
+		elseif colind==1 then
+			col=bgp2
+		end
+		
 		circfill(75, 68, currad*1.14, col)
-		fillp(█)
+	end
+end
+
+function draw_bg_polka()
+	cls(bgp1)
+	for row=1,6 do
+		for crc=1,5 do
+			local cx=64-(row*32)+crc*32
+			local cy=-32+(row*8)+crc*32
+			cy+=frameoff*10*sgn(3-row)
+			cy%=180
+			cx+=frameoff*10*sgn(3-crc)
+			cx%=180
+			local size=6+sin((frameoff/4)*sqrt(row*crc))*3
+			circfill(cx, cy, size, bgp2)
+		end
 	end
 end
 
 function draw_bg()
 	if (frameoff == nil) frameoff = 0
 	frameoff += 2/60
-	frameoff %= 60
 	
 	if bg_type == 0 then
 		draw_bg_hole()
+	elseif bg_type == 1 then
+		draw_bg_polka()
 	end
 	
 end
