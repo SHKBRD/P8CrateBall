@@ -92,23 +92,41 @@ function floor_init(floor)
 	init_actors(floor)
 	
 	--background
-	bg_types=2
-		
-	if bg_type==nil then
-		bg_type=flr(rnd(bg_types))
-	else
-		local last_type=bg_type
-		while bg_type==last_type do
-			bg_type=flr(rnd(bg_types))
+	bg_types=3
+	
+	if (bg_type != nil) pastbg=bg_type
+	choose_bg_type()
+	if pastbg != nil then
+		//hAS TO END UP BEING A NEW
+		//TYPE, SINCE THE OLD TYPE
+		//WILL BE REMOVED FROM THE
+		//POOL
+		if pastbg==bg_type then
+			choose_bg_type()
 		end
-		//stop()
-	end	
+	end
 	
 	
 	bgpal = rnd(bg_pals)
 	bgpalpick=1+flr(rnd(2))
 	bgp1=bgpal[bgpalpick]
 	bgp2=bgpal[2-bgpalpick+1]
+end
+
+function reset_bg_list()
+	availablebg={}
+	for i=0,bg_types-1 do
+		add(availablebg, i)
+	end
+end
+
+function choose_bg_type()
+	if availablebg==nil or #availablebg==0 then
+		reset_bg_list()
+	end
+	local typeind=flr(rnd(#availablebg))+1
+	bg_type=availablebg[typeind]
+	deli(availablebg, typeind)
 end
 
 function draw_base_map()
@@ -428,6 +446,32 @@ function draw_bg_polka()
 	end
 end
 
+function draw_bg_vort()
+	cls(bgp2)
+	local toff=frameoff/8
+	toff-=(sin(toff/8)/2)
+	for i=0.25,1,0.25 do
+		//76,68
+		local bx=cos(i+toff)*(sin(toff)/2+1)*50+76
+		local by=sin(i+toff)*(sin(toff)/2+1)*50+68
+		local size=22+abs(cos(toff))*10*(1/(sin(toff)+1.3))
+		
+		--circfill(bx, by, size+6, bgp1)
+		--circfill(bx, by, size-6, bgp2)
+		
+		circ(bx, by, size, bgp1)
+		
+		local subcircs=8
+		for subcir=1,subcircs do
+			local subx=bx+size*cos(subcir/subcircs+toff*1.5)
+			local suby=by+size*sin(subcir/subcircs+toff*1.5)
+			local subsize=4+2*(sin(toff*8+(subcir/subcircs)))
+			circfill(subx, suby, subsize, bgp1)
+		end
+		
+	end
+end
+
 function draw_bg()
 	if (frameoff == nil) frameoff = 0
 	frameoff += 2/60
@@ -436,6 +480,8 @@ function draw_bg()
 		draw_bg_hole()
 	elseif bg_type == 1 then
 		draw_bg_polka()
+	elseif bg_type == 2 then
+		draw_bg_vort()
 	end
 	
 end
