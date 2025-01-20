@@ -135,6 +135,7 @@ function draw_base_map()
 	mset(i, f, 17)
 	mset(i, f, 19)
 	
+	
 	// map draw
  for i=offx+1,offx+lev_w+2 do
 		for f=offy+1,offy+lev_h+2 do
@@ -495,6 +496,21 @@ function draw_transition_elements()
 	end
 end
 
+function draw_map_border()
+	local offx = (15-lev_w)/2
+	local offy = (13-lev_h)/2
+	
+	pal(15,0)
+	
+	local x1=8*(offx+1)-1
+	local x2=8*(offx+lev_w+3)
+	local y1=8*(offy+1)-1
+	local y2=8*(offy+lev_h+3)
+	
+	rectfill(x1,y1,x2,y2,15)
+	pal(15,15)
+end
+
 function _draw()
  cls(0)
  
@@ -504,6 +520,8 @@ function _draw()
 	camoff[2] = 0
  
  draw_bg()
+ 
+ draw_map_border()
  
  map(0, 0, 0, 0, 18, 18)
 	
