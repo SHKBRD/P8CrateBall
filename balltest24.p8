@@ -58,9 +58,8 @@ function match_persistent_init()
 	clky = 131
 	
 	--gamestate
-	floor_level = 1
+	floor_level = 5
 	
-	init_actor_counts()
 	init_floor_dimens()
 	
 end
@@ -578,7 +577,7 @@ function _draw()
 	
 	draw_transition_elements()
 	
-	draw_playbox()
+	--draw_playbox()
 	
  draw_hud()
  end
@@ -683,6 +682,7 @@ function init_actors()
 		
 	end
 	
+	--[[
 	for fire=1,2 do
 		repeat
 		rx = 8*flr(rnd(14))+16
@@ -705,6 +705,7 @@ function init_actors()
 		fr.fric = 0
 		fr.z = 7
 	end
+	--]]
 	
 	for switch=1,switchtotal do
 		repeat
