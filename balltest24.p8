@@ -65,6 +65,9 @@ function match_persistent_init()
 	
 end
 
+		vortextype=0
+		local rndoff=flr(rnd(1.25))
+		vortextype=((floor+rndoff)%2)+1	
 function floor_init(floor)
 	--trapdoor
 	trpdrx = 0
@@ -691,6 +694,34 @@ function init_actors()
 		
 	end
 	
+	--vortecies
+	if voertextype != 0 then
+		local vxt = 0
+		if vortextype == 1 then
+			vxt = 45
+		elseif vortextype == 2 then
+			vxt = 61
+		end
+		
+		repeat
+		rx = 8*flr(rnd(lev_w))+offx
+		ry = 8*flr(rnd(lev_h))+offy
+		until not is_actor_there(rx, ry)
+		
+		load_actor(vxt, rx, ry)
+		
+		local vx = o[#o]
+		
+		vx.acts_col = false
+		vx.colx = 4
+		vx.coly = 4
+		vx.colw = 0
+		vx.colh = 0
+		vx.frametimer = 0
+		vx.z = 2	
+		
+	end
+	
 end
 
 
@@ -949,6 +980,38 @@ function actor_specific()
 			ac.t = 26 + flr(ac.frametimer)
 			will_hit_wall(ac, false)
 		end
+		if ac.t >= 45 and ac.t <= 47 then
+			ac.frametimer += 0.1
+			local frame = ac.frametimer % 3
+			ac.t = 45 + flr(frame)
+			
+			for pl=1,#p do
+				if p[pl].control then
+					local xdist= ac.x-p[pl].x
+					local ydist= ac.y-p[pl].y
+					local dist=distance(ac.x,ac.y,p[pl].x,p[pl].y)
+					p[pl].vx+=(xdist/(0.1+dist))/10
+					p[pl].vy+=(ydist/(0.1+dist))/10
+				end
+			end
+			
+		end
+		if (ac.t >= 61 and ac.t <= 63) then
+			ac.frametimer += 0.1
+			local frame = ac.frametimer % 3
+			ac.t = 61 + flr(frame)
+			
+			for pl=1,#p do
+				if p[pl].control then
+					local xdist= ac.x-p[pl].x
+					local ydist= ac.y-p[pl].y
+					local dist=distance(ac.x,ac.y,p[pl].x,p[pl].y)
+					p[pl].vx-=(xdist/(0.1+dist))/10
+					p[pl].vy-=(ydist/(0.1+dist))/10
+				end
+			end
+			
+		end
 	end
 end
 
@@ -1027,6 +1090,22 @@ function draw_actors()
 					else
 						spr(act.t, act.x, act.y)
 					end
+					
+					if act.t>=45 and act.t<=47 then
+						local csize=sin(((2.5-(act.frametimer%2.5))/20)+.5)*181
+						
+						circ(act.x+4, act.y+4, csize, 1)
+						
+					end
+							
+					
+					if act.t>=61 and act.t<=63 then
+						local csize=sin(((act.frametimer%2.5)/20)+.5)*181
+						
+						circ(act.x+4, act.y+4, csize, 11)
+						
+					end
+					
 				end
 			end
 		end	
