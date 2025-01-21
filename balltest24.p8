@@ -65,9 +65,39 @@ function match_persistent_init()
 	
 end
 
+function gen_floor_type(floor)
+	local ftype = 1
+	
+	--[[
+	1=tutorial
+	2=smallbox
+	3=bigbox
+	4=smallswitch
+	5=moreswitch
+	--]]
+	
+	if floor <= 5 then
+		ftype=floor
 		vortextype=0
+	else
+		local fmod = floor%5
+		if fmod == 1 then
+			ftype=flr(rnd(2))+2
+		elseif fmod == 2 then
+			ftype=flr(rnd(2))+2
+		elseif fmod == 3 then
+			ftype=flr(rnd(2))*2+2
+		elseif fmod == 4 then
+			ftype=flr(rnd(2))*2+3
+		elseif fmod == 0 then
+			ftype=flr(rnd(4))+2
+		end
 		local rndoff=flr(rnd(1.25))
 		vortextype=((floor+rndoff)%2)+1	
+	end
+	return ftype
+end
+
 function floor_init(floor)
 	--trapdoor
 	trpdrx = 0
@@ -79,12 +109,14 @@ function floor_init(floor)
 	--gamestate
 	play_state = 0
 	cratesbroken = 0
-	cratestotal = 10
+	cratetotal = 10
 	switchtotal = 3
 	switchclear = false
 	if (switchtotal == 0) switchclear = true
 	leave_state = 1
 	floor_won = false
+	floor_type = gen_floor_type(floor)
+	
 	
 	loadincool = 0
 	loadoutcool = 0
@@ -233,9 +265,9 @@ function trpupdate()
 			play_state = 2
 			p[1].control = true
 		end
-		if play_state == 2 and cratesbroken < cratestotal then
+		if play_state == 2 and cratesbroken < cratetotal then
 			trpopen = false
-		elseif play_state == 2 and cratesbroken >= cratestotal then
+		elseif play_state == 2 and cratesbroken >= cratetotal then
 			play_state = 3
 		end
 	elseif not trpopen and trpdrx <= 0 then
@@ -272,7 +304,7 @@ function playing_floor_tick()
 	check_switches()
 	
 	--levelend init
-	if cratesbroken >= cratestotal and switchclear then
+	if cratesbroken >= cratetotal and switchclear then
 		if not trpopen then
 			trpopen = true
 		end
@@ -594,22 +626,23 @@ function load_actor(t, x, y)
 end
 
 function init_actor_counts()
-	crt_cnt = {}
-	crt_cnt[1] = 25
-	crt_cnt[2] = 20
-end
-
-function set_floor_crates()
-	local crt = crt_cnt[floor_level]
-	
-	if crt != nil then
-		cratestotal = crt
-	else
-		cratestotal = ceil(sqrt(lev_w*lev_h), 0)
+	local actorcnt=max(flr(sqrt(lev_w*lev_h)), 1)
+	if floor_type == 1 then
+		cratetotal = 9
+		switchtotal = 0
+	elseif floor_type == 2 then
+		cratetotal = round(actorcnt*1.5)
+		switchtotal = 0
+	elseif floor_type == 3 then
+		cratetotal = round(actorcnt*2.5)
+		switchtotal = 0
+	elseif floor_type == 4 then
+		cratetotal=round(actorcnt*2)
+		switchtotal=round(actorcnt*0.25)
+	elseif floor_type == 5 then
+		cratetotal=round(actorcnt*2)
+		switchtotal=round(actorcnt*0.75)
 	end
-	
-	return cratestotal
-	
 end
 
 function is_actor_there(x, y)
@@ -623,15 +656,15 @@ end
 
 function init_actors()
 	
+	init_actor_counts()
+	
 	//same as map offsets, but in pixels and added by one tile
 	local offx = (19-lev_w)*4
 	local offy = (17-lev_h)*4
 	local offex = offx+(lev_w-1)*8
 	local offey = offy+(lev_h-1)*8
 	
-	crate_gen = set_floor_crates()
-	
-	for crate=1,crate_gen do
+	for crate=1,cratetotal do
 		repeat
 		rx = 8*flr(rnd(lev_w))+offx
 		ry = 8*flr(rnd(lev_h))+offy
@@ -865,6 +898,10 @@ function confirm_switches()
 end
 
 function check_switches()
+	if switchtotal == 0 then 
+		switchclear = true
+		return
+	end
 	oncount = 0
 	for a1 in all(o) do
 		if a1.t == 59 then
@@ -1125,6 +1162,9 @@ function distance(x1,y1,x2,y2)
 	return sqrt(((x2-x1)^2 + (y2-y1)^2))
 end
 
+function round(num)
+	return flr(num+0.5)
+end
 -->8
 --hud
 
@@ -1253,12 +1293,12 @@ end
 function draw_crates_rem()
 	spr(10, 72, 130)
 	drawstr = ""
-	if cratestotal >= 10 and cratesbroken < 10 then
+	if cratetotal >= 10 and cratesbroken < 10 then
 		drawstr ..= "0"
 	end
 	drawstr ..= tostr(cratesbroken)
 	drawstr ..= "/"
-	drawstr ..= tostr(cratestotal)
+	drawstr ..= tostr(cratetotal)
 	draw_str(drawstr, 82, 131)
 end
 
@@ -1703,22 +1743,22 @@ __gfx__
 8888888899949994fff9fff955555555a006600a00000000000000000000000000000000000000000899a980089a99800899a980089a99880000000000000000
 8888888899949994fff9fff95d55555500a660aa0000000000000000000000000000000000000000089aa800088aa980008aa980089aa9800000000000000000
 8888888844444444999999995555555d666666660000000000000000000000000000000000000000008998000008980000898000008988000000000000000000
-11111111111111111111111100000000000000000000000000000000000000000000000000000000666666666666666666666666000000000000000000000000
-11dddddddddddddddddddd110000000000000000000000000000000000000000000000000000000062288226633333366cccccc6000000000000000000000000
-1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006228822663bbbb366cddddc6000000000000000000000000
-1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006882288663bbbb366cdccdc6000000000000000000000000
-1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006882288663bbbb366cdccdc6000000000000000000000000
-1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006228822663bbbb366cddddc6000000000000000000000000
-1dddddddddddddddddddddd10000000000000000000000000000000000000000000000000000000062288226633333366cccccc6000000000000000000000000
-1dddddddddddddddddddddd100000000000000000000000000000000000000000000000000000000666666666666666666666666000000000000000000000000
-1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000000aaaaaa00aaaaaa00aaaaaa0000000000000000000000000
-1dddddddddddddddddddddd100000000000000000000000000000000000000000000000000000000aa8888aaaabbbbaaaaccccaa000000000000000000000000
-11dddddddddddddddddddd1100000000000000000000000000000000000000000000000000000000a888778aabbb77baaccc77ca000000000000000000000000
-11111111111111111111111100000000000000000000000000000000000000000000000000000000a888878aabbbb7baacccc7ca000000000000000000000000
-1eeeeeeeeeeeeeeeeeeeeee100000000000000000000000000000000000000000000000000000000a888888aabbbbbbaacccccca000000000000000000000000
-1eeeeeeeeeeeeeeeeeeeeee100000000000000000000000000000000000000000000000000000000a888888aabbbbbbaacccccca000000000000000000000000
-1eeeeeeeeeeeeeeeeeeeeee100000000000000000000000000000000000000000000000000000000aa8888aaaabbbbaaaaccccaa000000000000000000000000
-1eeeeeeeeeeeeeeeeeeeeee1000000000000000000000000000000000000000000000000000000000aaaaaa00aaaaaa00aaaaaa0000000000000000000000000
+11111111111111111111111100000000000000000000000000000000000000000000000000000000666666666666666666666666011111100d1111d00dddddd0
+11dddddddddddddddddddd110000000000000000000000000000000000000000000000000000000062288226633333366cccccc61dddddd1d1dddd1ddd1111dd
+1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006228822663bbbb366cddddc61d1111d11dd11dd1d1dddd1d
+1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006882288663bbbb366cdccdc61d1dd1d11d1dd1d1d1d11d1d
+1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006882288663bbbb366cdccdc61d1dd1d11d1dd1d1d1d11d1d
+1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000006228822663bbbb366cddddc61d1111d11dd11dd1d1dddd1d
+1dddddddddddddddddddddd10000000000000000000000000000000000000000000000000000000062288226633333366cccccc61dddddd1d1dddd1ddd1111dd
+1dddddddddddddddddddddd100000000000000000000000000000000000000000000000000000000666666666666666666666666011111100d1111d00dddddd0
+1dddddddddddddddddddddd1000000000000000000000000000000000000000000000000000000000aaaaaa00aaaaaa00aaaaaa00b3333b0033333300bbbbbb0
+1dddddddddddddddddddddd100000000000000000000000000000000000000000000000000000000aa8888aaaabbbbaaaaccccaab33bb33b33bbbb33bb3333bb
+11dddddddddddddddddddd1100000000000000000000000000000000000000000000000000000000a888778aabbb77baaccc77ca33bbbb333bb33bb3b33bb33b
+11111111111111111111111100000000000000000000000000000000000000000000000000000000a888878aabbbb7baacccc7ca3bb33bb33b3bb3b3b3b33b3b
+1eeeeeeeeeeeeeeeeeeeeee100000000000000000000000000000000000000000000000000000000a888888aabbbbbbaacccccca3bb33bb33b3bb3b3b3b33b3b
+1eeeeeeeeeeeeeeeeeeeeee100000000000000000000000000000000000000000000000000000000a888888aabbbbbbaacccccca33bbbb333bb33bb3b33bb33b
+1eeeeeeeeeeeeeeeeeeeeee100000000000000000000000000000000000000000000000000000000aa8888aaaabbbbaaaaccccaab33bb33b33bbbb33bb3333bb
+1eeeeeeeeeeeeeeeeeeeeee1000000000000000000000000000000000000000000000000000000000aaaaaa00aaaaaa00aaaaaa00b3333b0033333300bbbbbb0
 77700700777077707070777077707770777077700000777070000000007077000770000000000000000000000000000000000000000000000000000000000000
 75707700557055707070755075505570757075700700557070000000075075000570000000000000000000000000000000000000000000000000000000000000
 70705700777077707770777077700070777077700500077070000000070070000070000000000000000000000000000000000000000000000000000000000000
