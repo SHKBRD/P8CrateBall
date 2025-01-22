@@ -627,7 +627,7 @@ end
 function init_actor_counts()
 	local actorcnt=max(flr(sqrt(lev_w*lev_h)), 1)
 	if floor_type == 1 then
-		cratetotal = 9
+		cratetotal = 33
 		switchtotal = 0
 	elseif floor_type == 2 then
 		cratetotal = round(actorcnt*1.5)
@@ -638,9 +638,11 @@ function init_actor_counts()
 	elseif floor_type == 4 then
 		cratetotal=round(actorcnt*2)
 		switchtotal=round(actorcnt*0.25)
+		switchtotal=min(switchtotal, 2)
 	elseif floor_type == 5 then
 		cratetotal=round(actorcnt*2)
 		switchtotal=round(actorcnt*0.75)
+		switchtotal=min(switchtotal, 2)
 	end
 end
 
@@ -821,6 +823,7 @@ end
 
 function actor_collide(a1, a2)
 	if (is_crate(a1) and is_crate(a2)) return
+	if (distance(a1.x, a1.y, a2.x, a2.y) >= 16) return
 	if will_a_touch(a1, a2, true) then
 	 gener_hit(a1, a2)
 	 hit_action(a1, a2)
