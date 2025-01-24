@@ -1314,6 +1314,12 @@ function tick_clock(dir)
 			end
 		end
 	end
+	//makes sure they don't
+	//become negative for some
+	//reason
+	clk[1]=abs(clk[1])
+	clk[2]=abs(clk[2])
+	clk[3]=abs(clk[3])
 end
 
 function draw_char(inp, x, y)
@@ -1323,6 +1329,7 @@ function draw_char(inp, x, y)
 		sspr(nx+char_ind, ny, 4, 6, x, y)
 	else
 		char = chrs[inp]
+		
 		sspr(nx+char, ny, 4, 6, x, y)
 	end
 end
@@ -1361,7 +1368,7 @@ function draw_clock()
 		
 		dispstr = ""
 		
-		dispstr ..= tostr((val-num)/10)
+		dispstr ..= tostr(flr((val-num)/10))
 		dispstr ..= tostr(num)
 		if per_num_offx != 24 then
 			dispstr ..= ":"
