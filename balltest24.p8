@@ -221,7 +221,9 @@ function init_floor_dimens(floor)
 		lev_w = 13
 		lev_h = 3
 	else
+		//max w=13
 		lev_w = (flr(rnd(5))+2)*2+1
+		//max h=11
 		lev_h = (flr(rnd(4))+2)*2+1
 	end
 end
