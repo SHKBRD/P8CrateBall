@@ -58,6 +58,7 @@ function match_persistent_init()
 	clky = 131
 	
 	--gamestate
+	floor_level = 1
 	
 	init_floor_dimens()
 	
@@ -596,6 +597,10 @@ function _draw()
  	draw_trapdoor()
  	draw_players()
  end
+	
+	draw_particles()
+	
+	draw_level_text()
 	
 	draw_transition_elements()
 	
@@ -1309,6 +1314,15 @@ function draw_str(str, x, y)
 	end
 end
 
+function draw_wavy_str(str, x, y)
+	strver = tostr(str)
+	for ind=1,#strver do
+		draw_letter(strver[ind], x, y+sin(frameoff+ind/#strver)*0.75)
+		x += 4
+	end
+end
+
+
 function draw_clock()
 	
 	draw_str("timer:", 14, 131)
@@ -1371,6 +1385,13 @@ function draw_floor_count()
 	draw_str(drawstr, 106, 131)
 end
 
+function draw_level_text()
+	if floor_level == 1 then
+		draw_wavy_str("use dpad to move!", 42, 32)
+		draw_wavy_str("press o/x to explode!", 34, 100)
+	end
+end
+
 function draw_debug()
 	draw_mem()
 	draw_cpu()
@@ -1382,7 +1403,7 @@ function draw_hud()
 	draw_clock()
 	draw_crates_rem()
 	draw_floor_count()
-	if (debug) draw_debug()
+	//if (debug) draw_debug()
 end
 -->8
 --player
