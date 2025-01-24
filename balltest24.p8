@@ -58,15 +58,12 @@ function match_persistent_init()
 	clky = 131
 	
 	--gamestate
-	floor_level = 5
 	
 	init_floor_dimens()
 	
 end
 
 function gen_floor_type(floor)
-	local ftype = 1
-	
 	--[[
 	1=tutorial
 	2=smallbox
@@ -74,27 +71,52 @@ function gen_floor_type(floor)
 	4=smallswitch
 	5=moreswitch
 	--]]
+	local ftype = 1
 	
 	if floor <= 5 then
 		ftype=floor
 		vortextype=0
 	else
 		local fmod = floor%5
-		if fmod == 1 then
-			ftype=flr(rnd(2))+2
-		elseif fmod == 2 then
-			ftype=flr(rnd(2))+2
-		elseif fmod == 3 then
-			ftype=flr(rnd(2))*2+2
-		elseif fmod == 4 then
-			ftype=flr(rnd(2))*2+3
-		elseif fmod == 0 then
+		if fmod > 0 then
+			ftype=fmod+1
+		else
 			ftype=flr(rnd(4))+2
 		end
-		local rndoff=flr(rnd(1.25))
-		vortextype=((floor+rndoff)%2)+1	
-	end
+	end	
+	
 	return ftype
+end
+
+function has_mod(mod_id)
+	for mod in all(floor_mods) do
+		if (mod==mod_id) return true
+	end
+	return false
+end
+
+function gen_floor_mods(floor)
+	--[[
+	1=vortex
+	2=steelcrate
+	--]]
+	possible_mods={1,2}
+	mod_count=#possible_mods
+	floor_mods={}
+	
+	local mcount=flr((floor-1)/5)
+	if mcount>0 then
+		for i=1,min(mcount, mod_count) do
+			local fmod=rnd(possible_mods)
+			add(floor_mods, fmod)
+			del(possible_mods, fmod)
+			
+			if fmod == 1 then
+				vortextype=(floor%2)+1	
+			end
+		end
+	end
+	
 end
 
 function floor_init(floor)
@@ -115,7 +137,7 @@ function floor_init(floor)
 	leave_state = 1
 	floor_won = false
 	floor_type = gen_floor_type(floor)
-	
+	gen_floor_mods(floor)
 	
 	loadincool = 0
 	loadoutcool = 0
@@ -633,16 +655,24 @@ function init_actor_counts()
 		cratetotal = round(actorcnt*1.5)
 		switchtotal = 0
 	elseif floor_type == 3 then
+		lev_w=min(lev_w+2, 13)
+		lev_h=min(lev_h+2, 11)
+		draw_base_map()
+		
 		cratetotal = round(actorcnt*2.5)
 		switchtotal = 0
 	elseif floor_type == 4 then
 		cratetotal=round(actorcnt*2)
 		switchtotal=round(actorcnt*0.25)
-		switchtotal=min(switchtotal, 2)
+		switchtotal=max(switchtotal, 2)
 	elseif floor_type == 5 then
-		cratetotal=round(actorcnt*2)
+		lev_w=min(lev_w+2, 13)
+		lev_h=min(lev_h+2, 11)
+		draw_base_map()
+		
+		cratetotal=round(actorcnt*1.75)
 		switchtotal=round(actorcnt*0.75)
-		switchtotal=min(switchtotal, 2)
+		switchtotal=max(switchtotal, 2)
 	end
 end
 
@@ -745,31 +775,33 @@ function init_actors()
 		
 	end
 	
-	--vortecies
-	if voertextype != 0 then
-		local vxt = 0
-		if vortextype == 1 then
-			vxt = 45
-		elseif vortextype == 2 then
-			vxt = 61
+	if has_mod(1) then
+		--vortecies
+		if voertextype != 0 then
+			local vxt = 0
+			if vortextype == 1 then
+				vxt = 45
+			elseif vortextype == 2 then
+				vxt = 61
+			end
+			
+			repeat
+			rx = 8*flr(rnd(lev_w))+offx
+			ry = 8*flr(rnd(lev_h))+offy
+			until not is_actor_there(rx, ry)
+			
+			load_actor(vxt, rx, ry)
+			
+			local vx = o[#o]
+			
+			vx.acts_col = false
+			vx.colx = 4
+			vx.coly = 4
+			vx.colw = 0
+			vx.colh = 0
+			vx.frametimer = 0
+			vx.z = 2	
 		end
-		
-		repeat
-		rx = 8*flr(rnd(lev_w))+offx
-		ry = 8*flr(rnd(lev_h))+offy
-		until not is_actor_there(rx, ry)
-		
-		load_actor(vxt, rx, ry)
-		
-		local vx = o[#o]
-		
-		vx.acts_col = false
-		vx.colx = 4
-		vx.coly = 4
-		vx.colw = 0
-		vx.colh = 0
-		vx.frametimer = 0
-		vx.z = 2	
 		
 	end
 	
