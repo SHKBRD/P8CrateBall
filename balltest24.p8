@@ -665,12 +665,27 @@ function init_actors()
 	local offex = offx+(lev_w-1)*8
 	local offey = offy+(lev_h-1)*8
 	
+	makesteel=has_mod(2)
+	if makesteel then
+		makesteel=true
+		steelmax=flr(cratetotal*0.375)
+		steelsmade=0
+	end
+	
 	for crate=1,cratetotal do
+		
+		local crt=10
+		if makesteel then
+			crt=14
+			steelsmade+=1
+			if (steelsmade==steelmax) makesteel=false
+		end
+		
 		repeat
 		rx = 8*flr(rnd(lev_w))+offx
 		ry = 8*flr(rnd(lev_h))+offy
 		until not is_actor_there(rx, ry)
-		load_actor(10, rx, ry)
+		load_actor(crt, rx, ry)
 		
 		local cr = o[#o]
 		
@@ -817,12 +832,17 @@ function will_a_touch(a1, a2, future)
 end
 
 function is_crate(a1)
-	if (a1.t >= 10 and a1.t <= 13) return true
-	return false
+	return (a1.t >= 10 and a1.t <= 15)
+end
+
+function is_player(a1)
+	return a1.t==1 or a1.t==2
 end
 
 function actor_collide(a1, a2)
-	if (is_crate(a1) and is_crate(a2)) return
+	if is_crate(a1) then
+		if	(not is_player(a2)) return
+	end
 	if (distance(a1.x, a1.y, a2.x, a2.y) >= 16) return
 	if will_a_touch(a1, a2, true) then
 	 gener_hit(a1, a2)
@@ -843,14 +863,14 @@ function hit_action(a1, a2)
 	end
 	
 	--crate
-	if a1.t >= 10 and a1.t <= 13 then
+	if a1.t >= 10 and a1.t <= 15 then
 		
 	end
 	
 	--fire
 	if a1.t >= 26 and a1.t <= 29 then
 		--crate interaction
-		if a2.t >= 10 and a2.t <= 13 then
+		if is_crate(a2) then
 			local res1 = will_a_touch(a1, a2, false)
 			local res2 = will_a_touch(a1, a2, true)
 			if not res1 and res2 then
@@ -862,17 +882,23 @@ end
 
 function crate_damage(ac, instant, player)
 	
-	if (ac.t == 13) return
+	if (ac.t == 13 or ac.t==15) return
 	
 	if instant then
-		ac.t = 13
+		if ac.t==14 then
+			ac.t = 15
+		else
+			ac.t = 13
+		end
 		damage = 100
 	else
-		ac.damage += 1
-		ac.t += 1
+		if ac.t!=14 then
+			ac.damage += 1
+			ac.t += 1
+		end
 	end
 	
-	if ac.t == 13 then
+	if ac.t == 13 or ac.t == 15 then
 		ac.acts_col = false
 		ac.despawn = 300
 		sfx(2, 2)
@@ -1395,7 +1421,7 @@ function destroy_surr(p_ind)
 	
 	for ac in all(o) do
 		if ac != pl then
-			if ac.t >= 10 and ac.t <=12 then
+			if ac.t >= 10 and ac.t <=12 or ac.t == 14 then
 				if distance(ac.x, ac.y, pl.x, pl.y) <= dist then
 					crate_damage(ac, true, false)
 				end	
@@ -1496,7 +1522,7 @@ function player_bounce_actor(a1, a2, hr1, hr2)
 				end
 			end
 			--crate
-			if a2.t >= 10 and a2.t <= 13 then
+			if is_crate(a2) then
 				if not hit_crate then
 					crate_damage(a2, a1.blast_mode, true)
 					hit_crate = true
