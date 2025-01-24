@@ -257,7 +257,9 @@ function clear_map()
 end
 	
 function clear_floor()
-	o = {}
+	o={}
+	crates={}
+	switches={}
 	clear_map()
 end
 
@@ -593,8 +595,6 @@ function _draw()
  	draw_trapdoor()
 	end
 	
-	draw_particles()
- 
  if not p_under and leave_state < 3 then
  	draw_trapdoor()
  	draw_players()
@@ -615,6 +615,8 @@ function _draw()
 --actors
 
 o={}
+crates={}
+switches={}
 
 function load_actor(t, x, y)
 	local a = {}
@@ -725,6 +727,7 @@ function init_actors()
 		load_actor(crt, rx, ry)
 		
 		local cr = o[#o]
+		add(crates,cr)
 		
 		cr.acts_col = true
 		cr.damage = 0
@@ -779,7 +782,7 @@ function init_actors()
 		sw.colh = 7
 		sw.z = 2
 		sw.blink = 0
-		
+		add(switches, sw)
 	end
 	
 	if has_mod(1) then
@@ -942,8 +945,17 @@ function crate_damage(ac, instant, player)
 		ac.despawn = 300
 		sfx(2, 2)
 		cratesbroken += 1
+		del(crates, ac)
 	end
-	if (player) sfx(3, 3)
+	if player then
+		if ac.t == 14 then 
+			if distance(0,0,p[1].vx,p[1].vy)>0.5 then
+				sfx(11,3)
+			end
+		else
+			sfx(3, 3)
+		end
+	end
 end
 
 function switch_toggle(a1)
@@ -958,9 +970,9 @@ function switch_toggle(a1)
 end
 
 function confirm_switches()
-	for a1 in all(o) do
-		if a1.t == 59 then
-			a1.t = 60
+	for sw in all(switches) do
+		if sw.t == 59 then
+			sw.t = 60
 		end
 	end
 	sfx(8, 1)
@@ -972,8 +984,8 @@ function check_switches()
 		return
 	end
 	oncount = 0
-	for a1 in all(o) do
-		if a1.t == 59 then
+	for sw in all(switches) do
+		if sw.t == 59 then
 			oncount += 1
 		end
 	end
@@ -985,13 +997,25 @@ function check_switches()
 end
 
 function actor_col()
- for a1 in all(o) do 
- 	for a2 in all(o) do
- 		if a1 != a2 then
- 			actor_collide(a1, a2)
- 		end
+ --for a1 in all(o) do 
+ --	for a2 in all(o) do
+ --		if a1 != a2 then
+ --			actor_collide(a1, a2)
+ --		end
+ --	end
+ --end
+ for cr in all(crates) do
+ 	for pl in all(p) do
+ 		actor_collide(pl,cr)
  	end
  end
+ 
+ for sw in all(switches) do
+ 	for pl in all(p) do
+ 		actor_collide(pl,sw)
+ 	end
+ end
+ 
 end
 
 function will_hit_wall(ac, future)
