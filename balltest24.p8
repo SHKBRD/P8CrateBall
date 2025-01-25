@@ -100,8 +100,10 @@ function gen_floor_mods(floor)
 	--[[
 	1=vortex
 	2=steelcrate
+	3=fires
+	4=heal
 	--]]
-	possible_mods={1,2}
+	possible_mods={1,2,3,4}
 	mod_count=#possible_mods
 	floor_mods={}
 	
@@ -112,9 +114,14 @@ function gen_floor_mods(floor)
 			add(floor_mods, fmod)
 			del(possible_mods, fmod)
 			
-			if fmod == 1 then
+			if fmod==1 then
 				vortextype=(floor%2)+1	
 			end
+			
+			if fmod==3 then
+				firecount=flr((floor*2+1)/5)
+			end
+			
 		end
 	end
 	
@@ -134,6 +141,8 @@ function floor_init(floor)
 	cratetotal = 10
 	switchtotal = 3
 	switchclear = false
+	firecount=0
+	
 	if (switchtotal == 0) switchclear = true
 	leave_state = 1
 	floor_won = false
@@ -260,6 +269,8 @@ function clear_floor()
 	o={}
 	crates={}
 	switches={}
+	fires={}
+	items={}
 	clear_map()
 end
 
@@ -617,6 +628,8 @@ function _draw()
 o={}
 crates={}
 switches={}
+fires={}
+items={}
 
 function load_actor(t, x, y)
 	local a = {}
@@ -658,7 +671,7 @@ end
 function init_actor_counts()
 	local actorcnt=max(flr(sqrt(lev_w*lev_h)), 1)
 	if floor_type == 1 then
-		cratetotal = 33
+		cratetotal = 15
 		switchtotal = 0
 	elseif floor_type == 2 then
 		cratetotal = round(actorcnt*1.5)
@@ -713,56 +726,11 @@ function init_actors()
 	
 	for crate=1,cratetotal do
 		
-		local crt=10
-		if makesteel then
-			crt=14
-			steelsmade+=1
-			if (steelsmade==steelmax) makesteel=false
-		end
-		
-		repeat
-		rx = 8*flr(rnd(lev_w))+offx
-		ry = 8*flr(rnd(lev_h))+offy
-		until not is_actor_there(rx, ry)
-		load_actor(crt, rx, ry)
-		
-		local cr = o[#o]
-		add(crates,cr)
-		
-		cr.acts_col = true
-		cr.damage = 0
-		cr.colx = 0.5
-		cr.coly = 0.5
-		cr.colw = 7
-		cr.colh = 7
-		cr.z = 2
+		--generates at random
+		--locations
+		make_crate(nil,nil)
 		
 	end
-	
-	--[[
-	for fire=1,2 do
-		repeat
-		rx = 8*flr(rnd(14))+16
-		ry = 8*flr(rnd(13))+16
-		until not is_actor_there(rx, ry)
-		load_actor(26, rx, ry)
-		
-		local fr = o[#o]
-		
-		fr.frametimer = 0
-		fr.coly = 3.5
-		fr.colh = 4
-		fr.colx = 1.5
-		fr.colw = 5
-		fr.acts_col = false
-		dirx = sgn(rnd(1)-1)
-		diry = sgn(rnd(1)-1)
-		fr.vx = 0.5*dirx
-		fr.vy = 0.3*diry
-		fr.fric = 0
-		fr.z = 7
-	end
-	--]]
 	
 	for switch=1,switchtotal do
 		repeat
@@ -783,6 +751,29 @@ function init_actors()
 		sw.z = 2
 		sw.blink = 0
 		add(switches, sw)
+	end
+	
+	if has_mod(3) then
+		for fire=1,firecount do
+			repeat
+			rx = 8*flr(rnd(lev_w))+offx
+			ry = 8*flr(rnd(lev_h))+offy
+			until not is_actor_there(rx, ry)
+			
+			load_actor(26, rx, ry)
+			
+			local fr = o[#o]
+			
+			fr.acts_col = false
+			fr.damage = 0
+			fr.colx = 0.5
+			fr.coly = 0.5
+			fr.colw = 7
+			fr.colh = 7
+			fr.z = 2
+			fr.frametimer = 0
+			add(fires, fr)
+		end
 	end
 	
 	if has_mod(1) then
@@ -812,11 +803,102 @@ function init_actors()
 			vx.frametimer = 0
 			vx.z = 2	
 		end
+	end
+	
+	if has_mod(4) and lev_w>3 and lev_h>3 then
+		--this is stupid.
+		--don't do this in your game.
+		tries=0
+		repeat
+		rx = 8*flr(rnd(lev_w-4))+offx+16
+		ry = 8*flr(rnd(lev_h-4))+offy+16
+		tries+=1
+		until not is_actor_there(rx, ry) or tries==50
 		
+		if tries != 50 then
+			load_actor(30, rx, ry)
+			
+			local it = o[#o]
+			
+			it.frametimer = 0
+			it.coly = 1
+			it.colh = 6
+			it.colx = 1
+			it.colw = 6
+			it.acts_col = false
+			it.vx = 0
+			it.vy = 0
+			it.fric = 0
+			it.z = 7
+			it.exploding=false
+			it.timer=0
+			it.despawn=-1
+			add(items, it)
+			
+			add_item_surr_crates(rx,ry)
+			
+		end
 	end
 	
 end
 
+function make_crate(x,y)
+	local rx=nil
+	local ry=nil
+	if x!=nil and y!= nil then
+		--stop("▒")
+		rx=x
+		ry=y
+	end
+	
+	local offx = (19-lev_w)*4
+	local offy = (17-lev_h)*4
+
+	local crt=10
+	if makesteel then
+		crt=14
+		steelsmade+=1
+		if (steelsmade==steelmax) makesteel=false
+	end
+	
+	if rx==nil or ry==nil then
+		repeat
+		rx = 8*flr(rnd(lev_w))+offx
+		ry = 8*flr(rnd(lev_h))+offy
+		until not is_actor_there(rx, ry)
+	end
+	load_actor(crt, rx, ry)
+	
+	local cr = o[#o]
+	
+	cr.acts_col = true
+	cr.damage = 0
+	cr.colx = 0.5
+	cr.coly = 0.5
+	cr.colw = 7
+	cr.colh = 7
+	cr.z = 2
+	
+	add(crates,cr)
+end
+
+function add_item_surr_crates(x,y)
+	
+	for fy=-2,2 do
+		
+		for fx=-2+(abs(fy)),2-(abs(fy)) do
+			local ax=x+fx*8
+			local ay=y+fy*8
+			
+			if not is_actor_there(ax,ay) then
+				--stop("!")
+				make_crate(ax, ay)
+				cratetotal+=1
+			end
+		end
+	end
+	
+end
 
 function will_physa_hit(a1, a2, future)
 	local res = {false, false, false, false}
@@ -878,13 +960,14 @@ function is_crate(a1)
 end
 
 function is_player(a1)
-	return a1.t==1 or a1.t==2
+	return a1.t==1 or a1.t==2 or a1.t==3
 end
 
 function actor_collide(a1, a2)
 	if is_crate(a1) then
 		if	(not is_player(a2)) return
 	end
+	
 	if (distance(a1.x, a1.y, a2.x, a2.y) >= 16) return
 	if will_a_touch(a1, a2, true) then
 	 gener_hit(a1, a2)
@@ -911,15 +994,20 @@ function hit_action(a1, a2)
 	
 	--fire
 	if a1.t >= 26 and a1.t <= 29 then
-		--crate interaction
-		if is_crate(a2) then
+		--player interaction
+		if is_player(a2) and a2.control then
+			fire_touched=true
 			local res1 = will_a_touch(a1, a2, false)
 			local res2 = will_a_touch(a1, a2, true)
-			if not res1 and res2 then
-				crate_damage(a2, false, false)
-			end
+			fire_player(a2)
 		end			
 	end
+	
+	--item
+	if a1.t == 30 and is_player(a2) and a2.control then
+		heal_explode(a1, a2)
+	end
+	
 end
 
 function crate_damage(ac, instant, player)
@@ -945,7 +1033,7 @@ function crate_damage(ac, instant, player)
 		ac.despawn = 300
 		sfx(2, 2)
 		cratesbroken += 1
-		del(crates, ac)
+		
 	end
 	if player then
 		if ac.t == 14 then 
@@ -996,14 +1084,15 @@ function check_switches()
 	end
 end
 
+function heal_explode(it)
+	if not it.exploding then
+		it.exploding = true
+		it.timer=100
+	end
+end
+
 function actor_col()
- --for a1 in all(o) do 
- --	for a2 in all(o) do
- --		if a1 != a2 then
- --			actor_collide(a1, a2)
- --		end
- --	end
- --end
+ 
  for cr in all(crates) do
  	for pl in all(p) do
  		actor_collide(pl,cr)
@@ -1013,6 +1102,20 @@ function actor_col()
  for sw in all(switches) do
  	for pl in all(p) do
  		actor_collide(pl,sw)
+ 	end
+ end
+ 
+ for pl in all(p) do
+ 	fire_touched=false
+ 	for fr in all(fires) do
+ 		actor_collide(pl,fr)
+ 	end
+ 	if (fire_touched==false) pl.in_fire=false
+ end
+ 
+ for it in all(items) do
+ 	for pl in all(p) do
+ 		actor_collide(pl,it)
  	end
  end
  
@@ -1142,13 +1245,53 @@ function actor_specific()
 			end
 			
 		end
+		
+		--item
+		if ac.t==30 then
+			if ac.exploding == true then
+				heal_item_tick(ac)
+			end
+		end
 	end
+end
+
+function heal_item_tick(it)
+	
+	if it.timer > 0 then
+		it.timer-=1
+		it.despawn=it.timer
+		
+		local rad=sin((100-it.timer)/-200)*16.2
+		for cr in all(crates) do
+			local dist = distance(it.x, it.y, cr.x, cr.y)
+			--stop(dist)
+			if dist<=rad and cr.t != 10 and cr.t != 14 then
+				if cr.t == 13 or cr.t == 15 then
+					cr.acts_col = true
+					cr.despawn = -1
+					if cratesbroken!=cratestotal then
+						cratesbroken-=1
+					end
+				end
+				cr.t-=1
+				cr.damage=0
+			end
+			
+		end
+		
+		
+	elseif it.timer == 0 then
+		del(items, it)
+		del(o, it)
+	end
+	
 end
 
 function actor_decay()
 	for i=1,#o do
 	if (i > #o) break
 		if o[i].despawn == 0 then
+			del(crates, o[i])
 			del(o, o[i])
 			i -= 1
 		elseif o[i].despawn > 0 then
@@ -1214,6 +1357,26 @@ function draw_actors()
 					   or act.despawn > 60 then
 						spr(act.t, act.x, act.y)
 					end
+					
+					if act.t==30 then
+						fill_list={
+							0b0101111101011111.1,
+							0b1010111110101111.1,
+							0b1111101011111010.1,
+							0b1111010111110101.1,
+						}
+						
+						local rad=sin((100-act.timer)/-200)*16
+						--fillp(fill_list[(frameoff)%4+1])
+						local ind=flr((frameoff*8)%4+1)
+						fillp(fill_list[ind])
+						circfill(act.x+4, act.y+4, rad, 11)
+						ind=flr(((frameoff*8)+2)%4+1)
+						fillp(fill_list[ind])
+						circfill(act.x+4, act.y+4, rad, 3)
+						fillp()						
+					end
+					
 				else
 					if act.t == 59 or act.t == 60 then
 						draw_switch(act)
@@ -1235,6 +1398,8 @@ function draw_actors()
 						circ(act.x+4, act.y+4, csize, 11)
 						
 					end
+					
+					
 					
 				end
 			end
@@ -1477,6 +1642,9 @@ function player_init()
 		c.snapped = false
 		c.blast_cool = 0
 		c.blast_mode = false
+		c.fired = false
+		c.in_fire = false
+		c.fire_cool = 0
 		c.despawn = -1
 		c.control = false
 		c.gets_col = true
@@ -1554,6 +1722,18 @@ function player_blast(player)
 		
 	end
 	
+end
+
+function fire_player(pl)
+	--stop(pl.in_fire)
+	if pl.in_fire==false then
+		sfx(12,-1)
+	end
+	pl.in_fire=true
+	pl.fired=true
+	pl.fire_cool = 200
+	pl.blast_mode = false
+	pl.blast_cool = 0
 end
 
 function player_roll_sfx(player)
@@ -1678,8 +1858,10 @@ end
 
 function player_control(player)
 	
-	if btn(5, player-1) and p[player].blast_cool <= 0 then
-		player_blast(player)
+	if p[player].blast_cool<=0 and p[player].fired != true then
+		if btn(5, player-1) then
+			player_blast(player)
+		end
 	end
 	
 	// set first calc vars for x
@@ -1739,10 +1921,23 @@ function player_control(player)
 	end
 	
 	p[player].blast_cool -= 1
+	p[player].fire_cool -= 1
 	
-	if (p[player].blast_cool <= 0) or not (abs(p[player].vx) + abs(p[player].vy) > 5) then
+	local velcomb=abs(p[player].vx) + abs(p[player].vy)
+	
+	if p[player].blast_mode and p[player].blast_cool<100 and velcomb < 2 then
+		p[player].blast_mode = false
+	end
+	
+	if (p[player].blast_cool <= 0) then
 		p[player].blast_mode = false
 	end	
+	
+	if p[player].fire_cool <= 0 then
+		p[player].fired = false
+		p[player].fire_cool = 0
+	end
+	
 end
 
 function did_player_enter_trap()
@@ -1810,7 +2005,7 @@ function player_leave_tick()
 	end
 end
 
-function draw_cooldown(pl)
+function draw_cooldown(pl, fire)
 	--container edges
 	line(pl.x-2, pl.y-6, pl.x+9, pl.y-6, 7)
 	line(pl.x-2, pl.y-3, pl.x+9, pl.y-3, 7)
@@ -1818,8 +2013,13 @@ function draw_cooldown(pl)
 	line(pl.x+10, pl.y-5, pl.x+10, pl.y-4, 7)
 	--bg
 	rect(pl.x-2, pl.y-5, pl.x+9, pl.y-4, 0)
-	--progress
-	rect(flr(pl.x-2), pl.y-5, flr(pl.x+9-(pl.blast_cool/120)*14), pl.y-4, 11)
+	
+	if pl.fired == false then
+		--progress
+		rect(flr(pl.x-2), pl.y-5, flr(pl.x+9-(pl.blast_cool/120)*12), pl.y-4, 11)
+	else
+		rect(flr(pl.x-2), pl.y-5, flr(pl.x+(pl.fire_cool/200)*11)-2, pl.y-4, 8+(flr(frameoff%2)))
+	end
 end
 
 function draw_players()
@@ -1828,14 +2028,18 @@ function draw_players()
 	 // ball explode anim
 	 count = count + .01
 	 // player draw
-	 if pl.blast_mode and (pl.blast_cool % 2 == 1) then
-			spr(2, pl.x, pl.y)
+	 if pl.fired and pl.fire_cool%2==0 then
+	 	spr(3,pl.x,pl.y)
+	 elseif pl.blast_mode and (pl.blast_cool % 2 == 1) then
+			spr(2,pl.x,pl.y)
 	 else
-	 	spr(1, pl.x, pl.y)
+	 	spr(1,pl.x,pl.y)
 	 end
 	 
-	 if pl.blast_cool > 0 then
-	 	draw_cooldown(pl)
+	 if pl.fired then
+	 	draw_cooldown(pl, true)
+	 elseif pl.blast_cool > 0 then
+	 	draw_cooldown(pl, false)
 	 end
 	 
  end
@@ -1843,14 +2047,14 @@ end
 
 
 __gfx__
-00000000001111000099990000000000000000000000000000000000000000000000000000000000499999940999490409949904000000006666667700000070
-00000000011127100999a79000000000000000000000000000000000000000000000000000000000944444494444444944444449000000006d5555d760700606
-00000000111177719999777900000000000000000000000000000000000000000000000000000000944949499449494494444940000000006565655600060000
-00000000111127219999a7a900000000000000000000000000000000000000000000000000000000949494494494944404949440040004406556565606000660
-00000000111111119999999900000000000000000000000000000000000000000000000000000000944949499449494994494949004000406565655600700070
-00000000111111119999999900000000000000000000000000000000000000000000000000000000949494494494944904949449000099006556565600006600
-00000000011111100999999000000000000000000000000000000000000000000000000000000000944444499444444494444444490400046d5555d667070007
-00000000001111000099990000000000000000000000000000000000000000000000000000000000499999944944494409400900004000406666666600600060
+00000000001111000099990000888800000000000000000000000000000000000000000000000000499999940999490409949904000000006666667700000070
+00000000011127100999a79008889780000000000000000000000000000000000000000000000000944444494444444944444449000000006d5555d760700606
+00000000111177719999777988887778000000000000000000000000000000000000000000000000944949499449494494444940000000006565655600060000
+00000000111127219999a7a988889798000000000000000000000000000000000000000000000000949494494494944404949440040004406556565606000660
+00000000111111119999999988888888000000000000000000000000000000000000000000000000944949499449494994494949004000406565655600700070
+00000000111111119999999988888888000000000000000000000000000000000000000000000000949494494494944904949449000099006556565600006600
+00000000011111100999999008888880000000000000000000000000000000000000000000000000944444499444444494444444490400046d5555d667070007
+00000000001111000099990000888800000000000000000000000000000000000000000000000000499999944944494409400900004000406666666600600060
 8888888894999499f9fff9ff55555555666666660000000000000000000000000000000000000000000000000000000000000000000000000333333000000000
 8888888894999499f9fff9ff55d55555a006600a00000000000000000000000000000000000000000000800000000000000800000008000033b77b3300000000
 8888888894999499f9fff9ff55555d5500a660aa0000000000000000000000000000000000000000000880000008800000088000000880003bb77bb300000000
@@ -1889,31 +2093,6 @@ __gfx__
 75707570700070707500750070707570070007007570700070707070707075507750757055700700707077707770757057507500000000000000000000000000
 70707750577077507770700077507070777077007070777070707070775070005570707077700700777057507770707007007770000000000000000000000000
 50505500055055005550500055005050555055005050555050505050550050000050505055500500555005005550505005005550000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-60666660000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-60600660000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-06600600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __label__
 333333333333333333333333333333bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb3333333333333333333333333333333
 3333333333333333333333333333bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb33333333333333333333333333333
@@ -2063,7 +2242,7 @@ __sfx__
 001000000085000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 000100002b6501c6500c6500365000650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 44020000344502b400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+760400001962330623396333a64339643356432e65327653206531a64314643106430c6430a643096330763306633066330563305633056230562305623046230462303623036230362302613026130161304613
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
