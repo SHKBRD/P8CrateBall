@@ -1737,7 +1737,7 @@ function fire_player(pl)
 end
 
 function player_roll_sfx(player)
-	local poke1=0b10000100
+	local poke1=0b10001100
 	local spd=distance(0,0,p[player].vx,p[player].vy)
 	local norm=(spd/6)-.05
 	if (norm<0) then 
