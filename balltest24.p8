@@ -1494,6 +1494,9 @@ function draw_char(inp, x, y)
 		sspr(nx+char_ind, ny, 4, 6, x, y)
 	else
 		char = chrs[inp]
+		if char==nil then
+			stop(inp)
+		end
 		
 		sspr(nx+char, ny, 4, 6, x, y)
 	end
