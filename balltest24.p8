@@ -1757,7 +1757,6 @@ function player_roll_sfx(player)
 	poke(0x3201+68*9, poke1)
 	poke(0x3200+68*9, adj)
 	sfx(9,0)
-	if (btn(🅾️)) stop(norm)
 	
 	print(spd, 16, 34, 8)
 end
@@ -1864,7 +1863,7 @@ end
 function player_control(player)
 	
 	if p[player].blast_cool<=0 and p[player].fired != true then
-		if btn(5, player-1) then
+		if btn(5, player-1) or btn(4, player-1) then
 			player_blast(player)
 		end
 	end
