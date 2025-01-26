@@ -1595,6 +1595,16 @@ function draw_level_text()
 	end
 end
 
+function draw_blob(x,y,xw,yh,rad,col)
+	circfill(x+rad,y+rad,rad,col)
+	circfill(x+xw-rad,y+rad,rad,col)
+	circfill(x+rad,y+yh-rad,rad,col)
+	circfill(x+xw-rad,y+yh-rad,rad,col)
+	rectfill(x+rad,y,x+xw-rad,y+yh,col)
+	rectfill(x,y+rad,x+xw,y+yh-rad,col)
+
+end
+
 function draw_debug()
 	draw_mem()
 	draw_cpu()
