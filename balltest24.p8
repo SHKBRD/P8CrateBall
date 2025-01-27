@@ -66,7 +66,7 @@ function match_persistent_init(mode)
 	--camera
 	camabs = {}
 	camabs.x = 12
-	camabs.y = 12
+	camabs.y = 0
 	camoff = {0, 0}
 	
 	--clock
@@ -485,6 +485,12 @@ end
 
 function match_loop()
 	level_state_process()
+ 
+ if camabs.y<12 then
+ 	camabs.y+=1
+ elseif camabs.y>12 then
+ 	camabs.y=12
+ end
  
  for loop=1,#p do
  	player_tick(loop)
