@@ -1533,24 +1533,23 @@ function draw_wavy_str(str, x, y)
 end
 
 
-function draw_clock()
-	
-	draw_str("timer:", 14, 131)
+function draw_clock(x,y)
 	
 	per_num_offx = 0
-	for val in all(clk) do
-		val = flr(val)
-		local offx = clkx+per_num_offx
-		num = val%10
+	for t in all(clk) do
+		vl = flr(t)
+		
+		local offx = x+per_num_offx
+		num = vl%10
 		
 		dispstr = ""
 		
-		dispstr ..= tostr(flr((val-num)/10))
+		dispstr ..= tostr(flr((vl-num)/10))
 		dispstr ..= tostr(num)
 		if per_num_offx != 24 then
 			dispstr ..= ":"
 		end
-		draw_str(dispstr, offx, clky)
+		draw_str(dispstr, offx, y)
 		
 		per_num_offx += 12
 		
@@ -1622,7 +1621,8 @@ end
 
 function draw_hud()
 	draw_low_bg()
-	draw_clock()
+	draw_str("timer:", 14, 131)
+	draw_clock(clkx,clky)
 	draw_crates_rem()
 	draw_floor_count()
 	//if (debug) draw_debug()
