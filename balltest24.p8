@@ -652,9 +652,8 @@ function match_draw()
 	draw_particles()
 	
 	draw_level_text()
-	
+
 	draw_transition_elements()
-	
 	--draw_playbox()
 	
  draw_hud()
