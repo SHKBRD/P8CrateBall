@@ -16,7 +16,21 @@ function _init()
 	--cool flags here!
 	constant_init()
 	
-	match_init()
+	match_init(1)
+end
+
+function _update60()
+ match_tick()
+end
+
+function _draw()
+	cls() 
+ match_draw()
+end
+
+function match_tick()
+	match_loop()
+ win_tick()
 end
 
 function constant_init()
@@ -607,8 +621,8 @@ function draw_map_border()
 	pal(15,15)
 end
 
-function _draw()
- cls(0)
+function match_draw()
+	cls(0)
  
  camera(camabs.x + camoff[1], camabs.y + camoff[2])
 
