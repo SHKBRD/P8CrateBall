@@ -35,12 +35,12 @@ function constant_init()
 	}
 end
 
-function match_init()
-	match_persistent_init()
+function match_init(mode)
+	match_persistent_init(mode)
 	floor_init(1)
 end
 
-function match_persistent_init()
+function match_persistent_init(mode)
 	-- particles
 	prt = {}
 	prtcol = {10, 9, 4, 0}
@@ -56,9 +56,14 @@ function match_persistent_init()
 	clk = {0, 0, 0}
 	clkx = 39
 	clky = 131
+	clkdir=mode
+	if mode==2 then
+		clk[1]=3
+	end
 	
 	--gamestate
 	floor_level = 1
+	gamemode=mode
 	
 	init_floor_dimens()
 	
@@ -419,7 +424,25 @@ function level_state_process()
 		change is performed
 		
 		]]
-		next_level_init()
+		if floor_level==20 or (clk[1]==0and clk[2]==0 and clk[3]==0) then
+			
+			if not floor_won then
+				floor_won=true
+				endscore=floor_level
+				name_arr={0,0,0}
+				if #windows==0 then
+					add_win(
+						{76,68,0,0,0},
+						{12+20,8,88,99,8},
+						1,0,1)
+						
+					upd_lbd(gamemode)
+					
+				end
+			end
+		else
+			next_level_init()
+		end
 	end
 end
 	
