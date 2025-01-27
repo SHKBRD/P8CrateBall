@@ -2220,8 +2220,8 @@ function player_leave_tick()
 	]]
 	elseif leave_state == 2 then
 	
-	pl.x = lerp(72, pl.x, 0.5)
-	pl.y = lerp(64, pl.y, 0.5)
+	pl.x = lerp(72, pl.x, 0.8)
+	pl.y = lerp(64, pl.y, 0.8)
 	if distance(pl.x, pl.y, 72, 64) < 1 then
 		pl.x = 72
 		pl.y = 64
