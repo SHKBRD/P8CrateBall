@@ -16,16 +16,25 @@ function _init()
 	--cool flags here!
 	constant_init()
 	
-	match_init(1)
+	--match_init(2)
+	menu_init()
 end
 
 function _update60()
- match_tick()
+ if not inmatch then
+ 	menu_tick()
+ else
+ 	match_tick()
+ end
 end
 
 function _draw()
-	cls() 
- match_draw()
+	cls()
+	if not inmatch then
+ 	menu_draw()
+ else
+ 	match_draw()
+ end
 end
 
 function match_tick()
@@ -2444,7 +2453,82 @@ end
 --menu
 
 function menu_init()
+	m_trstn=-0.25
+	trstn_phase=0
+	
+	button_high_ind=-1
+	
+end
 
+function menu_tick()
+	if trstn_phase==0 then
+		m_trstn+=0.01
+		--stop(m_trstn)
+		if m_trstn>0.75 then
+			trstn_phase+= 1
+			m_trstn=0.75
+		end
+		
+	elseif trstn_phase==1 then
+		button_high_ind=button_high_ind==-1 and 0 or button_high_ind
+		
+		if (btnp(2)) button_high_ind-=1
+		if (btnp(3)) button_high_ind+=1
+		button_high_ind%=3
+	
+		if btnp(4) or btnp(5) then
+			if button_high_ind!=2 then
+				trstn_phase+=1
+			end
+		end
+	
+	elseif trstn_phase==2 then
+		m_trstn-=0.01
+		if m_trstn<0 then
+			trstn_phase+= 1
+			m_trstn=0
+		end
+	elseif trstn_phase==3 then
+		inmatch=true
+		match_init(button_high_ind+1)
+	end
+	
+	
+	
+end
+
+function draw_menubg()
+	cls(1)
+end
+
+function draw_buttons()
+	for i=0,2	do
+		local yset=60+i*18
+		local col=5
+		if (i==button_high_ind) col=8
+		draw_blob(32,yset,60, 8, 3, col)
+	end
+end
+
+function draw_transition()
+	if (m_trstn<0) cls(0)
+	for i=0,3 do
+		own_trstn=m_trstn-i/8
+		if own_trstn < 0.25 then
+			if i%2==0 then
+				draw_blob(-33,i*32,188-(-188*sin(own_trstn)),0,16,0)
+			else
+				draw_blob(-16+-188*sin(max(own_trstn,0)),i*32, 188,0, 16,0)
+			end
+		end
+	end
+end
+
+function menu_draw()
+	draw_menubg()
+	map(66,0,0,8)
+	draw_buttons()
+	draw_transition()
 end
 __gfx__
 00000000001111000099990000888800000000000000000000000000000000000000000000000000499999940999490409949904000000006666667700000070
