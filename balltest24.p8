@@ -1550,8 +1550,7 @@ function postgame_lb(w)
 		
 	else
 		w.timer=1.5
-		w.prog=-1*sin(w.timer+.25)
-		menu_init()
+		w.prog=0
 	end
 end
 
