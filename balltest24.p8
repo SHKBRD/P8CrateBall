@@ -347,6 +347,7 @@ function trpupdate()
 end
 
 function loadin_floor_tick()
+	if (camabs.y!=12) return
 	loadincool += 0.0055
 	if loadincool >= 0.25 then
 		play_state = 1
