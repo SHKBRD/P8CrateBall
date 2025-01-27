@@ -1462,6 +1462,126 @@ end
 --}
 
 --[[
+from/to:
+x,y,w,h,r
+
+col
+prog
+type
+--]]
+
+windows={}
+
+function add_win(f,t,col,prog,typ)
+	local w={}
+	w.f=f
+	w.t=t
+	w.col=col
+	w.prog=prog
+	w.type=typ
+	
+	if typ == 1 then
+		w.timer=0
+	end
+	
+	add(windows,w)
+end
+
+function win_tick()
+	for w in all(windows) do
+		win_specific(w)
+	end
+end
+
+function postgame_lb(w)
+	if w.timer<0.25 then
+		w.timer+=.01
+		w.prog=-1*sin(w.timer)
+		w.trem=nil
+		camabs.y-=w.prog
+	elseif w.timer<1 then
+		w.timer+=.01
+		w.prog=1
+		w.trem=7-flr((1-w.timer)*(7/0.75))
+		pal(1)
+		--stop(w.trem)
+		winstr_list={
+			"",
+			"",
+			"leaderboard:",
+		}
+		winpos_list={
+			{46,16},
+			{38,24},
+			{60,32}
+		}
+		
+		if gamemode==1 then
+			winstr_list[1]="woohoo! you won!"
+			winstr_list[2]="your time:"
+		else
+			winstr_list[1]="phew! time's up!"
+			winstr_list[2]="your score was:"
+		end
+	elseif w.timer<1.01 then
+		
+		if w.letterind==nil then
+			w.letterind=0
+		end
+		
+		if w.ask_confirm==nil then
+			w.ask_confirm=false
+			w.confirmed=false
+		end
+		
+		if placeind!=-1 then
+			
+			if (btnp(1,0)) then
+				
+				w.letterind+=1
+			end
+			if (btnp(0,0)) w.letterind-=1
+			w.letterind%=4
+			
+			if w.letterind != 3 then
+				if (btnp(2,0)) name_arr[w.letterind+1]+=1
+				if (btnp(3,0)) name_arr[w.letterind+1]-=1
+			end
+			
+		end
+		
+		if (w.letterind==3 or placeind==-1) and (btnp(4,0) or btnp(5, 0)) then
+			if w.letterind==3 then
+				lbd[gamemode][placeind][2]=name_arr
+				--stop(lbd[2][placeind][2][1])
+				save_lbd()
+			end
+			w.timer+=.01
+		end
+	
+	elseif w.timer<1.25 then
+		w.timer+=.01
+		w.prog=1
+		w.trem=flr((1.25-w.timer)*(7/0.25))
+	elseif w.timer<1.5 then
+		w.timer+=.01
+		w.prog=-1*sin(w.timer)
+		
+	else
+		w.timer=1.5
+		w.prog=-1*sin(w.timer+.25)
+		menu_init()
+	end
+end
+
+function win_specific(w)
+	--stop()
+	if w.type == 1 then
+		postgame_lb(w)
+	end
+end
+
+--[[
 
 assumes all numbers in tile gfx
 are consecutive
@@ -1641,6 +1761,94 @@ function draw_listblob(l)
 	draw_blob(l[1],l[2],l[3],l[4],l[5],l[6])
 end
 
+function gen_win_draw(w)
+	local midblob={}
+	for blbind=1,#w.f do
+	add(midblob, lerp(w.f[blbind],w.t[blbind],w.prog))
+	end
+	add(midblob,w.col)
+	draw_listblob(midblob)
+end
+
+function draw_wins()
+	for w in all(windows) do
+		if w.type == 1 then
+			gen_win_draw(w)
+			if w.trem!=nil then
+				for i=1,w.trem do
+					if i<=3 then
+						local poss=winpos_list[i]
+						draw_str(winstr_list[i],poss[1],poss[2])
+					else
+					
+						--score values
+						
+						--timer
+						if gamemode==1 then
+							
+							for t=1,3 do
+								if #lbd[1]>=(i-3) then
+									local tscore=lbd[1][i-3][1][t]
+									if tscore<10 then
+										draw_str(0,30+t*12,8+i*10)
+										draw_str(tscore,34+t*12,8+i*10)
+									else
+										draw_str(tscore,30+t*12,8+i*10)
+									end
+								else
+									draw_str("--",30+t*12,8+i*10)
+								end
+								if (t!=3) draw_str(":",38+t*12,8+i*10)
+							end
+						--score
+						else
+							if #lbd[2]>=(i-3) then
+								draw_str(lbd[2][i-3][1],42,8+i*10)
+							else
+								draw_str("--",42,8+i*10)
+							end
+						end
+						
+						local lind=windows[1].letterind
+						for n=1,3 do
+							if #lbd[gamemode]>=(i-3) then
+								local char = chr((lbd[gamemode][i-3][2][n]%26)+97)
+								if (n-1)==lind and i-3==placeind then
+									draw_high_str(char,82+n*4,8+i*10)
+								else
+									draw_str(char,82+n*4,8+i*10)
+								end
+							else
+								draw_str("---",86,8+i*10)
+							end
+						end
+						
+						if i-3==placeind then
+							if lind==3 then
+								draw_high_str("ok?",102,8+i*10)
+							else
+								draw_str("ok?",102,8+i*10)
+							end
+						end
+						
+						
+					end
+					
+					if i==2 then
+						if gamemode==1 then
+							draw_clock(84,24)
+						else
+							draw_str(endscore, 104,24)
+						end
+					end
+				end
+			end
+			
+			
+		else
+			gen_win_draw(w)
+		end
+	end
 end
 
 function draw_debug()
