@@ -35,12 +35,12 @@ end
 
 function constant_init()
 	
-	debug = true
+	--debug = true
 	
 	--number tile gfx position
 	--position of 0
-	nx = 0
-	ny = 32
+	--nx = 0
+	--ny = 32
 	
 	bg_pals = {
 		{3,11},
@@ -153,8 +153,6 @@ end
 function floor_init(floor)
 	--trapdoor
 	trpdrx = 0
-	trpdrvx = 0
-	trpdrax = 0.04
 	trpcooldown = 60
 	trpopen = true
 	
@@ -219,27 +217,28 @@ function choose_bg_type()
 end
 
 function draw_base_map()
-	local offx = (15-lev_w)/2
-	local offy = (13-lev_h)/2	
+	clear_map()
+	--local offx = (15-lev_w)/2
+	--local offy = (13-lev_h)/2	
 	mset(i, f, 17)
 	mset(i, f, 19)
 	
 	
 	// map draw
- for i=offx+1,offx+lev_w+2 do
-		for f=offy+1,offy+lev_h+2 do
-			if i==offx+1 or i==offx+lev_w+2 then
+ for i=offx2+1,offx2+lev_w+2 do
+		for f=offy2+1,offy2+lev_h+2 do
+			if i==offx2+1 or i==offx2+lev_w+2 then
 				mset(i, f, 17)
 			end
-			if f==offy+1 or f==offy+lev_h+2 then
+			if f==offy2+1 or f==offy2+lev_h+2 then
 				mset(i, f, 17)
 			end
 			
-			if i>offx+1 and i<offx+lev_w+2 then
+			if i>offx2+1 and i<offx2+lev_w+2 then
 				mset(i, f, 19)
 			end
 			--??
-			if f==offy+1 or f==offy+lev_h+2 then
+			if f==offy2+1 or f==offy2+lev_h+2 then
 				mset(i, f, 17)
 			end
 		end
@@ -258,6 +257,17 @@ function init_floor_dimens(floor)
 		//max h=11
 		lev_h = (flr(rnd(4))+2)*2+1
 	end
+	
+	def_map_offs()
+	
+end
+
+function def_map_offs()
+	offx1 = (19-lev_w)*4
+	offy1 = (17-lev_h)*4
+	
+	offx2 = (15-lev_w)/2
+	offy2 = (13-lev_h)/2
 end
 
 function level_map_load(floor)
@@ -339,7 +349,6 @@ end
 function loadin_floor_tick()
 	loadincool += 0.0055
 	if loadincool >= 0.25 then
-		loacincool = 0.25
 		play_state = 1
 	end
 end
@@ -418,7 +427,6 @@ function end_floor_tick()
 	if leave_state == 4 then
 		loadoutcool += 0.0055
 		if loadoutcool >= 0.25 then
-			loacoutcool = 0.25
 			play_state = 5
 		end
 	end
@@ -498,16 +506,16 @@ function draw_particles()
 	foreach(prt, draw_prt_ind)
 end
 
-function draw_playbox()
-	if (trpcooldown == 60) boxy = -20
-	
-	cosy = cos((62-trpcooldown)/120)
-	cosy = cosy*cosy*cosy
-	
-	boxy += cosy*4
-	
-	rectfill(56, boxy, 56+9+6*5, boxy+20, 0)
-end
+--function draw_playbox()
+--	if (trpcooldown == 60) boxy = -20
+--	
+--	cosy = cos((62-trpcooldown)/120)
+--	cosy = cosy*cosy*cosy
+--	
+--	boxy += cosy*4
+--	
+--	rectfill(56, boxy, 56+9+6*5, boxy+20, 0)
+--end
 
 function draw_bg_hole()
 	if (bgcircs == nil) then
@@ -607,15 +615,15 @@ function draw_transition_elements()
 end
 
 function draw_map_border()
-	local offx = (15-lev_w)/2
-	local offy = (13-lev_h)/2
+	--local offx = (15-lev_w)/2
+	--local offy = (13-lev_h)/2
 	
 	pal(15,0)
 	
-	local x1=8*(offx+1)-1
-	local x2=8*(offx+lev_w+3)
-	local y1=8*(offy+1)-1
-	local y2=8*(offy+lev_h+3)
+	local x1=8*(offx2+1)-1
+	local x2=8*(offx2+lev_w+3)
+	local y1=8*(offy2+1)-1
+	local y2=8*(offy2+lev_h+3)
 	
 	rectfill(x1,y1,x2,y2,15)
 	pal(15,15)
@@ -718,6 +726,7 @@ function init_actor_counts()
 	elseif floor_type == 3 then
 		lev_w=min(lev_w+2, 13)
 		lev_h=min(lev_h+2, 11)
+		def_map_offs()
 		draw_base_map()
 		
 		cratetotal = round(actorcnt*2.5)
@@ -729,6 +738,7 @@ function init_actor_counts()
 	elseif floor_type == 5 then
 		lev_w=min(lev_w+2, 13)
 		lev_h=min(lev_h+2, 11)
+		def_map_offs()
 		draw_base_map()
 		
 		cratetotal=round(actorcnt*1.75)
@@ -751,10 +761,8 @@ function init_actors()
 	init_actor_counts()
 	
 	//same as map offsets, but in pixels and added by one tile
-	local offx = (19-lev_w)*4
-	local offy = (17-lev_h)*4
-	local offex = offx+(lev_w-1)*8
-	local offey = offy+(lev_h-1)*8
+	--local offx = (19-lev_w)*4
+	--local offy = (17-lev_h)*4
 	
 	makesteel=has_mod(2)
 	if makesteel then
@@ -773,8 +781,8 @@ function init_actors()
 	
 	for switch=1,switchtotal do
 		repeat
-		rx = 8*flr(rnd(lev_w))+offx
-		ry = 8*flr(rnd(lev_h))+offy
+		rx = 8*flr(rnd(lev_w))+offx1
+		ry = 8*flr(rnd(lev_h))+offy1
 		until not is_actor_there(rx, ry)
 		
 		load_actor(58, rx, ry)
@@ -782,7 +790,7 @@ function init_actors()
 		local sw = o[#o]
 		
 		sw.acts_col = false
-		sw.damage = 0
+		--sw.damage = 0
 		sw.colx = 0.5
 		sw.coly = 0.5
 		sw.colw = 7
@@ -795,8 +803,8 @@ function init_actors()
 	if has_mod(3) then
 		for fire=1,firecount do
 			repeat
-			rx = 8*flr(rnd(lev_w))+offx
-			ry = 8*flr(rnd(lev_h))+offy
+			rx = 8*flr(rnd(lev_w))+offx1
+			ry = 8*flr(rnd(lev_h))+offy1
 			until not is_actor_there(rx, ry)
 			
 			load_actor(26, rx, ry)
@@ -804,7 +812,7 @@ function init_actors()
 			local fr = o[#o]
 			
 			fr.acts_col = false
-			fr.damage = 0
+			--fr.damage = 0
 			fr.colx = 0.5
 			fr.coly = 0.5
 			fr.colw = 7
@@ -826,8 +834,8 @@ function init_actors()
 			end
 			
 			repeat
-			rx = 8*flr(rnd(lev_w))+offx
-			ry = 8*flr(rnd(lev_h))+offy
+			rx = 8*flr(rnd(lev_w))+offx1
+			ry = 8*flr(rnd(lev_h))+offy1
 			until not is_actor_there(rx, ry)
 			
 			load_actor(vxt, rx, ry)
@@ -849,8 +857,8 @@ function init_actors()
 		--don't do this in your game.
 		tries=0
 		repeat
-		rx = 8*flr(rnd(lev_w-4))+offx+16
-		ry = 8*flr(rnd(lev_h-4))+offy+16
+		rx = 8*flr(rnd(lev_w-4))+offx1+16
+		ry = 8*flr(rnd(lev_h-4))+offy1+16
 		tries+=1
 		until not is_actor_there(rx, ry) or tries==50
 		
@@ -890,8 +898,8 @@ function make_crate(x,y)
 		ry=y
 	end
 	
-	local offx = (19-lev_w)*4
-	local offy = (17-lev_h)*4
+	--local offx = (19-lev_w)*4
+	--local offy = (17-lev_h)*4
 
 	local crt=10
 	if makesteel then
@@ -902,8 +910,8 @@ function make_crate(x,y)
 	
 	if rx==nil or ry==nil then
 		repeat
-		rx = 8*flr(rnd(lev_w))+offx
-		ry = 8*flr(rnd(lev_h))+offy
+		rx = 8*flr(rnd(lev_w))+offx1
+		ry = 8*flr(rnd(lev_h))+offy1
 		until not is_actor_there(rx, ry)
 	end
 	load_actor(crt, rx, ry)
@@ -911,7 +919,7 @@ function make_crate(x,y)
 	local cr = o[#o]
 	
 	cr.acts_col = true
-	cr.damage = 0
+	--cr.damage = 0
 	cr.colx = 0.5
 	cr.coly = 0.5
 	cr.colw = 7
@@ -1009,7 +1017,6 @@ function actor_collide(a1, a2)
 	
 	if (distance(a1.x, a1.y, a2.x, a2.y) >= 16) return
 	if will_a_touch(a1, a2, true) then
-	 gener_hit(a1, a2)
 	 hit_action(a1, a2)
 		hit_action(a2, a1)
 	end
@@ -1036,8 +1043,6 @@ function hit_action(a1, a2)
 		--player interaction
 		if is_player(a2) and a2.control then
 			fire_touched=true
-			local res1 = will_a_touch(a1, a2, false)
-			local res2 = will_a_touch(a1, a2, true)
 			fire_player(a2)
 		end			
 	end
@@ -1059,10 +1064,10 @@ function crate_damage(ac, instant, player)
 		else
 			ac.t = 13
 		end
-		damage = 100
+		--damage = 100
 	else
 		if ac.t!=14 then
-			ac.damage += 1
+			--ac.damage += 1
 			ac.t += 1
 		end
 	end
@@ -1160,46 +1165,6 @@ function actor_col()
  
 end
 
-function will_hit_wall(ac, future)
-	if ac.blast_mode == nil then
- 
- cx = ac.x
- cy = ac.y
- 
- if future then
- 	cx += ac.vx
- 	cy += ac.vy
- end
- 
- if cx <= 16 then
- ac.x = 16
- ac.vx *= -1
- end
- if cy <= 16 then
- ac.y = 16
- ac.vy *= -1
- end
- if cx >= 128 then
- ac.x = 128
- ac.vx *= -1
- end
- if cy >= 112 then
- ac.y = 112
- ac.vy *= -1
- end
- 
- return false
- end
-end
-
-function gener_hit(a1, a2)
- 
-end
-
-function actor_hit_actions()
-
-end
-
 function actor_phys_apply()
 	for act in all(o) do
 		isplayer = false
@@ -1250,7 +1215,6 @@ function actor_specific()
 			ac.frametimer += rnd(10)/20
 			ac.frametimer %= 4
 			ac.t = 26 + flr(ac.frametimer)
-			will_hit_wall(ac, false)
 		end
 		if ac.t >= 45 and ac.t <= 47 then
 			ac.frametimer += 0.1
@@ -1313,7 +1277,7 @@ function heal_item_tick(it)
 					end
 				end
 				cr.t-=1
-				cr.damage=0
+				--cr.damage=0
 			end
 			
 		end
@@ -1409,10 +1373,11 @@ function draw_actors()
 						--fillp(fill_list[(frameoff)%4+1])
 						local ind=flr((frameoff*8)%4+1)
 						fillp(fill_list[ind])
-						circfill(act.x+4, act.y+4, rad, 11)
-						ind=flr(((frameoff*8)+2)%4+1)
-						fillp(fill_list[ind])
-						circfill(act.x+4, act.y+4, rad, 3)
+						for col=11,3,-8do
+							circfill(act.x+4, act.y+4, rad, col)
+							ind=flr(((frameoff*8)+2)%4+1)
+							fillp(fill_list[ind])
+						end
 						fillp()						
 					end
 					
@@ -1451,9 +1416,9 @@ function lerp(v1, v2, percent)
 	return (v1 + (v2-v1)*percent)
 end
 
-function ilerp(v1, v2, inter)
-	return (inter-v1)/(v2-v1)
-end
+--function ilerp(v1, v2, inter)
+--	return (inter-v1)/(v2-v1)
+--end
 
 function distance(x1,y1,x2,y2)
 	return sqrt(((x2-x1)^2 + (y2-y1)^2))
@@ -1725,10 +1690,10 @@ end
 --	print(cpu, 16, 22, 8)
 --end
 
-function draw_player_stats()
-	print(p[1].x, 16, 28, 8)
-	print(p[1].y, 16, 34, 8)
-end
+--function draw_player_stats()
+--	print(p[1].x, 16, 28, 8)
+--	print(p[1].y, 16, 34, 8)
+--end
 
 function draw_low_bg()
 	map(18, 0, 12-camoff[1], 128-camoff[2], 16, 2)
@@ -1867,11 +1832,11 @@ function draw_wins()
 	end
 end
 
-function draw_debug()
-	draw_mem()
-	draw_cpu()
-	draw_player_stats()
-end
+--function draw_debug()
+--	draw_mem()
+--	draw_cpu()
+--	draw_player_stats()
+--end
 
 function draw_hud()
 	draw_low_bg()
@@ -1973,8 +1938,8 @@ function player_blast(player)
 	u = btn(2, player-1)
 	d = btn(3, player-1)
 	
-	pvx = pl.vx
-	pvy = pl.vy
+	--pvx = pl.vx
+	--pvy = pl.vy
 	
 	if l or r or u or d then
 	boost = 6
@@ -2044,7 +2009,7 @@ function player_tick(player)
 	end
 end
 
-function player_bounce_actor(a1, a2, hr1, hr2)
+function player_bounce_actor(a1, a2)
 	local hit_res1 = will_physa_hit(a1, a2, false)
 	local hit_res2 = will_physa_hit(a1, a2, true)
 	
@@ -2107,14 +2072,14 @@ function player_border_check(player)
 	local pl = p[player]
 	
 	//same as map offsets, but in pixels and added by one tile
-	local offx = (19-lev_w)*4
-	local offy = (17-lev_h)*4
-	local offex = offx+(lev_w-1)*8
-	local offey = offy+(lev_h-1)*8
+	--local offx = (19-lev_w)*4
+	--local offy = (17-lev_h)*4
+	local offex = offx1+(lev_w-1)*8
+	local offey = offy1+(lev_h-1)*8
 	
 	// border check
- if pl.x < offx then
- 	pl.x = offx pl.vx *= -0.75
+ if pl.x < offx1 then
+ 	pl.x = offx1 pl.vx *= -0.75
  	if (pl.vx>0.275) sfx(10,-1)
  	if (pl.vx>1.5) camoff[1] -= 1
  elseif pl.x > offex then
@@ -2124,8 +2089,8 @@ function player_border_check(player)
  	if (pl.vx<-1.5) camoff[1] += 1
  end
 
- if pl.y < offy then
- 	pl.y = offy pl.vy *= -0.75
+ if pl.y < offy1 then
+ 	pl.y = offy1 pl.vy *= -0.75
  	if (pl.vy>0.275) sfx(10,-1)
  	if (pl.vy>1.5) camoff[2] -= 1
  elseif pl.y > offey then
