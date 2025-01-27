@@ -372,7 +372,7 @@ function end_floor_tick()
 	first frame
 	
 	]]
-	if leave_state == 1 then
+	--if leave_state == 1 then
 	
 	
 	--[[
@@ -380,7 +380,7 @@ function end_floor_tick()
 	moving towards trapdoor center
 		
 	]]
-	elseif leave_state == 2 then
+	--elseif leave_state == 2 then
 	
 	
 	--[[
@@ -388,7 +388,7 @@ function end_floor_tick()
 	player inside, door shutting
 		
 	]]
-	elseif leave_state == 3 then
+	--elseif leave_state == 3 then
 	
 	
 	--[[
@@ -396,7 +396,8 @@ function end_floor_tick()
 	door shut, transitioning
 			
 	]]
-	elseif leave_state == 4 then
+	--else
+	if leave_state == 4 then
 		loadoutcool += 0.0055
 		if loadoutcool >= 0.25 then
 			loacoutcool = 0.25
