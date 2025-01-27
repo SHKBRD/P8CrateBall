@@ -1218,13 +1218,13 @@ function actor_specific()
 			local frame = ac.frametimer % 3
 			ac.t = 45 + flr(frame)
 			
-			for pl=1,#p do
-				if p[pl].control then
-					local xdist= ac.x-p[pl].x
-					local ydist= ac.y-p[pl].y
-					local dist=distance(ac.x,ac.y,p[pl].x,p[pl].y)
-					p[pl].vx+=(xdist/(0.1+dist))/10
-					p[pl].vy+=(ydist/(0.1+dist))/10
+			for pl in all(p) do
+				if pl.control then
+					local xdist= ac.x-pl.x
+					local ydist= ac.y-pl.y
+					local dist=distance(ac.x,ac.y,pl.x,pl.y)
+					pl.vx+=(xdist/(0.1+dist))/10
+					pl.vy+=(ydist/(0.1+dist))/10
 				end
 			end
 			
@@ -1234,13 +1234,13 @@ function actor_specific()
 			local frame = ac.frametimer % 3
 			ac.t = 61 + flr(frame)
 			
-			for pl=1,#p do
-				if p[pl].control then
-					local xdist= ac.x-p[pl].x
-					local ydist= ac.y-p[pl].y
-					local dist=distance(ac.x,ac.y,p[pl].x,p[pl].y)
-					p[pl].vx-=(xdist/(0.1+dist))/10
-					p[pl].vy-=(ydist/(0.1+dist))/10
+			for pl in all(p) do
+				if pl.control then
+					local xdist= ac.x-pl.x
+					local ydist= ac.y-pl.y
+					local dist=distance(ac.x,ac.y,pl.x,pl.y)
+					pl.vx-=(xdist/(0.1+dist))/10
+					pl.vy-=(ydist/(0.1+dist))/10
 				end
 			end
 			
@@ -1426,17 +1426,17 @@ end
 -->8
 --hud
 
-chrs = {
-	[":"] = 40,
-	["?"] = 44,
-	["!"] = 48,
-	["."] = 52,
-	["/"] = 56,
-	["["] = 60,
-	["]"] = 64,
-	[" "] = 68,
-	["_"] = 72
-}
+--chrs = {
+--	[":"] = 40,
+--	["?"] = 44,
+--	["!"] = 48,
+--	["."] = 52,
+--	["/"] = 56,
+--	["["] = 60,
+--	["]"] = 64,
+--	[" "] = 68,
+--	["_"] = 72
+--}
 
 --[[
 
@@ -1487,38 +1487,47 @@ function tick_clock(dir)
 	clk[3]=abs(clk[3])
 end
 
-function draw_char(inp, x, y)
-	orded = ord(tostr(inp))
-	if orded >=48 and orded <= 57 then
-		char_ind = inp*4
-		sspr(nx+char_ind, ny, 4, 6, x, y)
-	else
-		char = chrs[inp]
-		if char==nil then
-			stop(inp)
-		end
-		
-		sspr(nx+char, ny, 4, 6, x, y)
-	end
-end
+--function draw_char(inp, x, y)
+--	orded = ord(tostr(inp))
+--	if orded >=48 and orded <= 57 then
+--		char_ind = inp*4
+--		sspr(nx+char_ind, ny, 4, 6, x, y)
+--	else
+--		char = chrs[inp]
+--		if char==nil then
+--			stop(inp)
+--	end
+--		
+--		sspr(nx+char, ny, 4, 6, x, y)
+--	end
+--end
 
-function draw_letter(letter, x, y)
-	if (ord(letter) < 97) draw_char(letter, x, y)
-	sspr((ord(letter)-97)*4, 40, 4, 6, x, y)
-end
+--function draw_letter(letter, x, y)
+--	if (ord(letter) < 97) draw_char(letter, x, y)
+--	sspr((ord(letter)-97)*4, 40, 4, 6, x, y)
+--end
 
 function draw_str(str, x, y)
-	strver = tostr(str)
-	for ind=1,#strver do
-		draw_letter(strver[ind], x, y)
-		x += 4
-	end
+	print(str, x, y+1, 5)
+	print(str, x, y, 7)
+	
+	--strver = tostr(str)
+	--for ind=1,#strver do
+	--	draw_letter(strver[ind], x, y)
+	--	x += 4
+	--end
+end
+
+function draw_high_str(str, x, y)
+	print(str, x, y+1, 5)
+	print(str, x, y, 9+flr(frameoff*5%2))
 end
 
 function draw_wavy_str(str, x, y)
 	strver = tostr(str)
 	for ind=1,#strver do
-		draw_letter(strver[ind], x, y+sin(frameoff+ind/#strver)*0.75)
+		print(strver[ind], x, y+sin(frameoff+ind/#strver)*0.75+1,5)
+		print(strver[ind], x, y+sin(frameoff+ind/#strver)*0.75,7)
 		x += 4
 	end
 end
@@ -1548,15 +1557,15 @@ function draw_clock()
 	end
 end
 
-function draw_mem()
-	local mem = stat(0)
-	print(mem, 16, 16, 8)
-end
+--function draw_mem()
+--	local mem = stat(0)
+--	print(mem, 16, 16, 8)
+--end
 
-function draw_cpu()
-	local cpu = stat(1)
-	print(cpu, 16, 22, 8)
-end
+--function draw_cpu()
+--	local cpu = stat(1)
+--	print(cpu, 16, 22, 8)
+--end
 
 function draw_player_stats()
 	print(p[1].x, 16, 28, 8)
@@ -1702,27 +1711,29 @@ function destroy_surr(p_ind)
 end
 
 function player_blast(player)
+	pl=p[player]
+	
 	l = btn(0, player-1)
 	r = btn(1, player-1)
 	u = btn(2, player-1)
 	d = btn(3, player-1)
 	
-	pvx = p[player].vx
-	pvy = p[player].vy
+	pvx = pl.vx
+	pvy = pl.vy
 	
 	if l or r or u or d then
 	boost = 6
 		if l then
-			p[player].vx = boost*-1
+			pl.vx = boost*-1
 		end
 		if r then
-			p[player].vx = boost
+			pl.vx = boost
 		end
 		if u then
-			p[player].vy = boost*-1
+			pl.vy = boost*-1
 		end
 		if d then
-			p[player].vy = boost
+			pl.vy = boost
 		end
 		
 	for particles=1,30 do
@@ -1731,8 +1742,8 @@ function player_blast(player)
 	
 	destroy_surr(player)
 	
-	p[player].blast_cool = 120
-	p[player].blast_mode = true
+	pl.blast_cool = 120
+	pl.blast_mode = true
 	sfx(1,2)	
 		
 	end
@@ -1871,17 +1882,18 @@ function player_border_check(player)
 end
 
 function player_control(player)
+	local pl=p[player]
 	
-	if p[player].blast_cool<=0 and p[player].fired != true then
+	if pl.blast_cool<=0 and pl.fired != true then
 		if btn(5, player-1) or btn(4, player-1) then
 			player_blast(player)
 		end
 	end
 	
 	// set first calc vars for x
-	pos = p[player].x
-	vel = p[player].vx
-	acc = p[player].ax
+	pos = pl.x
+	vel = pl.vx
+	acc = pl.ax
 	
 	// loop for both x and y calcs
 	for loop=0,2,2 do
@@ -1921,35 +1933,35 @@ function player_control(player)
 	 
 	 // switch calc vars to y
 	 if loop == 0 then
-	 	p[player].x = pos
-	 	pos = p[player].y
-	 	p[player].vx = vel
-	 	vel = p[player].vy
-	 	p[player].ax = acc
-	 	acc = p[player].ay
+	 	pl.x = pos
+	 	pos = pl.y
+	 	pl.vx = vel
+	 	vel = pl.vy
+	 	pl.ax = acc
+	 	acc = pl.ay
 	 else
-	 	p[player].y = pos
-	 	p[player].vy = vel
-	 	p[player].ay = acc
+	 	pl.y = pos
+	 	pl.vy = vel
+	 	pl.ay = acc
 		end	 
 	end
 	
-	p[player].blast_cool -= 1
-	p[player].fire_cool -= 1
+	pl.blast_cool -= 1
+	pl.fire_cool -= 1
 	
-	local velcomb=abs(p[player].vx) + abs(p[player].vy)
+	local velcomb=abs(pl.vx)+abs(pl.vy)
 	
-	if p[player].blast_mode and p[player].blast_cool<100 and velcomb < 2 then
-		p[player].blast_mode = false
+	if pl.blast_mode and pl.blast_cool<100 and velcomb < 2 then
+		pl.blast_mode = false
 	end
 	
-	if (p[player].blast_cool <= 0) then
-		p[player].blast_mode = false
+	if (pl.blast_cool <= 0) then
+		pl.blast_mode = false
 	end	
 	
-	if p[player].fire_cool <= 0 then
-		p[player].fired = false
-		p[player].fire_cool = 0
+	if pl.fire_cool <= 0 then
+		pl.fired = false
+		pl.fire_cool = 0
 	end
 	
 end
@@ -1969,7 +1981,7 @@ function did_player_enter_trap()
 end
 
 function player_leave_tick()
-	
+	pl=p[1]
 	--[[
 	
 	hasn't started leaving, 
@@ -1978,8 +1990,8 @@ function player_leave_tick()
 	]]
 	if leave_state == 1 then
 	
-	p[1].blast_mode = false
-	p[1].blast_cool = 0
+	pl.blast_mode = false
+	pl.blast_cool = 0
 	leave_state = 2
 	
 	--[[
@@ -1989,11 +2001,11 @@ function player_leave_tick()
 	]]
 	elseif leave_state == 2 then
 	
-	p[1].x = lerp(72, p[1].x, 0.5)
-	p[1].y = lerp(64, p[1].y, 0.5)
-	if distance(p[1].x, p[1].y, 72, 64) < 1 then
-		p[1].x = 72
-		p[1].y = 64
+	pl.x = lerp(72, pl.x, 0.5)
+	pl.y = lerp(64, pl.y, 0.5)
+	if distance(pl.x, pl.y, 72, 64) < 1 then
+		pl.x = 72
+		pl.y = 64
 		leave_state = 3
 	end
 	
@@ -2039,8 +2051,6 @@ end
 function draw_players()
 	for pnum=1,#p do
 	 local pl = p[pnum]
-	 // ball explode anim
-	 count = count + .01
 	 // player draw
 	 if pl.fired and pl.fire_cool%2==0 then
 	 	spr(3,pl.x,pl.y)
