@@ -11,16 +11,16 @@ function _init()
 	--clear_lbd()
 	get_lbd()
 	
-	
-	
 	--cool flags here!
 	constant_init()
 	
 	--match_init(2)
 	menu_init()
+	frameoff=0
 end
 
 function _update60()
+	frameoff += 2/60
  if not inmatch then
  	menu_tick()
  else
