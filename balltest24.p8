@@ -470,11 +470,7 @@ function match_loop()
  
  particle_physics()
  tick_actors()
- tick_clock(true)
-end
-
-function _update60()
- match_loop()
+ tick_clock(2-clkdir)
 end
 	
 function draw_prt_ind(p)
@@ -1596,7 +1592,7 @@ are consecutive
 function tick_clock(dir)
 	if (not p[1].control) return
 	frame = 1/.6
-	if (dir == true) then
+	if (dir == 1) then
 		clk[3] += frame
 		if clk[3] > 99 then
 			clk[3] = clk[3]-100
