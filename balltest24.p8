@@ -7,7 +7,11 @@ __lua__
 --prime
 
 function _init()
-	count = 1
+	cartdata("shk-unbreakaball")
+	--clear_lbd()
+	get_lbd()
+	
+	
 	
 	--cool flags here!
 	constant_init()
