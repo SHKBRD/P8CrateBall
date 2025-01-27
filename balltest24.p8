@@ -1626,13 +1626,20 @@ function draw_level_text()
 	end
 end
 
-function draw_blob(x,y,xw,yh,rad,col)
+function draw_blob(x,y,w,h,rad,col)
+	w=max(w,rad*2)
+	h=max(h,rad*2)
 	circfill(x+rad,y+rad,rad,col)
-	circfill(x+xw-rad,y+rad,rad,col)
-	circfill(x+rad,y+yh-rad,rad,col)
-	circfill(x+xw-rad,y+yh-rad,rad,col)
-	rectfill(x+rad,y,x+xw-rad,y+yh,col)
-	rectfill(x,y+rad,x+xw,y+yh-rad,col)
+	circfill(x+w-rad,y+rad,rad,col)
+	circfill(x+rad,y+h-rad,rad,col)
+	circfill(x+w-rad,y+h-rad,rad,col)
+	rectfill(x+rad,y,x+w-rad,y+h,col)
+	rectfill(x,y+rad,x+w,y+h-rad,col)
+end
+
+function draw_listblob(l)
+	draw_blob(l[1],l[2],l[3],l[4],l[5],l[6])
+end
 
 end
 
