@@ -1878,6 +1878,7 @@ function draw_hud()
 	draw_clock(clkx,clky)
 	draw_crates_rem()
 	draw_floor_count()
+	draw_wins()
 	//if (debug) draw_debug()
 end
 -->8
