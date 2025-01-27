@@ -128,7 +128,7 @@ function gen_floor_mods(floor)
 			end
 			
 			if fmod==3 then
-				firecount=flr((floor*2+1)/5)
+				firecount=flr((floor*1.5+1)/5)
 			end
 			
 		end
