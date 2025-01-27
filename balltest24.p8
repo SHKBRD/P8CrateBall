@@ -471,6 +471,7 @@ function level_state_process()
 		else
 			next_level_init()
 		end
+	elseif play_state==7 then run()
 	end
 end
 	
@@ -616,8 +617,10 @@ function draw_transition_elements()
  poke(0x5f34,0x2)
  if play_state == 0 then
 	 circfill(75.5, 67.5, 89-cos(loadincool)*89, 0|0x1800)
+	 if (loadincool==0) cls()
 	elseif play_state >= 4 then
 		circfill(75.5, 67.5, 88+sin(loadoutcool)*88, 0|0x1800)
+		if (loadoutcool>=0.25) cls()
 	end
 end
 
@@ -1558,6 +1561,8 @@ function postgame_lb(w)
 	else
 		w.timer=1.5
 		w.prog=0
+		w.col=0
+		play_state+=1
 	end
 end
 
