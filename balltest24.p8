@@ -683,7 +683,7 @@ function match_draw()
 	
  draw_hud()
  
- draw_blob(30,30,0,0,4,0)
+ --draw_blob(30,30,0,0,4,0)
 end
 
 -->8
@@ -1718,7 +1718,7 @@ function draw_low_bg()
 end
 
 function draw_crates_rem()
-	spr(10, 72, 130)
+	spr(10, 73, 130)
 	drawstr = ""
 	if cratetotal >= 10 and cratesbroken < 10 then
 		drawstr ..= "0"
@@ -1726,7 +1726,7 @@ function draw_crates_rem()
 	drawstr ..= tostr(cratesbroken)
 	drawstr ..= "/"
 	drawstr ..= tostr(cratetotal)
-	draw_str(drawstr, 82, 131)
+	draw_str(drawstr, 83, 131)
 end
 
 function draw_floor_count()
