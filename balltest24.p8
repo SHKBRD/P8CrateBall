@@ -609,8 +609,6 @@ function draw_bg_vort()
 end
 
 function draw_bg()
-	if (frameoff == nil) frameoff = 0
-	frameoff += 2/60
 	
 	if bg_type == 0 then
 		draw_bg_hole()
@@ -1845,7 +1843,6 @@ function draw_wins()
 				end
 			end
 			
-			
 		else
 			gen_win_draw(w)
 		end
@@ -2502,11 +2499,23 @@ function draw_menubg()
 end
 
 function draw_buttons()
+menu_strs={
+"20 floor dash",
+"3 minute dash",
+" leaderboard "
+}
 	for i=0,2	do
 		local yset=60+i*18
-		local col=5
-		if (i==button_high_ind) col=8
+		local col=13
+		onbtn=i==button_high_ind
+		
+		if (onbtn) col=8
 		draw_blob(32,yset,60, 8, 3, col)
+		if trstn_phase >= 2 and onbtn then
+			draw_high_str(menu_strs[i+1], 37, yset+2)
+		else
+			draw_str(menu_strs[i+1], 37, yset+2)
+		end
 	end
 end
 
