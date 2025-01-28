@@ -797,21 +797,13 @@ function init_actors()
 	end
 	
 	for switch=1,switchtotal do
-		repeat
-		rx = 8*flr(rnd(lev_w))+offx1
-		ry = 8*flr(rnd(lev_h))+offy1
-		until not is_actor_there(rx, ry)
-		
+		a_pick_random_spot()
 		load_actor(58, rx, ry)
 		
 		local sw = o[#o]
 		
 		sw.acts_col = false
 		--sw.damage = 0
-		sw.colx = 0.5
-		sw.coly = 0.5
-		sw.colw = 7
-		sw.colh = 7
 		sw.z = 2
 		sw.blink = 0
 		add(switches, sw)
@@ -819,21 +811,13 @@ function init_actors()
 	
 	if has_mod(3) then
 		for fire=1,firecount do
-			repeat
-			rx = 8*flr(rnd(lev_w))+offx1
-			ry = 8*flr(rnd(lev_h))+offy1
-			until not is_actor_there(rx, ry)
-			
+			a_pick_random_spot()
 			load_actor(26, rx, ry)
 			
 			local fr = o[#o]
 			
 			fr.acts_col = false
 			--fr.damage = 0
-			fr.colx = 0.5
-			fr.coly = 0.5
-			fr.colw = 7
-			fr.colh = 7
 			fr.z = 2
 			fr.frametimer = 0
 			add(fires, fr)
@@ -850,20 +834,12 @@ function init_actors()
 				vxt = 61
 			end
 			
-			repeat
-			rx = 8*flr(rnd(lev_w))+offx1
-			ry = 8*flr(rnd(lev_h))+offy1
-			until not is_actor_there(rx, ry)
+			a_pick_random_spot()
 			
 			load_actor(vxt, rx, ry)
 			
 			local vx = o[#o]
 			
-			vx.acts_col = false
-			vx.colx = 4
-			vx.coly = 4
-			vx.colw = 0
-			vx.colh = 0
 			vx.frametimer = 0
 			vx.z = 2	
 		end
@@ -906,13 +882,20 @@ function init_actors()
 	
 end
 
+function a_pick_random_spot()
+	repeat
+	rx = 8*flr(rnd(lev_w))+offx1
+	ry = 8*flr(rnd(lev_h))+offy1
+	until not is_actor_there(rx, ry)
+end
+
 function make_crate(x,y)
-	local rx=nil
-	local ry=nil
+	local crx=nil
+	local cry=nil
 	if x!=nil and y!= nil then
 		--stop("▒")
-		rx=x
-		ry=y
+		crx=x
+		cry=y
 	end
 	
 	--local offx = (19-lev_w)*4
@@ -925,13 +908,12 @@ function make_crate(x,y)
 		if (steelsmade==steelmax) makesteel=false
 	end
 	
-	if rx==nil or ry==nil then
-		repeat
-		rx = 8*flr(rnd(lev_w))+offx1
-		ry = 8*flr(rnd(lev_h))+offy1
-		until not is_actor_there(rx, ry)
+	if crx==nil or cry==nil then
+		a_pick_random_spot()	
+		crx=rx
+		cry=ry
 	end
-	load_actor(crt, rx, ry)
+	load_actor(crt, crx, cry)
 	
 	local cr = o[#o]
 	
