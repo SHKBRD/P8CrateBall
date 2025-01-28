@@ -461,7 +461,7 @@ function level_state_process()
 		change is performed
 		
 		]]
-		if floor_level==20 or (clk[1]==0and clk[2]==0 and clk[3]==0) then
+		if (floor_level==20 and gamemode==1) or (clk[1]==0and clk[2]==0 and clk[3]==0) then
 			
 			if not floor_won then
 				floor_won=true
