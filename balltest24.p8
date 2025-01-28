@@ -1478,7 +1478,7 @@ function postgame_lb(w)
 		w.timer+=.01
 		w.prog=-1*sin(w.timer)
 		w.trem=nil
-		camabs.y-=w.prog
+		if (inmatch)camabs.y-=w.prog
 	elseif w.timer<1 then
 		w.timer+=.01
 		w.prog=1
