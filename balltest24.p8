@@ -20,7 +20,7 @@ function _init()
 end
 
 function _update60()
-	frameoff += 2/60
+	frameoff += .03333
  if not inmatch then
  	menu_tick()
  else
