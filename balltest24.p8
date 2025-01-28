@@ -8,7 +8,7 @@ __lua__
 
 function _init()
 	cartdata("shk-unbreakaball")
-	clear_lbd()
+	--clear_lbd()
 	get_lbd()
 	
 	--cool flags here!
