@@ -1810,7 +1810,7 @@ function draw_wins()
 							if #lbd[gamemode]>=(i-3) then
 								local char = chr((lbd[gamemode][i-3][2][n]%26)+97)
 								if (n-1)==lind and i-3==placeind then
-									draw_high_str(char,82+n*4,8+i*10)
+									draw_high_str(char,w.x+60+n*4,8+i*10)
 								else
 									draw_str(char,82+n*4,8+i*10)
 								end
@@ -2287,6 +2287,7 @@ function player_leave_tick()
 end
 
 function draw_cooldown(pl, fire)
+	if (play_state>3) return
 	--container edges
 	x2=pl.x-2
 	x9=pl.x+9
@@ -2315,6 +2316,7 @@ end
 
 function draw_players()
 	for pnum=1,#p do
+	 
 	 local pl = p[pnum]
 	 // player draw
 	 if pl.fired and pl.fire_cool%2==0 then
@@ -2480,7 +2482,7 @@ end
 function menu_init()
 	m_trstn=-0.25
 	trstn_phase=0
-	
+	gamemode=1
 	button_high_ind=-1
 	
 end
@@ -2495,6 +2497,7 @@ function menu_tick()
 		end
 		
 	elseif trstn_phase==1 then
+		win_tick()
 		button_high_ind=button_high_ind==-1 and 0 or button_high_ind
 		
 		if (btnp(2)) button_high_ind-=1
@@ -2505,7 +2508,18 @@ function menu_tick()
 			if button_high_ind!=2 then
 				trstn_phase+=1
 				sfx(13,-1)
+			else
+				if #windows<1 then
+					add_win(
+						{64,64,0,0,0},
+						{20,8,88,99,8},
+						0,0,1)
+				end
 			end
+		end
+		
+		if #windows!=0 then
+			if (btnp(0) or btnp(1)) gamemode%=2;gamemode+=1
 		end
 	
 	elseif trstn_phase==2 then
@@ -2567,6 +2581,7 @@ function menu_draw()
 	map(66,0,0,8)
 	draw_buttons()
 	draw_transition()
+	draw_wins()
 end
 __gfx__
 00000000001111000099990000888800000000000000000000000000000000000000000000000000499999940999490409949904000000006666667700000070
