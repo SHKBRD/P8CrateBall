@@ -503,8 +503,8 @@ function match_loop()
  	camabs.y=12
  end
  
- for loop=1,#p do
- 	player_tick(loop)
+ for pl in all(p) do
+ 	player_tick(pl)
  end
  
  particle_physics()
@@ -1899,20 +1899,19 @@ function player_init()
 	end
 end
 
-function add_boom_part(player)
+function add_boom_part(pl)
 	add(prt, {})
 	boom = prt[#prt]
 	boom.life = rnd(10)+5
 	boom.type = 0
-	boom.x = p[player].x
-	boom.y = p[player].y
+	boom.x = pl.x
+	boom.y = pl.y
 	boom.vx = rnd(4)-2
 	boom.vy = rnd(4)-2
 	prt[#prt] = boom
 end
 
-function destroy_surr(p_ind)
-	pl = p[p_ind]
+function destroy_surr(pl)
 	
 	dist = 2*8
 	
@@ -1929,37 +1928,28 @@ function destroy_surr(p_ind)
 	
 end
 
-function player_blast(player)
-	pl=p[player]
+function player_blast(pl)
 	
-	l = btn(0, player-1)
-	r = btn(1, player-1)
-	u = btn(2, player-1)
-	d = btn(3, player-1)
+	l = btn(0)
+	r = btn(1)
+	u = btn(2)
+	d = btn(3)
 	
 	--pvx = pl.vx
 	--pvy = pl.vy
 	
 	if l or r or u or d then
 	boost = 6
-		if l then
-			pl.vx = boost*-1
-		end
-		if r then
-			pl.vx = boost
-		end
-		if u then
-			pl.vy = boost*-1
-		end
-		if d then
-			pl.vy = boost
-		end
+		if(l)pl.vx=boost*-1
+		if(r)pl.vx=boost
+		if(u)pl.vy=boost*-1
+		if(d)pl.vy=boost
 		
 	for particles=1,30 do
-		add_boom_part(player)
+		add_boom_part(pl)
 	end
 	
-	destroy_surr(player)
+	destroy_surr(pl)
 	
 	pl.blast_cool = 120
 	pl.blast_mode = true
@@ -1981,9 +1971,9 @@ function fire_player(pl)
 	pl.blast_cool = 0
 end
 
-function player_roll_sfx(player)
+function player_roll_sfx(pl)
 	local poke1=0b10001100
-	local spd=distance(0,0,p[player].vx,p[player].vy)
+	local spd=distance(0,0,pl.vx,pl.vy)
 	local norm=(spd/6)-.05
 	if (norm<0) then 
 		norm=0
@@ -2001,10 +1991,10 @@ function player_roll_sfx(player)
 	print(spd, 16, 34, 8)
 end
 
-function player_tick(player)
-	if p[player].control then
-		player_control(player)
-		player_roll_sfx(player)
+function player_tick(pl)
+	if pl.control then
+		player_control(pl)
+		player_roll_sfx(pl)
 	end
 end
 
@@ -2066,9 +2056,7 @@ function player_hit_actor(a1, a2)
 	end
 end
 
-function player_border_check(player)
-	
-	local pl = p[player]
+function player_border_check(pl)
 	
 	//same as map offsets, but in pixels and added by one tile
 	--local offx = (19-lev_w)*4
@@ -2077,35 +2065,68 @@ function player_border_check(player)
 	local offey = offy1+(lev_h-1)*8
 	
 	// border check
- if pl.x < offx1 then
- 	pl.x = offx1 pl.vx *= -0.75
- 	if (pl.vx>0.275) sfx(10,-1)
- 	if (pl.vx>1.5) camoff[1] -= 1
- elseif pl.x > offex then
-		pl.x = offex pl.vx *= -0.75
+-- if pl.x < offx1 then
+-- 	pl.x = offx1 pl.vx *= -0.75
+-- 	if (pl.vx>0.275) sfx(10,-1)
+-- 	if (pl.vx>1.5) camoff[1] -= 1
+-- elseif pl.x > offex then
+--		pl.x = offex pl.vx *= -0.75
+-- 	
+-- 	if (pl.vx<-0.275) sfx(10,-1)
+-- 	if (pl.vx<-1.5) camoff[1] += 1
+-- end
+--
+-- if pl.y < offy1 then
+-- 	pl.y = offy1 pl.vy *= -0.75
+-- 	if (pl.vy>0.275) sfx(10,-1)
+-- 	if (pl.vy>1.5) camoff[2] -= 1
+-- elseif pl.y > offey then
+--		pl.y = offey pl.vy *= -0.75 	
+-- 	if (pl.vy<-0.275) sfx(10,-1)
+-- 	if (pl.vy<-1.5) camoff[2] += 1
+-- end
+	
+	pd=pl.x
+	pv=pl.vx
+	od1=offx1
+	oe=offex
+	
+	
+	for i=1,2 do
+	
+		if pd < od1 then
+	 	pd = od1 pv *= -0.75
+	 	if (pv>0.275) sfx(10,-1)
+	 	if (pv>1.5) camoff[i] -= 1
+	 elseif pd > oe then
+			pd = oe pv *= -0.75
+	 	
+	 	if (pv<-0.275) sfx(10,-1)
+	 	if (pv<-1.5) camoff[i] += 1
+	 end
+	 
+	 if i==1 then
+		 pl.x=pd
+			pl.vx=pv
+			
+			pd=pl.y
+			pv=pl.vy
+			od1=offy1
+			oe=offey
+ 	else
+ 		pl.y=pd
+			pl.vy=pv
+ 	end
  	
- 	if (pl.vx<-0.275) sfx(10,-1)
- 	if (pl.vx<-1.5) camoff[1] += 1
  end
-
- if pl.y < offy1 then
- 	pl.y = offy1 pl.vy *= -0.75
- 	if (pl.vy>0.275) sfx(10,-1)
- 	if (pl.vy>1.5) camoff[2] -= 1
- elseif pl.y > offey then
-		pl.y = offey pl.vy *= -0.75 	
- 	if (pl.vy<-0.275) sfx(10,-1)
- 	if (pl.vy<-1.5) camoff[2] += 1
- end
-
+	
 end
 
-function player_control(player)
-	local pl=p[player]
+function player_control(pl)
 	
 	if pl.blast_cool<=0 and pl.fired != true then
-		if btn(5, player-1) or btn(4, player-1) then
-			player_blast(player)
+		if btn(5) or btn(4) then
+			player_blast(pl)
 		end
 	end
 	
@@ -2117,8 +2138,8 @@ function player_control(player)
 	// loop for both x and y calcs
 	for loop=0,2,2 do
 		
-		l = btn(0+loop, player-1)
-		r = btn(1+loop, player-1)
+		l = btn(0+loop)
+		r = btn(1+loop)
 		
 		// both directions pressed
 	 if (l and r) then
@@ -2134,7 +2155,7 @@ function player_control(player)
 	 	end
 	 end
 		
-		player_border_check(player)
+		player_border_check(pl)
 		
 		// apply acceleration
 		vel += acc
@@ -2148,7 +2169,7 @@ function player_control(player)
 	 // apply velocity
 	 pos += vel
 	 
-	 player_border_check(player)
+	 player_border_check(pl)
 	 
 	 // switch calc vars to y
 	 if loop == 0 then
