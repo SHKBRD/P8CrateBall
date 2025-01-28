@@ -8,7 +8,7 @@ __lua__
 
 function _init()
 	cartdata("shk-unbreakaball")
-	--clear_lbd()
+	clear_lbd()
 	get_lbd()
 	
 	--cool flags here!
@@ -1768,80 +1768,80 @@ end
 
 function draw_wins()
 	for w in all(windows) do
-		if w.type == 1 then
-			gen_win_draw(w)
-			if w.trem!=nil then
-				for i=1,w.trem do
-					if i<=3 then
-						local poss=winpos_list[i]
-						draw_str(winstr_list[i],poss[1],poss[2])
-					else
+		stroff=0
+		if (not inmatch) stroff=-12
+		gen_win_draw(w)
+		if w.trem!=nil then
+			for i=1,w.trem do
+				
+				if i<=3 then
 					
-						--score values
+				
+					local poss=winpos_list[i]
+					draw_str(winstr_list[i],stroff+poss[1],poss[2])
+				else
+				
+					--score values
+					
+					--timer
+					if gamemode==1 then
 						
-						--timer
-						if gamemode==1 then
-							
-							for t=1,3 do
-								if #lbd[1]>=(i-3) then
-									local tscore=lbd[1][i-3][1][t]
-									if tscore<10 then
-										draw_str(0,30+t*12,8+i*10)
-										draw_str(tscore,34+t*12,8+i*10)
-									else
-										draw_str(tscore,30+t*12,8+i*10)
-									end
+						for t=1,3 do
+							if #lbd[1]>=(i-3) then
+								local tscore=lbd[1][i-3][1][t]
+								if tscore<10 then
+									draw_str(0,stroff+30+t*12,8+i*10)
+									draw_str(tscore,stroff+34+t*12,8+i*10)
 								else
-									draw_str("--",30+t*12,8+i*10)
+									draw_str(tscore,stroff+30+t*12,8+i*10)
 								end
-								if (t!=3) draw_str(":",38+t*12,8+i*10)
+							else
+								draw_str("--",stroff+30+t*12,8+i*10)
 							end
-						--score
+							if (t!=3) draw_str(":",stroff+38+t*12,8+i*10)
+						end
+					--score
+					else
+						if #lbd[2]>=(i-3) then
+							draw_str(lbd[2][i-3][1],stroff+42,8+i*10)
 						else
-							if #lbd[2]>=(i-3) then
-								draw_str(lbd[2][i-3][1],42,8+i*10)
-							else
-								draw_str("--",42,8+i*10)
-							end
+							draw_str("--",stroff+42,8+i*10)
 						end
-						
-						local lind=windows[1].letterind
-						for n=1,3 do
-							if #lbd[gamemode]>=(i-3) then
-								local char = chr((lbd[gamemode][i-3][2][n]%26)+97)
-								if (n-1)==lind and i-3==placeind then
-									draw_high_str(char,w.x+60+n*4,8+i*10)
-								else
-									draw_str(char,82+n*4,8+i*10)
-								end
-							else
-								draw_str("---",86,8+i*10)
-							end
-						end
-						
-						if i-3==placeind then
-							if lind==3 then
-								draw_high_str("ok?",102,8+i*10)
-							else
-								draw_str("ok?",102,8+i*10)
-							end
-						end
-						
-						
 					end
 					
-					if i==2 then
-						if gamemode==1 then
-							draw_clock(84,24)
+					local lind=windows[1].letterind
+					for n=1,3 do
+						if #lbd[gamemode]>=(i-3) then
+							local char = chr((lbd[gamemode][i-3][2][n]%26)+97)
+							if (n-1)==lind and i-3==placeind then
+								draw_high_str(char,stroff+82+n*4,8+i*10)
+							else
+								draw_str(char,stroff+82+n*4,8+i*10)
+							end
 						else
-							draw_str(endscore, 104,24)
+							draw_str("---",stroff+86,8+i*10)
 						end
+					end
+					
+					if i-3==placeind then
+						if lind==3 then
+							draw_high_str("ok?",stroff+102,8+i*10)
+						else
+							draw_str("ok?",stroff+102,8+i*10)
+						end
+					end
+					
+					
+				end
+				
+				if i==2 then
+					if gamemode==1 then
+						draw_clock(stroff+84,24)
+					else
+						draw_str(endscore,stroff+104,24)
 					end
 				end
 			end
-			
-		else
-			gen_win_draw(w)
 		end
 	end
 end
