@@ -1730,12 +1730,27 @@ end
 function draw_blob(x,y,w,h,rad,col)
 	w=max(w,rad*2)
 	h=max(h,rad*2)
-	circfill(x+rad,y+rad,rad,col)
-	circfill(x+w-rad,y+rad,rad,col)
-	circfill(x+rad,y+h-rad,rad,col)
-	circfill(x+w-rad,y+h-rad,rad,col)
-	rectfill(x+rad,y,x+w-rad,y+h,col)
-	rectfill(x,y+rad,x+w,y+h-rad,col)
+	
+	xrad=x+rad
+	yrad=y+rad
+	xw=x+w
+	yh=y+h
+	xwrad=xw-rad
+	yhrad=yh-rad
+	
+--	circfill(x+rad,y+rad,rad,col)
+--	circfill(x+w-rad,y+rad,rad,col)
+--	circfill(x+rad,y+h-rad,rad,col)
+--	circfill(x+w-rad,y+h-rad,rad,col)
+--	rectfill(x+rad,y,x+w-rad,y+h,col)
+--	rectfill(x,y+rad,x+w,y+h-rad,col)
+	circfill(xrad,yrad,rad,col)
+	circfill(xwrad,yrad,rad,col)
+	circfill(xrad,yhrad,rad,col)
+	circfill(xwrad,yhrad,rad,col)
+	rectfill(xrad,y,xwrad,yh,col)
+	rectfill(x,yrad,xw,yhrad,col)
+
 end
 
 function draw_listblob(l)
@@ -2273,19 +2288,29 @@ end
 
 function draw_cooldown(pl, fire)
 	--container edges
-	line(pl.x-2, pl.y-6, pl.x+9, pl.y-6, 7)
-	line(pl.x-2, pl.y-3, pl.x+9, pl.y-3, 7)
-	line(pl.x-3, pl.y-5, pl.x-3, pl.y-4, 7)
-	line(pl.x+10, pl.y-5, pl.x+10, pl.y-4, 7)
+	x2=pl.x-2
+	x9=pl.x+9
+	y5=pl.y-5
+	y4=pl.y-4
+	
+	color(7)
+	line(x2, pl.y-6, x9, pl.y-6)
+	line(x2, pl.y-3, x9, pl.y-3)
+	line(pl.x-3, y5, pl.x-3, y4)
+	line(pl.x+10, y5, pl.x+10, y4)
 	--bg
-	rect(pl.x-2, pl.y-5, pl.x+9, pl.y-4, 0)
+	rect(x2, y5, x9, y4, 0)
 	
 	if pl.fired == false then
 		--progress
-		rect(flr(pl.x-2), pl.y-5, flr(pl.x+9-(pl.blast_cool/120)*12), pl.y-4, 11)
+		xprog=flr(pl.x+9-(pl.blast_cool/120)*12)
+		col=11
 	else
-		rect(flr(pl.x-2), pl.y-5, flr(pl.x+(pl.fire_cool/200)*11)-2, pl.y-4, 8+(flr(frameoff%2)))
+		col=8+(flr(frameoff%2))
+		xprog=flr(pl.x+(pl.fire_cool/200)*11)-2		
 	end
+	rect(flr(pl.x-2), pl.y-5, xprog, pl.y-4, col)
+
 end
 
 function draw_players()
