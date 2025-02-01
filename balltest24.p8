@@ -1555,13 +1555,6 @@ function win_specific(w)
 	end
 end
 
---[[
-
-assumes all numbers in tile gfx
-are consecutive
-
-]]
-
 function tick_clock(dir)
 	if (not p.control) return
 	frame = 1/.6
