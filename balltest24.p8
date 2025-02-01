@@ -342,7 +342,7 @@ function trpupdate()
 		
 		if play_state == 1 then
 			play_state = 2
-			p[1].control = true
+			p.control = true
 		end
 		if play_state == 2 and cratesbroken < cratetotal then
 			trpopen = false
@@ -375,7 +375,7 @@ end
 function playing_floor_tick()
 	--closing after trapdoor initially opens
 	if trpopen == false and not floor_won then
-		if p[1].x != 72 or p[1].y != 64 then
+		if p.x != 72 or p.y != 64 then
 			trpupdate()
 		end
 	end
@@ -396,7 +396,7 @@ function postwin_floor_tick()
 	trpupdate()
 	if did_player_enter_trap() then
 		play_state = 4
-		p[1].control = false
+		p.control = false
 	end
 end
 
@@ -503,9 +503,9 @@ function match_loop()
  	camabs.y=12
  end
  
- for pl in all(p) do
- 	player_tick(pl)
- end
+ 
+ player_tick(p)
+ 
  
  particle_physics()
  tick_actors()
@@ -665,13 +665,13 @@ function match_draw()
 	p_under = play_state <= 1 and trpdrx<4
 	 
  if p_under or leave_state >= 3 then
- 	draw_players()
+ 	draw_player()
  	draw_trapdoor()
 	end
 	
  if not p_under and leave_state < 3 then
  	draw_trapdoor()
- 	draw_players()
+ 	draw_player()
  end
 	
 	draw_particles()
@@ -1024,12 +1024,9 @@ end
 
 function hit_action(a1, a2)
 	--player
-	for player in all(p) do
-		hit_crate = false
-		if a1 == player then
-			player_hit_actor(a1, a2)
-		end
-		break
+	hit_crate = false
+	if a1 == p then
+		player_hit_actor(a1, a2)
 	end
 	
 	--crate
@@ -1080,7 +1077,7 @@ function crate_damage(ac, instant, player)
 	end
 	if player then
 		if ac.t == 14 then 
-			if distance(0,0,p[1].vx,p[1].vy)>0.5 then
+			if distance(0,0,p.vx,p.vy)>0.5 then
 				sfx(11,3)
 			end
 		else
@@ -1137,29 +1134,21 @@ end
 function actor_col()
  
  for cr in all(crates) do
- 	for pl in all(p) do
- 		actor_collide(pl,cr)
- 	end
+ 	actor_collide(p,cr)
  end
  
  for sw in all(switches) do
- 	for pl in all(p) do
- 		actor_collide(pl,sw)
- 	end
+ 	actor_collide(p,sw)
  end
- 
- for pl in all(p) do
+
  	fire_touched=false
  	for fr in all(fires) do
- 		actor_collide(pl,fr)
+ 		actor_collide(p,fr)
  	end
- 	if (fire_touched==false) pl.in_fire=false
- end
+ 	if (fire_touched==false) p.in_fire=false
  
  for it in all(items) do
- 	for pl in all(p) do
- 		actor_collide(pl,it)
- 	end
+ 		actor_collide(p,it)
  end
  
 end
@@ -1167,9 +1156,7 @@ end
 function actor_phys_apply()
 	for act in all(o) do
 		isplayer = false
-		for player in all(p) do
-			if (act == player) isplayer = true
-		end
+		if (act == p) isplayer = true
 		if not isplayer then
 			actvarapply(act)
 		end
@@ -1220,14 +1207,13 @@ function actor_specific()
 			local frame = ac.frametimer % 3
 			ac.t = 45 + flr(frame)
 			
-			for pl in all(p) do
-				if pl.control then
-					local xdist= ac.x-pl.x
-					local ydist= ac.y-pl.y
-					local dist=distance(ac.x,ac.y,pl.x,pl.y)
-					pl.vx+=(xdist/(0.1+dist))/10
-					pl.vy+=(ydist/(0.1+dist))/10
-				end
+			
+			if p.control then
+				local xdist= x-p.x
+				local ydist= y-p.y
+				local dist=distance(x,y,p.x,p.y)
+				p.vx+=(xdist/(0.1+dist))/10
+				p.vy+=(ydist/(0.1+dist))/10
 			end
 			
 		end
@@ -1236,14 +1222,13 @@ function actor_specific()
 			local frame = ac.frametimer % 3
 			ac.t = 61 + flr(frame)
 			
-			for pl in all(p) do
-				if pl.control then
-					local xdist= ac.x-pl.x
-					local ydist= ac.y-pl.y
-					local dist=distance(ac.x,ac.y,pl.x,pl.y)
-					pl.vx-=(xdist/(0.1+dist))/10
-					pl.vy-=(ydist/(0.1+dist))/10
-				end
+			
+			if p.control then
+				local xdist= ac.x-p.x
+				local ydist= ac.y-p.y
+				local dist=distance(x,y,p.x,p.y)
+				p.vx-=(xdist/(0.1+dist))/10
+				p.vy-=(ydist/(0.1+dist))/10
 			end
 			
 		end
@@ -1351,8 +1336,7 @@ function draw_actors()
 	local oo = get_ordered_actors()
 	
 	for act in all(oo) do
-		for player in all(p) do
-			if act != player then
+		if act != p then
 				
 				if act.despawn > 0 then
 					if act.despawn % 2 == 0
@@ -1399,6 +1383,7 @@ function draw_actors()
 						local csize=sin(((act.frametimer%2.5)/20)+.5)*181
 						
 						circ(act.x+4, act.y+4, csize, 11)
+				end
 						
 					end
 					
@@ -1570,7 +1555,7 @@ are consecutive
 ]]
 
 function tick_clock(dir)
-	if (not p[1].control) return
+	if (not p.control) return
 	frame = 1/.6
 	if (dir == 1) then
 		clk[3] += frame
@@ -1867,7 +1852,6 @@ end
 function player_init()
 	--init the player variables
 	p = {}
-	for pcount=0,0 do
 		--[[
 		c stands for...
 		copy?
@@ -1908,10 +1892,8 @@ function player_init()
 		c.gets_col = true
 		c.z = 5
 		
-		add(p, c)
 		add(o, c)
 		
-	end
 end
 
 function add_boom_part(pl)
@@ -2227,16 +2209,15 @@ function did_player_enter_trap()
 	temptrap.colepx = 72+2+4
 	temptrap.colspy = 64+2
 	temptrap.colepy = 64+2+4
-	for player in all(p) do
-		if will_a_touch(temptrap, player ,false) then
-			return true
-		end
+	
+	if will_a_touch(temptrap, p,false) then
+		return true
 	end
+	
 	return false
 end
 
 function player_leave_tick()
-	pl=p[1]
 	--[[
 	
 	hasn't started leaving, 
@@ -2245,8 +2226,8 @@ function player_leave_tick()
 	]]
 	if leave_state == 1 then
 	
-	pl.blast_mode = false
-	pl.blast_cool = 0
+	p.blast_mode = false
+	p.blast_cool = 0
 	leave_state = 2
 	
 	--[[
@@ -2256,11 +2237,11 @@ function player_leave_tick()
 	]]
 	elseif leave_state == 2 then
 	
-	pl.x = lerp(72, pl.x, 0.8)
-	pl.y = lerp(64, pl.y, 0.8)
-	if distance(pl.x, pl.y, 72, 64) < 1 then
-		pl.x = 72
-		pl.y = 64
+	p.x = lerp(72, p.x, 0.8)
+	p.y = lerp(64, p.y, 0.8)
+	if distance(p.x, p.y, 72, 64) < 1 then
+		p.x = 72
+		p.y = 64
 		leave_state = 3
 	end
 	
@@ -2314,25 +2295,20 @@ function draw_cooldown(pl, fire)
 
 end
 
-function draw_players()
-	for pnum=1,#p do
-	 
-	 local pl = p[pnum]
-	 // player draw
-	 if pl.fired and pl.fire_cool%2==0 then
-	 	spr(3,pl.x,pl.y)
-	 elseif pl.blast_mode and (pl.blast_cool % 2 == 1) then
-			spr(2,pl.x,pl.y)
-	 else
-	 	spr(1,pl.x,pl.y)
-	 end
-	 
-	 if pl.fired then
-	 	draw_cooldown(pl, true)
-	 elseif pl.blast_cool > 0 then
-	 	draw_cooldown(pl, false)
-	 end
-	 
+function draw_player()
+ // player draw
+ if p.fired and p.fire_cool%2==0 then
+ 	spr(3,p.x,p.y)
+ elseif p.blast_mode and (p.blast_cool % 2 == 1) then
+		spr(2,p.x,p.y)
+ else
+ 	spr(1,p.x,p.y)
+ end
+ 
+ if p.fired then
+ 	draw_cooldown(p, true)
+ elseif p.blast_cool > 0 then
+ 	draw_cooldown(p, false)
  end
 end
 
