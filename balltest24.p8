@@ -89,7 +89,7 @@ function match_persistent_init(mode)
 	end
 	
 	--gamestate
-	floor_level = 1
+	floor_level = 15
 	gamemode=mode
 	
 	init_floor_dimens()
@@ -927,10 +927,6 @@ function make_crate(x,y)
 	
 	cr.acts_col = true
 	--cr.damage = 0
-	cr.colx = 0.5
-	cr.coly = 0.5
-	cr.colw = 7
-	cr.colh = 7
 	cr.z = 2
 	
 	add(crates,cr)
@@ -1033,10 +1029,6 @@ function hit_action(a1, a2)
 		player_hit_actor(a1, a2)
 	end
 	
-	--crate
-	if a1.t >= 10 and a1.t <= 15 then
-		
-	end
 	
 	--fire
 	if a1.t >= 26 and a1.t <= 29 then
@@ -1517,21 +1509,21 @@ function postgame_lb(w)
 		
 		if placeind!=-1 then
 			
-			if (btnp(1,0)) then
+			if (btnp(1)) then
 				
 				w.letterind+=1
 			end
-			if (btnp(0,0)) w.letterind-=1
+			if (btnp(0)) w.letterind-=1
 			w.letterind%=4
 			
 			if w.letterind != 3 then
-				if (btnp(2,0)) name_arr[w.letterind+1]+=1
-				if (btnp(3,0)) name_arr[w.letterind+1]-=1
+				if (btnp(2)) name_arr[w.letterind+1]+=1
+				if (btnp(3)) name_arr[w.letterind+1]-=1
 			end
 			
 		end
 		
-		if (w.letterind==3 or placeind==-1) and (btnp(4,0) or btnp(5, 0)) then
+		if (w.letterind==3 or placeind==-1) and (btnp(4) or btnp(5)) then
 			if w.letterind==3 then
 				lbd[gamemode][placeind][2]=name_arr
 				--stop(lbd[2][placeind][2][1])
@@ -1740,12 +1732,6 @@ function draw_blob(x,y,w,h,rad,col)
 	xwrad=xw-rad
 	yhrad=yh-rad
 	
---	circfill(x+rad,y+rad,rad,col)
---	circfill(x+w-rad,y+rad,rad,col)
---	circfill(x+rad,y+h-rad,rad,col)
---	circfill(x+w-rad,y+h-rad,rad,col)
---	rectfill(x+rad,y,x+w-rad,y+h,col)
---	rectfill(x,y+rad,x+w,y+h-rad,col)
 	circfill(xrad,yrad,rad,col)
 	circfill(xwrad,yrad,rad,col)
 	circfill(xrad,yhrad,rad,col)
@@ -2298,7 +2284,10 @@ function draw_cooldown(pl, fire)
 	--bg
 	rect(x2, y5, x9, y4, 0)
 	
-	if pl.fired == false then
+	local xprog=0
+	local col=0
+	
+	if fired == false then
 		--progress
 		xprog=flr(x+9-(blast_cool/120)*12)
 		col=11
