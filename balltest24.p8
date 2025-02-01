@@ -697,37 +697,41 @@ items={}
 
 function load_actor(t, x, y)
 	local a = {}
-	
+	setmetatable(a,{__index=_ENV})
 	a.t = t
 	a.x = x
 	a.y = y
-	a.px = a.x
-	a.py = a.y
-	a.vx = 0
-	a.vy = 0
-	a.pvx = a.vx
-	a.pvy = a.vy
-	a.ax = 0
-	a.ay = 0
-	a.colx = 0.5
-	a.coly = 0.5
-	a.colw = 7
-	a.colh = 7
+	
+	do
+	local _ENV=a
+	px = x
+	py = y
+	vx = 0
+	vy = 0
+	pvx = vx
+	pvy = vy
+	ax = 0
+	ay = 0
+	colx = 0.5
+	coly = 0.5
+	colw = 7
+	colh = 7
 	--actor's collision start points
-	a.colspx = a.x + a.colx
-	a.colspy = a.x + a.coly
+	colspx = x + colx
+	colspy = y + coly
 	--actor's collision end points
-	a.colepx = a.colspx + a.colw
-	a.colepy = a.colspy + a.colh
- a.fric = 0.1
-	a.weight = 1
-	a.acts_col = false
-	a.gets_col = false
-	a.snapped = false
-	a.frames = 0
-	a.despawn = -1
-	a.control = false
-	a.z = 0
+	colepx = colspx + colw
+	colepy = colspy + colh
+ fric = 0.1
+	weight = 1
+	acts_col = false
+	gets_col = false
+	snapped = false
+	frames = 0
+	despawn = -1
+	control = false
+	z = 0
+	end
 	
 	add(o, a)
 end
@@ -858,21 +862,25 @@ function init_actors()
 		if tries != 50 then
 			load_actor(30, rx, ry)
 			
-			local it = o[#o]
+			local it=o[#o]
+			do
+			local _ENV = it
 			
-			it.frametimer = 0
-			it.coly = 1
-			it.colh = 6
-			it.colx = 1
-			it.colw = 6
-			it.acts_col = false
-			it.vx = 0
-			it.vy = 0
-			it.fric = 0
-			it.z = 7
-			it.exploding=false
-			it.timer=0
-			it.despawn=-1
+			frametimer = 0
+			coly = 1
+			colh = 6
+			colx = 1
+			colw = 6
+			acts_col = false
+			vx = 0
+			vy = 0
+			fric = 0
+			z = 7
+			exploding=false
+			timer=0
+			despawn=-1
+			end
+			
 			add(items, it)
 			
 			add_item_surr_crates(rx,ry)
@@ -976,25 +984,21 @@ function will_physa_hit(a1, a2, future)
 end
 
 function will_a_touch(a1, a2, future)
-	
-	spx = a1.colspx
-	epx = a1.colepx
-	spy = a1.colspy
-	epy = a1.colepy
+	local _ENV=a1
+	local spx = colspx
+	local epx = colepx
+	local spy = colspy
+	local epy = colepy
 	
 	if future then
-		spx += a1.vx
-		epx += a1.vx
-		spy += a1.vy
-		epy += a1.vy
+		spx += vx
+		epx += vx
+		spy += vy
+		epy += vy
 	end
-	xcomp1 = max(spx, a2.colspx)
-	ycomp1 = max(spy, a2.colspy)
-	xcomp2 = min(epx, a2.colepx)
-	ycomp2 = min(epy, a2.colepy)
 	
-	if xcomp1<xcomp2 
-	and ycomp1<ycomp2 then
+	if max(spx, a2.colspx)<min(epx, a2.colepx) 
+	and max(spy, a2.colspy)<min(epy, a2.colepy) then
 	 return true
 	end
 	
@@ -1051,32 +1055,35 @@ function hit_action(a1, a2)
 end
 
 function crate_damage(ac, instant, player)
-	
-	if (ac.t == 13 or ac.t==15) return
+	local _ENV=ac
+	if (t == 13 or t==15) return
 	
 	if instant then
-		if ac.t==14 then
-			ac.t = 15
+		if t==14 then
+			t = 15
 		else
-			ac.t = 13
+			t = 13
 		end
 		--damage = 100
 	else
-		if ac.t!=14 then
+		if t!=14 then
 			--ac.damage += 1
-			ac.t += 1
+			t += 1
 		end
 	end
 	
-	if ac.t == 13 or ac.t == 15 then
-		ac.acts_col = false
-		ac.despawn = 300
+	if t == 13 or t == 15 then
+		acts_col = false
+		despawn = 300
 		sfx(2, 2)
-		cratesbroken += 1
+		
+		--this is only here because
+		--of _ENV shenanigans
+		add_broken_crate()
 		
 	end
 	if player then
-		if ac.t == 14 then 
+		if t == 14 then 
 			if distance(0,0,p.vx,p.vy)>0.5 then
 				sfx(11,3)
 			end
@@ -1086,13 +1093,18 @@ function crate_damage(ac, instant, player)
 	end
 end
 
+function add_broken_crate()
+	cratesbroken += 1
+end
+
 function switch_toggle(a1)
-	if a1.t == 58 then
-		a1.t = 59
+	local _ENV=a1
+	if t == 58 then
+		t = 59
 		sfx(4, 2)
-	elseif a1.t == 59 then
-		a1.t = 58
-		a1.blink = 0
+	elseif t == 59 then
+		t = 58
+		blink = 0
 		sfx(5, 2)
 	end
 end
@@ -1165,47 +1177,49 @@ function actor_phys_apply()
 end
 
 function actor_col_upd(a1)
-	local a = a1
+	local _ENV = a1
 	--actor's collision start points
-	a.colspx = a.x + a.colx
-	a.colspy = a.y + a.coly
+	colspx = x + colx
+	colspy = y + coly
 	--actor's collision end points
-	a.colepx = a.colspx + a.colw
-	a.colepy = a.colspy + a.colh
+	colepx = colspx + colw
+	colepy = colspy + colh
 end
 
 function actvarapply(act)
-	act.pvx = act.vx
-	act.pvy = act.vy
-	act.px = act.x
-	act.py = act.y
-	act.vx -= act.fric * act.vx/abs(act.vx)
-	act.vy -= act.fric * act.vy/abs(act.vy)	
-	if sgn(act.vx) != sgn(act.pvx) then
+	local _ENV=act
+	pvx = vx
+	pvy = vy
+	px = x
+	py = y
+	vx -= fric * vx/abs(vx)
+	vy -= fric * vy/abs(vy)	
+	if sgn(vx) != sgn(pvx) then
 		act.vx = 0
 	end
-	if sgn(act.vy) != sgn(act.pvy) then
-		act.vy = 0
+	if sgn(vy) != sgn(pvy) then
+		vy = 0
 	end
-	act.vx += act.ax
-	act.vy += act.ay
-	act.x += act.vx
-	act.y += act.vy
-	act.snapped = false
+	vx += ax
+	vy += ay
+	x += vx
+	y += vy
+	snapped = false
 end
 
 function actor_specific()
-	for ac in all(o) do 
+	for ac in all(o) do
+		local _ENV=ac 
 		--fire
-		if ac.t <= 29 and ac.t >= 26 then
-			ac.frametimer += rnd(10)/20
-			ac.frametimer %= 4
-			ac.t = 26 + flr(ac.frametimer)
+		if t <= 29 and t >= 26 then
+			frametimer += rnd(10)/20
+			frametimer %= 4
+			t = 26 + flr(frametimer)
 		end
-		if ac.t >= 45 and ac.t <= 47 then
-			ac.frametimer += 0.1
-			local frame = ac.frametimer % 3
-			ac.t = 45 + flr(frame)
+		if t >= 45 and t <= 47 then
+			frametimer += 0.1
+			local frame = frametimer % 3
+			t = 45 + flr(frame)
 			
 			
 			if p.control then
@@ -1217,10 +1231,10 @@ function actor_specific()
 			end
 			
 		end
-		if (ac.t >= 61 and ac.t <= 63) then
-			ac.frametimer += 0.1
-			local frame = ac.frametimer % 3
-			ac.t = 61 + flr(frame)
+		if (t >= 61 and t <= 63) then
+			frametimer += 0.1
+			local frame = frametimer % 3
+			t = 61 + flr(frame)
 			
 			
 			if p.control then
@@ -1231,11 +1245,12 @@ function actor_specific()
 				p.vy-=(ydist/(0.1+dist))/10
 			end
 			
+			
 		end
 		
 		--item
-		if ac.t==30 then
-			if ac.exploding == true then
+		if t==30 then
+			if exploding == true then
 				heal_item_tick(ac)
 			end
 		end
@@ -1277,12 +1292,13 @@ end
 function actor_decay()
 	for i=1,#o do
 	if (i > #o) break
-		if o[i].despawn == 0 then
-			del(crates, o[i])
-			del(o, o[i])
+	ob=o[i]
+		if ob.despawn == 0 then
+			del(crates, ob)
+			del(o, ob)
 			i -= 1
-		elseif o[i].despawn > 0 then
-			o[i].despawn -= 1
+		elseif ob.despawn > 0 then
+			ob.despawn -= 1
 		end
 	end
 end
@@ -1319,13 +1335,14 @@ function tick_actors()
 end
 
 function draw_switch(a1)
-	a1.blink += 1
-	a1.blink %= 2
-	if a1.blink == 1 then
-		pal({[a1.t-48]=0})
+	local _ENV=a1
+	blink += 1
+	blink %= 2
+	if blink == 1 then
+		pal({[t-48]=0})
 	end
 	
-	spr(a1.t, a1.x, a1.y)
+	spr(t, x, y)
 	pal()
 	
 end
@@ -1337,61 +1354,60 @@ function draw_actors()
 	
 	for act in all(oo) do
 		if act != p then
+			local _ENV=act
+			
+			if despawn > 0 then
+				if despawn % 2 == 0
+				   or despawn > 60 then
+					spr(t, x, y)
+				end
 				
-				if act.despawn > 0 then
-					if act.despawn % 2 == 0
-					   or act.despawn > 60 then
-						spr(act.t, act.x, act.y)
-					end
+				if t==30 then
+					local fill_list={
+						0b0101111101011111.1,
+						0b1010111110101111.1,
+						0b1111101011111010.1,
+						0b1111010111110101.1,
+					}
 					
-					if act.t==30 then
-						fill_list={
-							0b0101111101011111.1,
-							0b1010111110101111.1,
-							0b1111101011111010.1,
-							0b1111010111110101.1,
-						}
-						
-						local rad=sin((100-act.timer)/-200)*16
-						--fillp(fill_list[(frameoff)%4+1])
-						local ind=flr((frameoff*8)%4+1)
+					local rad=sin((100-timer)/-200)*16
+					--fillp(fill_list[(frameoff)%4+1])
+					local ind=flr((frameoff*8)%4+1)
+					fillp(fill_list[ind])
+					for col=11,3,-8do
+						circfill(x+4, y+4, rad, col)
+						ind=flr(((frameoff*8)+2)%4+1)
 						fillp(fill_list[ind])
-						for col=11,3,-8do
-							circfill(act.x+4, act.y+4, rad, col)
-							ind=flr(((frameoff*8)+2)%4+1)
-							fillp(fill_list[ind])
-						end
-						fillp()						
 					end
-					
+					fillp()						
+				end
+				
+			else
+				if t == 59 or t == 60 then
+					draw_switch(act)
 				else
-					if act.t == 59 or act.t == 60 then
-						draw_switch(act)
-					else
-						spr(act.t, act.x, act.y)
-					end
+					spr(t, x, y)
+				end
+				
+				if t>=45 and t<=47 then
+					local csize=sin(((2.5-(frametimer%2.5))/20)+.5)*181
 					
-					if act.t>=45 and act.t<=47 then
-						local csize=sin(((2.5-(act.frametimer%2.5))/20)+.5)*181
-						
-						circ(act.x+4, act.y+4, csize, 1)
-						
-					end
-							
+					circ(x+4, y+4, csize, 1)
 					
-					if act.t>=61 and act.t<=63 then
-						local csize=sin(((act.frametimer%2.5)/20)+.5)*181
-						
-						circ(act.x+4, act.y+4, csize, 11)
 				end
 						
-					end
+				
+				if t>=61 and t<=63 then
+					local csize=sin(((frametimer%2.5)/20)+.5)*181
 					
-					
+					circ(x+4, y+4, csize, 11)
 					
 				end
+				
+				
+				
 			end
-		end	
+		end
 	end
 end
 -->8
@@ -1635,8 +1651,9 @@ end
 function draw_wavy_str(str, x, y)
 	strver = tostr(str)
 	for ind=1,#strver do
-		print(strver[ind], x, y+sin(frameoff+ind/#strver)*0.75+1,5)
-		print(strver[ind], x, y+sin(frameoff+ind/#strver)*0.75,7)
+		local yh = y+sin(frameoff+ind/#strver)*0.75
+		print(strver[ind], x, yh+1,5)
+		print(strver[ind], x, yh,7)
 		x += 4
 	end
 end
@@ -1852,48 +1869,44 @@ end
 function player_init()
 	--init the player variables
 	p = {}
-		--[[
-		c stands for...
-		copy?
-		i think it makes sense.
-		]]
-		local c = {}
-		c.t = 1
-		c.x = 72
-		c.y = 64
-		c.px = c.x
-		c.py = c.y
-		c.vx = 0
-		c.vy = 0
-		c.pvx = c.vx
-		c.pvy = c.vy
-		c.colx = 0.5
-		c.coly = 0.5
-		c.colw = 7
-		c.colh = 7
-		--actor's collision start points
-		c.colspx = c.x + c.colx
-		c.colspy = c.x + c.coly
-		--actor's collision end points
-		c.colepx = c.colspx + c.colw
-		c.colepy = c.colspy + c.colh
-		c.ax = 0
-		c.ay = 0
-		c.weight = 1.5
-		c.frames = 0
-		c.snapped = false
-		c.blast_cool = 0
-		c.blast_mode = false
-		c.fired = false
-		c.in_fire = false
-		c.fire_cool = 0
-		c.despawn = -1
-		c.control = false
-		c.gets_col = true
-		c.z = 5
-		
-		add(o, c)
-		
+	setmetatable(p,{__index=_ENV})
+	do
+	local _ENV=p
+	t = 1
+	x = 72
+	y = 64
+	px = x
+	py = y
+	vx = 0
+	vy = 0
+	pvx = vx
+	pvy = vy
+	colx = 0.5
+	coly = 0.5
+	colw = 7
+	colh = 7
+	--actor's collision start points
+	colspx = x + colx
+	colspy = y + coly
+	--actor's collision end points
+	colepx = colspx + colw
+	colepy = colspy + colh
+	ax = 0
+	ay = 0
+	weight = 1.5
+	frames = 0
+	snapped = false
+	blast_cool = 0
+	blast_mode = false
+	fired = false
+	in_fire = false
+	fire_cool = 0
+	despawn = -1
+	control = false
+	gets_col = true
+	z = 5
+	end
+	add(o,p)
 end
 
 function add_boom_part(pl)
@@ -2269,29 +2282,31 @@ end
 
 function draw_cooldown(pl, fire)
 	if (play_state>3) return
+	local _ENV=pl
+	
 	--container edges
-	x2=pl.x-2
-	x9=pl.x+9
-	y5=pl.y-5
-	y4=pl.y-4
+	local x2=x-2
+	local x9=x+9
+	local y5=y-5
+	local y4=y-4
 	
 	color(7)
-	line(x2, pl.y-6, x9, pl.y-6)
-	line(x2, pl.y-3, x9, pl.y-3)
-	line(pl.x-3, y5, pl.x-3, y4)
-	line(pl.x+10, y5, pl.x+10, y4)
+	line(x2, y-6, x9, y-6)
+	line(x2, y-3, x9, y-3)
+	line(x-3, y5, x-3, y4)
+	line(x+10, y5, x+10, y4)
 	--bg
 	rect(x2, y5, x9, y4, 0)
 	
 	if pl.fired == false then
 		--progress
-		xprog=flr(pl.x+9-(pl.blast_cool/120)*12)
+		xprog=flr(x+9-(blast_cool/120)*12)
 		col=11
 	else
 		col=8+(flr(frameoff%2))
-		xprog=flr(pl.x+(pl.fire_cool/200)*11)-2		
+		xprog=flr(x+(fire_cool/200)*11)-2		
 	end
-	rect(flr(pl.x-2), pl.y-5, xprog, pl.y-4, col)
+	rect(flr(x-2), y-5, xprog, y-4, col)
 
 end
 
