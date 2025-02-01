@@ -85,11 +85,11 @@ function match_persistent_init(mode)
 	clky = 131
 	clkdir=mode
 	if mode==2 then
-		clk[1]=3
+		clk[1]=0
 	end
 	
 	--gamestate
-	floor_level = 15
+	floor_level = 20
 	gamemode=mode
 	
 	init_floor_dimens()
@@ -1467,6 +1467,7 @@ function win_tick()
 end
 
 function postgame_lb(w)
+	if (w.timer==0) sfx(15,-1)
 	if w.timer<0.25 then
 		w.timer+=.01
 		w.prog=-1*sin(w.timer)
@@ -1475,7 +1476,9 @@ function postgame_lb(w)
 	elseif w.timer<1 then
 		w.timer+=.01
 		w.prog=1
+		w.ptrem=w.trem
 		w.trem=7-flr((1-w.timer)*(7/0.75))
+		if (w.trem!=w.ptrem) sfx(17,-1)
 		pal(1)
 		--stop(w.trem)
 		winstr_list={
@@ -1486,17 +1489,42 @@ function postgame_lb(w)
 		winpos_list={
 			{46,16},
 			{38,24},
-			{60,32}
+			{54,36}
 		}
 		
-		if gamemode==1 then
-			winstr_list[1]="woohoo! you won!"
-			winstr_list[2]="your time:"
+			
+		if inmatch then
+			if gamemode==1 then
+				winstr_list[1]="woohoo! you won!"
+				winstr_list[2]="your time:"
+			else
+				winstr_list[1]="phew! time's up!"
+				winstr_list[2]=" your score was:"
+			end
 		else
-			winstr_list[1]="phew! time's up!"
-			winstr_list[2]="your score was:"
+			winpos_list={
+				{46,20},
+				{42,28},
+				{42,40}
+			}
+			
+			winstr_list={
+				"top leaderboard",
+				"spots of all time",
+				"◀ 20 floor dash ▶",
+			}
+			
 		end
 	elseif w.timer<1.01 then
+		
+		if not inmatch then
+			if gamemode==1 then 
+				lbdstr="◀ 20 floor dash ▶"
+			else
+				lbdstr="◀ 3 minute rush ▶"
+			end
+			winstr_list[3]=lbdstr
+		end
 		
 		if w.letterind==nil then
 			w.letterind=0
@@ -1507,7 +1535,7 @@ function postgame_lb(w)
 			w.confirmed=false
 		end
 		
-		if placeind!=-1 then
+		if placeind!=-1 and inmatch then
 			
 			if (btnp(1)) then
 				
@@ -1516,15 +1544,27 @@ function postgame_lb(w)
 			if (btnp(0)) w.letterind-=1
 			w.letterind%=4
 			
-			if w.letterind != 3 then
+			if w.letterind != 3 and not nameselected then
 				if (btnp(2)) name_arr[w.letterind+1]+=1
 				if (btnp(3)) name_arr[w.letterind+1]-=1
 			end
 			
 		end
+		if btnp(4) or btnp(5) then
+			
+			if not inmatch then
+				w.timer+=.01
+			elseif w.letterind==3 or placeind==-1 then
+				if not nameselected then
+					nameselected=true
+					sfx(13,0)
+				end
+				
+			end
+		end
 		
-		if (w.letterind==3 or placeind==-1) and (btnp(4) or btnp(5)) then
-			if w.letterind==3 then
+		if inmatch and nameselected and stat(20)==12 then
+			if placeind != -1 then
 				lbd[gamemode][placeind][2]=name_arr
 				--stop(lbd[2][placeind][2][1])
 				save_lbd()
@@ -1535,8 +1575,11 @@ function postgame_lb(w)
 	elseif w.timer<1.25 then
 		w.timer+=.01
 		w.prog=1
+		w.ptrem=w.trem
 		w.trem=flr((1.25-w.timer)*(7/0.25))
+		if (w.trem!=w.ptrem) sfx(17,-1)
 	elseif w.timer<1.5 then
+		if (w.timer<1.26) sfx(16,-1)
 		w.timer+=.01
 		w.prog=-1*sin(w.timer)
 		
@@ -1544,7 +1587,10 @@ function postgame_lb(w)
 		w.timer=1.5
 		w.prog=0
 		w.col=0
-		play_state+=1
+		if inmatch then
+			play_state+=1
+		end
+		if (not inmatch or play_state==7) del(windows, w)
 	end
 end
 
@@ -1740,10 +1786,19 @@ end
 
 function gen_win_draw(w)
 	local midblob={}
+	local outlineblob={}
 	for blbind=1,#w.f do
 	add(midblob, lerp(w.f[blbind],w.t[blbind],w.prog))
+	add(outlineblob, lerp(w.f[blbind],w.t[blbind],w.prog))
 	end
 	add(midblob,w.col)
+	add(outlineblob,7)
+	outlineblob[1]-=1
+	outlineblob[2]-=1
+	outlineblob[3]+=2
+	outlineblob[4]+=2
+	
+	draw_listblob(outlineblob)
 	draw_listblob(midblob)
 end
 
@@ -1754,14 +1809,16 @@ function draw_wins()
 		gen_win_draw(w)
 		if w.trem!=nil then
 			for i=1,w.trem do
-				
 				if i<=3 then
-					
-				
 					local poss=winpos_list[i]
 					draw_str(winstr_list[i],stroff+poss[1],poss[2])
 				else
-				
+														
+					
+					local yoff=0
+					if (not inmatch) yoff=4
+					
+					draw_str(i-3,stroff+42,yoff+8+i*10)
 					--score values
 					
 					--timer
@@ -1771,51 +1828,53 @@ function draw_wins()
 							if #lbd[1]>=(i-3) then
 								local tscore=lbd[1][i-3][1][t]
 								if tscore<10 then
-									draw_str(0,stroff+30+t*12,8+i*10)
-									draw_str(tscore,stroff+34+t*12,8+i*10)
+									draw_str(0,stroff+38+t*12,yoff+8+i*10)
+									draw_str(tscore,stroff+42+t*12,yoff+8+i*10)
 								else
-									draw_str(tscore,stroff+30+t*12,8+i*10)
+									draw_str(tscore,stroff+38+t*12,yoff+8+i*10)
 								end
 							else
-								draw_str("--",stroff+30+t*12,8+i*10)
+								draw_str("--",stroff+38+t*12,yoff+8+i*10)
 							end
-							if (t!=3) draw_str(":",stroff+38+t*12,8+i*10)
+							if (t!=3) draw_str(":",stroff+46+t*12,yoff+8+i*10)
 						end
 					--score
 					else
 						if #lbd[2]>=(i-3) then
-							draw_str(lbd[2][i-3][1],stroff+42,8+i*10)
+							draw_str(lbd[2][i-3][1],stroff+50,yoff+8+i*10)
 						else
-							draw_str("--",stroff+42,8+i*10)
+							draw_str("--",stroff+50,yoff+8+i*10)
 						end
 					end
 					
 					local lind=windows[1].letterind
+					local xoff=0
+					if (not placeind or placeind==-1) xoff=9
 					for n=1,3 do
 						if #lbd[gamemode]>=(i-3) then
 							local char = chr((lbd[gamemode][i-3][2][n]%26)+97)
 							if (n-1)==lind and i-3==placeind then
-								draw_high_str(char,stroff+82+n*4,8+i*10)
+								draw_high_str(char,xoff+stroff+85+n*4,yoff+8+i*10)
 							else
-								draw_str(char,stroff+82+n*4,8+i*10)
+								draw_str(char,xoff+stroff+85+n*4,yoff+8+i*10)
 							end
 						else
-							draw_str("---",stroff+86,8+i*10)
+							draw_str("---",xoff+stroff+89,yoff+8+i*10)
 						end
 					end
 					
 					if i-3==placeind then
 						if lind==3 then
-							draw_high_str("ok?",stroff+102,8+i*10)
+							draw_high_str("ok?",stroff+105,yoff+8+i*10)
 						else
-							draw_str("ok?",stroff+102,8+i*10)
+							draw_str("ok?",stroff+105,yoff+8+i*10)
 						end
 					end
 					
 					
 				end
 				
-				if i==2 then
+				if i==2 and inmatch then
 					if gamemode==1 then
 						draw_clock(stroff+84,24)
 					else
@@ -2427,7 +2486,7 @@ function which_place(mode)
 				if clk[2] < fclk[2] then
 					return i
 				elseif clk[2]==fclk[2] then
-					if clk[3] <= fclk[3] then
+					if clk[3] < fclk[3] then
 						return i
 					end
 				end
@@ -2436,7 +2495,7 @@ function which_place(mode)
 		
 	else
 		for i=1,tbcount do
-			if endscore>=slbd[i][1] then
+			if endscore>slbd[i][1] then
 				return i
 			end
 		end
@@ -2473,26 +2532,34 @@ function menu_tick()
 		win_tick()
 		button_high_ind=button_high_ind==-1 and 0 or button_high_ind
 		
-		if (btnp(2)) button_high_ind-=1
-		if (btnp(3)) button_high_ind+=1
-		button_high_ind%=3
-	
-		if btnp(4) or btnp(5) then
+		if #windows==0 then
+			menu_changed=false
+			if (btnp(2)) button_high_ind-=1;menu_changed=true
+			if (btnp(3)) button_high_ind+=1;menu_changed=true
+			if (menu_changed) sfx(14,-1) 
+			button_high_ind%=3
+		end
+		
+		if btnp(4) or btnp(5) and #windows==0 then
 			if button_high_ind!=2 then
 				trstn_phase+=1
 				sfx(13,-1)
 			else
 				if #windows<1 then
+				gamemode=1
 					add_win(
 						{64,64,0,0,0},
-						{20,8,88,99,8},
+						{20,12,88,99,8},
 						0,0,1)
 				end
 			end
 		end
 		
 		if #windows!=0 then
-			if (btnp(0) or btnp(1)) gamemode%=2;gamemode+=1
+		local t = windows[#windows].timer
+			if t<1.01 and t>1 then
+				if (btnp(0) or btnp(1)) gamemode%=2;gamemode+=1
+			end
 		end
 	
 	elseif trstn_phase==2 then
@@ -2515,18 +2582,21 @@ function draw_menubg()
 end
 
 function draw_buttons()
-menu_strs={
-"20 floor dash",
-"3 minute rush",
-" leaderboard "
-}
+	menu_strs={
+		"20 floor dash",
+		"3 minute rush",
+		" leaderboard "
+	}
 	for i=0,2	do
 		local yset=60+i*18
 		local col=13
 		onbtn=i==button_high_ind
 		
 		if (onbtn) col=8
+		draw_blob(31,yset-1,62, 10, 3, 0)
 		draw_blob(32,yset,60, 8, 3, col)
+		
+		
 		if trstn_phase >= 2 and onbtn then
 			draw_high_str(menu_strs[i+1], 37, yset+2)
 		else
@@ -2551,6 +2621,7 @@ end
 
 function menu_draw()
 	draw_menubg()
+	rectfill(6,7,121,40,0)
 	map(66,0,0,8)
 	draw_buttons()
 	draw_transition()
