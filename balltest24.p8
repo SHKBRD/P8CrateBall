@@ -63,8 +63,14 @@ function constant_init()
 end
 
 function match_init(mode)
+	menuitem(1, "restart match", restart_match)
 	match_persistent_init(mode)
 	floor_init(1)
+end
+
+function restart_match()
+	clear_floor()
+	match_init(gamemode)
 end
 
 function match_persistent_init(mode)
@@ -2459,12 +2465,16 @@ function save_lbd()
 end
 
 function clear_lbd()
-	
-	for i=0,4 do
-		for f=0,9 do
-			dset(i*10 + f, 0)
+	//if #windows==0 then
+		for i=0,4 do
+			for f=0,9 do
+				dset(i*10 + f, 0)
+			end
 		end
-	end
+		upd_lbd(1)
+		upd_lbd(2)
+		sfx(2,-1)
+	//end
 end
 
 function which_place(mode)
@@ -2516,7 +2526,7 @@ function menu_init()
 	trstn_phase=0
 	gamemode=1
 	button_high_ind=-1
-	
+	menuitem(1,"reset save data", clear_lbd)
 end
 
 function menu_tick()
@@ -2572,8 +2582,6 @@ function menu_tick()
 		inmatch=true
 		match_init(button_high_ind+1)
 	end
-	
-	
 	
 end
 
