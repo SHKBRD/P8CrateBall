@@ -1754,7 +1754,7 @@ end
 function draw_level_text()
 	if floor_level == 1 then
 		draw_wavy_str("use dpad to move!", 42, 24)
-		draw_wavy_str("press o/x to explode!", 34, 34)
+		draw_wavy_str("press 🅾️ /❎  to explode!", 30, 34)
 		draw_wavy_str("destroy all of the crates", 26, 100)
 		draw_wavy_str("to reach the next floor!", 29, 110)
 	end
