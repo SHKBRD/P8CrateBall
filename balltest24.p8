@@ -85,11 +85,11 @@ function match_persistent_init(mode)
 	clky = 131
 	clkdir=mode
 	if mode==2 then
-		clk[1]=0
+		clk[1]=3
 	end
 	
 	--gamestate
-	floor_level = 20
+	floor_level = 1
 	gamemode=mode
 	
 	init_floor_dimens()
