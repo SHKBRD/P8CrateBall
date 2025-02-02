@@ -2578,7 +2578,20 @@ function menu_tick()
 end
 
 function draw_menubg()
-	cls(1)
+	cls(13)
+	for i=0,200,20 do
+		for f=0,200,20 do
+			local loopt=frameoff%20
+			
+			local xoff=(f+1+loopt*4)-80
+			local yoff=(i+1+loopt*4)-80
+			--local dist=1+distance(xoff,yoff,64,64)
+			local wobble=3*sin(loopt+(xoff+yoff)/64)+6
+			
+			draw_blob(xoff+wobble/5,yoff+wobble/3,16,16,flr(wobble),1)
+			spr(1,xoff+8+wobble/5,yoff+2+wobble/3)
+		end
+	end
 end
 
 function draw_buttons()
@@ -2588,7 +2601,7 @@ function draw_buttons()
 		" leaderboard "
 	}
 	for i=0,2	do
-		local yset=60+i*18
+		local yset=53+i*18
 		local col=13
 		onbtn=i==button_high_ind
 		
@@ -2619,11 +2632,18 @@ function draw_transition()
 	end
 end
 
+function draw_epilepsy()
+	draw_blob(1,107,125,19,3,0)
+	draw_str("! this cart utilizes dizzying !", 3, 110)
+	draw_str("!     and flashing images     !", 3, 118)
+end
+
 function menu_draw()
 	draw_menubg()
 	rectfill(6,7,121,40,0)
 	map(66,0,0,8)
 	draw_buttons()
+	draw_epilepsy()
 	draw_transition()
 	draw_wins()
 end
