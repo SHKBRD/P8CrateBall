@@ -2014,7 +2014,7 @@ function fire_player(pl)
 	end
 	pl.in_fire=true
 	pl.fired=true
-	pl.fire_cool = 200
+	pl.fire_cool = 100
 	pl.blast_mode = false
 	pl.blast_cool = 0
 end
@@ -2345,7 +2345,7 @@ function draw_cooldown(pl, fire)
 		col=11
 	else
 		col=8+(flr(frameoff%2))
-		xprog=flr(x+(fire_cool/200)*11)-2		
+		xprog=flr(x+(fire_cool/100)*11)-2		
 	end
 	rect(flr(x-2), y-5, xprog, y-4, col)
 
