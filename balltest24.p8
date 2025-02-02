@@ -2471,8 +2471,7 @@ function clear_lbd()
 				dset(i*10 + f, 0)
 			end
 		end
-		upd_lbd(1)
-		upd_lbd(2)
+		get_lbd()
 		sfx(2,-1)
 	//end
 end
