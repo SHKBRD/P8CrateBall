@@ -2242,32 +2242,36 @@ function player_control(pl)
 		end	 
 	end
 	
-	pl.blast_cool -= 1
-	pl.fire_cool -= 1
+	do
+	local _ENV=pl
 	
-	local velcomb=abs(pl.vx)+abs(pl.vy)
-	
-	if pl.blast_mode and pl.blast_cool<100 and velcomb < 2 then
-		pl.blast_mode = false
-	end
-	
-	if (pl.blast_cool <= 0) then
-		pl.blast_mode = false
-	end	
-	
-	if pl.fire_cool <= 0 then
-		pl.fired = false
-		pl.fire_cool = 0
+		blast_cool -= 1
+		fire_cool -= 1
+		
+		local velcomb=abs(vx)+abs(vy)
+		
+		if blast_mode and blast_cool<100 and velcomb < 2 then
+			blast_mode = false
+		end
+		
+		if (blast_cool <= 0) then
+			blast_mode = false
+		end	
+		
+		if fire_cool <= 0 then
+			fired = false
+			fire_cool = 0
+		end
 	end
 	
 end
 
 function did_player_enter_trap()
 	local temptrap = {}
-	temptrap.colspx = 72+2
-	temptrap.colepx = 72+2+4
-	temptrap.colspy = 64+2
-	temptrap.colepy = 64+2+4
+	temptrap.colspx = 73
+	temptrap.colepx = 73+6
+	temptrap.colspy = 65
+	temptrap.colepy = 65+6
 	
 	if will_a_touch(temptrap, p,false) then
 		return true
@@ -2315,15 +2319,8 @@ function player_leave_tick()
 	if trpdrx == 0 then
 		leave_state = 4
 	end
-	
-	--[[
-		
-	door shut, transitioning
-			
-	]]
-	elseif leave_state == 4 then
-	
 	end
+	
 end
 
 function draw_cooldown(pl, fire)
