@@ -57,7 +57,6 @@ function constant_init()
 		{1,13},
 		{14,2},
 		{4,9},
-		{5,6},
 		{12,13}
 	}
 end
@@ -87,7 +86,7 @@ function match_persistent_init(mode)
 	--clock
 	--[minutes, seconds, millis]
 	clk = {0, 0, 0}
-	clkx = 14
+	clkx = 15
 	clky = 131
 	clkdir=mode
 	if mode==2 then
@@ -196,9 +195,9 @@ function floor_init(floor)
 	--background
 	bg_types=3
 	
-	if (bg_type != nil) pastbg=bg_type
+	if (bg_type) pastbg=bg_type
 	choose_bg_type()
-	if pastbg != nil then
+	if pastbg then
 		//hAS TO END UP BEING A NEW
 		//TYPE, SINCE THE OLD TYPE
 		//WILL BE REMOVED FROM THE
@@ -235,8 +234,8 @@ function draw_base_map()
 	clear_map()
 	--local offx = (15-lev_w)/2
 	--local offy = (13-lev_h)/2	
-	mset(i, f, 17)
-	mset(i, f, 19)
+--	mset(i, f, 17)
+--	mset(i, f, 19)
 	
 	
 	// map draw
@@ -728,12 +727,8 @@ function load_actor(t, x, y)
 	--actor's collision end points
 	colepx = colspx + colw
 	colepy = colspy + colh
- fric = 0.1
-	weight = 1
 	acts_col = false
 	gets_col = false
-	snapped = false
-	frames = 0
 	despawn = -1
 	control = false
 	z = 0
@@ -880,7 +875,6 @@ function init_actors()
 			acts_col = false
 			vx = 0
 			vy = 0
-			fric = 0
 			z = 7
 			exploding=false
 			timer=0
@@ -1190,8 +1184,8 @@ function actvarapply(act)
 	pvy = vy
 	px = x
 	py = y
-	vx -= fric * vx/abs(vx)
-	vy -= fric * vy/abs(vy)	
+	vx -= 0.1 * vx/abs(vx)
+	vy -= 0.1 * vy/abs(vy)	
 	if sgn(vx) != sgn(pvx) then
 		act.vx = 0
 	end
@@ -1202,7 +1196,6 @@ function actvarapply(act)
 	vy += ay
 	x += vx
 	y += vy
-	snapped = false
 end
 
 function actor_specific()
@@ -1295,7 +1288,7 @@ function actor_decay()
 			del(crates, ob)
 			del(o, ob)
 			i -= 1
-		elseif ob.despawn > 0 then
+		else
 			ob.despawn -= 1
 		end
 	end
@@ -1649,35 +1642,11 @@ function tick_clock(dir)
 	clk[3]=abs(clk[3])
 end
 
---function draw_char(inp, x, y)
---	orded = ord(tostr(inp))
---	if orded >=48 and orded <= 57 then
---		char_ind = inp*4
---		sspr(nx+char_ind, ny, 4, 6, x, y)
---	else
---		char = chrs[inp]
---		if char==nil then
---			stop(inp)
---	end
---		
---		sspr(nx+char, ny, 4, 6, x, y)
---	end
---end
 
---function draw_letter(letter, x, y)
---	if (ord(letter) < 97) draw_char(letter, x, y)
---	sspr((ord(letter)-97)*4, 40, 4, 6, x, y)
---end
 
 function draw_str(str, x, y)
 	print(str, x, y+1, 5)
 	print(str, x, y, 7)
-	
-	--strver = tostr(str)
-	--for ind=1,#strver do
-	--	draw_letter(strver[ind], x, y)
-	--	x += 4
-	--end
 end
 
 function draw_high_str(str, x, y)
@@ -1719,20 +1688,6 @@ function draw_clock(x,y)
 	end
 end
 
---function draw_mem()
---	local mem = stat(0)
---	print(mem, 16, 16, 8)
---end
-
---function draw_cpu()
---	local cpu = stat(1)
---	print(cpu, 16, 22, 8)
---end
-
---function draw_player_stats()
---	print(p[1].x, 16, 28, 8)
---	print(p[1].y, 16, 34, 8)
---end
 
 function draw_low_bg()
 	map(18, 0, 12-camoff[1], 128-camoff[2], 16, 2)
@@ -1907,7 +1862,7 @@ function draw_hud()
 		timename="timer:"
 	end
 	draw_str(timename, 15, 131)
-	draw_clock(clkx+#timename*4+1,clky)
+	draw_clock(clkx+#timename*4,clky)
 	draw_crates_rem()
 	draw_floor_count()
 	draw_wins()
@@ -1943,9 +1898,6 @@ function player_init()
 	colepy = colspy + colh
 	ax = 0
 	ay = 0
-	weight = 1.5
-	frames = 0
-	snapped = false
 	blast_cool = 0
 	blast_mode = false
 	fired = false
@@ -2123,28 +2075,6 @@ function player_border_check(pl)
 	--local offy = (17-lev_h)*4
 	local offex = offx1+(lev_w-1)*8
 	local offey = offy1+(lev_h-1)*8
-	
-	// border check
--- if pl.x < offx1 then
--- 	pl.x = offx1 pl.vx *= -0.75
--- 	if (pl.vx>0.275) sfx(10,-1)
--- 	if (pl.vx>1.5) camoff[1] -= 1
--- elseif pl.x > offex then
---		pl.x = offex pl.vx *= -0.75
--- 	
--- 	if (pl.vx<-0.275) sfx(10,-1)
--- 	if (pl.vx<-1.5) camoff[1] += 1
--- end
---
--- if pl.y < offy1 then
--- 	pl.y = offy1 pl.vy *= -0.75
--- 	if (pl.vy>0.275) sfx(10,-1)
--- 	if (pl.vy>1.5) camoff[2] -= 1
--- elseif pl.y > offey then
---		pl.y = offey pl.vy *= -0.75 	
--- 	if (pl.vy<-0.275) sfx(10,-1)
--- 	if (pl.vy<-1.5) camoff[2] += 1
--- end
 	
 	pd=pl.x
 	pv=pl.vx
@@ -2361,19 +2291,22 @@ function draw_cooldown(pl, fire)
 end
 
 function draw_player()
- // player draw
- if p.fired and p.fire_cool%2==0 then
- 	spr(3,p.x,p.y)
- elseif p.blast_mode and (p.blast_cool % 2 == 1) then
-		spr(2,p.x,p.y)
- else
- 	spr(1,p.x,p.y)
- end
- 
- if p.fired then
- 	draw_cooldown(p, true)
- elseif p.blast_cool > 0 then
- 	draw_cooldown(p, false)
+	local _ENV=p
+	do
+	 // player draw
+	 if fired and fire_cool%2==0 then
+	 	spr(3,x,y)
+	 elseif blast_mode and (blast_cool % 2 == 1) then
+			spr(2,x,y)
+	 else
+	 	spr(1,x,y)
+	 end
+	 
+	 if fired then
+	 	draw_cooldown(_ENV, true)
+	 elseif blast_cool > 0 then
+	 	draw_cooldown(_ENV, false)
+	 end
  end
 end
 
