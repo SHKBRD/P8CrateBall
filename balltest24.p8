@@ -63,6 +63,7 @@ end
 
 function match_init(mode)
 	menuitem(1, "restart match", restart_match)
+	music(0)
 	match_persistent_init(mode)
 	floor_init(1)
 end
@@ -331,9 +332,9 @@ end
 function trpupdate()
 	
 	if trpopen and trpdrx == 0 then
-		sfx(6, -1)
+		sfx(6, 2)
 	elseif not trpopen and trpdrx == 4 then
-		sfx(7, -1)
+		sfx(7, 2)
 	end
 	
 	if trpopen then
@@ -469,7 +470,7 @@ function level_state_process()
 		
 		]]
 		if (floor_level==20 and gamemode==1) or (clk[1]==0and clk[2]==0 and clk[3]==0) then
-			
+			music(-1)
 			if not floor_won then
 				floor_won=true
 				endscore=floor_level
@@ -1059,7 +1060,7 @@ function crate_damage(ac, instant, player)
 	if t == 13 or t == 15 then
 		acts_col = false
 		despawn = 300
-		sfx(2, -1)
+		sfx(2, 3)
 		
 		--this is only here because
 		--of _ENV shenanigans
@@ -1069,10 +1070,10 @@ function crate_damage(ac, instant, player)
 	if player then
 		if t == 14 then 
 			if distance(0,0,p.vx,p.vy)>0.5 then
-				sfx(11,-1)
+				sfx(11,2)
 			end
 		else
-			sfx(3, -1)
+			sfx(3, 2)
 		end
 	end
 end
@@ -1085,11 +1086,11 @@ function switch_toggle(a1)
 	local _ENV=a1
 	if t == 58 then
 		t = 59
-		sfx(4, -1)
+		sfx(4, 2)
 	elseif t == 59 then
 		t = 58
 		blink = 0
-		sfx(5, -1)
+		sfx(5, 2)
 	end
 end
 
@@ -1099,7 +1100,7 @@ function confirm_switches()
 			sw.t = 60
 		end
 	end
-	sfx(8, -1)
+	sfx(8, 2)
 end
 
 function check_switches()
@@ -1458,7 +1459,7 @@ function win_tick()
 end
 
 function postgame_lb(w)
-	if (w.timer==0) sfx(15,-1)
+	if (w.timer==0) sfx(15,2)
 	if w.timer<0.25 then
 		w.timer+=.01
 		w.prog=-1*sin(w.timer)
@@ -1469,7 +1470,7 @@ function postgame_lb(w)
 		w.prog=1
 		w.ptrem=w.trem
 		w.trem=7-flr((1-w.timer)*(7/0.75))
-		if (w.trem!=w.ptrem) sfx(17,-1)
+		if (w.trem!=w.ptrem) sfx(17,2)
 		pal(1)
 		--stop(w.trem)
 		winstr_list={
@@ -1548,7 +1549,7 @@ function postgame_lb(w)
 			elseif w.letterind==3 or placeind==-1 then
 				if not nameselected then
 					nameselected=true
-					sfx(13,-1)
+					sfx(13,2)
 				end
 				
 			end
@@ -1568,9 +1569,9 @@ function postgame_lb(w)
 		w.prog=1
 		w.ptrem=w.trem
 		w.trem=flr((1.25-w.timer)*(7/0.25))
-		if (w.trem!=w.ptrem) sfx(17,-1)
+		if (w.trem!=w.ptrem) sfx(17,2)
 	elseif w.timer<1.5 then
-		if (w.timer<1.26) sfx(16,-1)
+		if (w.timer<1.26) sfx(16,2)
 		w.timer+=.01
 		w.prog=-1*sin(w.timer)
 		
@@ -1957,7 +1958,7 @@ function player_blast(pl)
 	
 	pl.blast_cool = 120
 	pl.blast_mode = true
-	sfx(1,-1)	
+	sfx(1,2)	
 		
 	end
 	
@@ -1966,7 +1967,7 @@ end
 function fire_player(pl)
 	--stop(pl.in_fire)
 	if pl.in_fire==false then
-		sfx(12,-1)
+		sfx(12,2)
 	end
 	pl.in_fire=true
 	pl.fired=true
@@ -2078,12 +2079,12 @@ function player_border_check(pl)
 	
 		if pd < od1 then
 	 	pd = od1 pv *= -0.75
-	 	if (pv>0.275) sfx(10,-1)
+	 	if (pv>0.275) sfx(10,2)
 	 	if (pv>1.5) camoff[i] -= 1
 	 elseif pd > oe then
 			pd = oe pv *= -0.75
 	 	
-	 	if (pv<-0.275) sfx(10,-1)
+	 	if (pv<-0.275) sfx(10,2)
 	 	if (pv<-1.5) camoff[i] += 1
 	 end
 	 
@@ -2402,7 +2403,7 @@ function clear_lbd()
 			end
 		end
 		get_lbd()
-		sfx(2,-1)
+		sfx(2,2)
 	//end
 end
 
@@ -2475,14 +2476,14 @@ function menu_tick()
 			menu_changed=false
 			if (btnp(2)) button_high_ind-=1;menu_changed=true
 			if (btnp(3)) button_high_ind+=1;menu_changed=true
-			if (menu_changed) sfx(14,-1) 
+			if (menu_changed) sfx(14,2) 
 			button_high_ind%=3
 		end
 		
 		if btnp(4) or btnp(5) and #windows==0 then
 			if button_high_ind!=2 then
 				trstn_phase+=1
-				sfx(13,-1)
+				sfx(13,2)
 			else
 				if #windows<1 then
 				gamemode=1
@@ -2925,8 +2926,8 @@ __music__
 00 1615181a
 00 16141c1b
 00 16152526
-00 16172321
-00 16182421
+01 16231721
+02 16241821
 00 41424344
 00 161d1e21
 00 161f2021
