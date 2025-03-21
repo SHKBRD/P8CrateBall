@@ -87,7 +87,6 @@ function match_persistent_init(mode)
 	--clock
 	--[minutes, seconds, millis]
 	clk = {0, 0, 0}
-	clkx = 15
 	clky = 131
 	clkdir=mode
 	if mode==2 then
@@ -1686,16 +1685,20 @@ function draw_low_bg()
 	map(18, 0, 12-camoff[1], 128-camoff[2], 16, 2)
 end
 
-function draw_crates_rem()
-	spr(10, 73, 130)
+function draw_crates_rem(tx)
+	if (tx == 15) tx=18
+	spr(10, 55+tx, 130)
 	drawstr = ""
-	if cratetotal >= 10 and cratesbroken < 10 then
+	if (cratetotal >= 10 and cratesbroken < 10) or cratetotal<10 then
 		drawstr ..= "0"
 	end
 	drawstr ..= tostr(cratesbroken)
 	drawstr ..= "/"
+	if cratetotal < 10 then
+		drawstr ..= "0"
+	end
 	drawstr ..= tostr(cratetotal)
-	draw_str(drawstr, 83, 131)
+	draw_str(drawstr, 65+tx, 131)
 end
 
 function draw_floor_count()
@@ -1851,12 +1854,14 @@ function draw_hud()
 	draw_low_bg()
 	if gamemode==1 then
 		timename="time:"
+		tx=17
 	else
 		timename="timer:"
+		tx=15
 	end
-	draw_str(timename, 15, 131)
-	draw_clock(clkx+#timename*4,clky)
-	draw_crates_rem()
+	draw_str(timename, tx, 131)
+	draw_clock(tx+#timename*4,clky)
+	draw_crates_rem(tx)
 	draw_floor_count()
 	draw_wins()
 	//if (debug) draw_debug()
