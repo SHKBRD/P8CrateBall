@@ -63,7 +63,7 @@ end
 
 function match_init(mode)
 	menuitem(1, "restart match", restart_match)
-	music(0)
+	music(6)
 	match_persistent_init(mode)
 	floor_init(1)
 end
@@ -95,7 +95,7 @@ function match_persistent_init(mode)
 	end
 	
 	--gamestate
-	floor_level = 1
+	floor_level = 20
 	gamemode=mode
 	
 	init_floor_dimens()
@@ -223,7 +223,7 @@ function reset_bg_list()
 end
 
 function choose_bg_type()
-	if availablebg==nil or #availablebg==0 then
+	if not availablebg or #availablebg==0 then
 		reset_bg_list()
 	end
 	local typeind=flr(rnd(#availablebg))+1
@@ -238,22 +238,18 @@ function draw_base_map()
 --	mset(i, f, 17)
 --	mset(i, f, 19)
 	
+	local x1=offx2+1
+	local x2=x1+lev_w+1
+	local y1=offy2+1
+	local y2=y1+lev_h+1
 	
 	// map draw
- for i=offx2+1,offx2+lev_w+2 do
-		for f=offy2+1,offy2+lev_h+2 do
-			if i==offx2+1 or i==offx2+lev_w+2 then
-				mset(i, f, 17)
-			end
-			if f==offy2+1 or f==offy2+lev_h+2 then
-				mset(i, f, 17)
-			end
-			
-			if i>offx2+1 and i<offx2+lev_w+2 then
+ for i=x1,x2 do
+		for f=y1,y2 do
+			if i>x1 and i<x2 then
 				mset(i, f, 19)
 			end
-			--??
-			if f==offy2+1 or f==offy2+lev_h+2 then
+			if i==x1 or i==x2 or f==y1 or f==y2 then
 				mset(i, f, 17)
 			end
 		end
@@ -330,11 +326,15 @@ function next_level_init()
 end
 	
 function trpupdate()
-	
+	if p.control then
+		trpchannel=3
+	else
+	 trpchannel=0
+	end
 	if trpopen and trpdrx == 0 then
-		sfx(6, 2)
+		sfx(6, trpchannel)
 	elseif not trpopen and trpdrx == 4 then
-		sfx(7, 2)
+		sfx(7, trpchannel)
 	end
 	
 	if trpopen then
@@ -1100,7 +1100,7 @@ function confirm_switches()
 			sw.t = 60
 		end
 	end
-	sfx(8, 2)
+	sfx(8, 1)
 end
 
 function check_switches()
@@ -1537,8 +1537,14 @@ function postgame_lb(w)
 			w.letterind%=4
 			
 			if w.letterind != 3 and not nameselected then
-				if (btnp(2)) name_arr[w.letterind+1]+=1
-				if (btnp(3)) name_arr[w.letterind+1]-=1
+				if btnp(2) then 
+					name_arr[w.letterind+1]+=1
+					sfx(14,0)
+				end
+				if btnp(3) then
+					name_arr[w.letterind+1]-=1
+					sfx(14,0)
+				end
 			end
 			
 		end
@@ -1555,7 +1561,7 @@ function postgame_lb(w)
 			end
 		end
 		
-		if inmatch and nameselected and stat(20)==12 then
+		if inmatch and nameselected and stat(22)==12 then
 			if placeind != -1 then
 				lbd[gamemode][placeind][2]=name_arr
 				--stop(lbd[2][placeind][2][1])
@@ -1958,7 +1964,7 @@ function player_blast(pl)
 	
 	pl.blast_cool = 120
 	pl.blast_mode = true
-	sfx(1,2)	
+	sfx(1,3)	
 		
 	end
 	
@@ -1991,9 +1997,10 @@ function player_roll_sfx(pl)
 	
 	poke(0x3201+68*9, poke1)
 	poke(0x3200+68*9, adj)
-	sfx(9,0)
-	
-	print(spd, 16, 34, 8)
+	if stat(16) == 22 or stat(16) == 9 then
+		sfx(9,0)
+	end
+	--print(spd, 16, 34, 8)
 end
 
 function player_tick(pl)
