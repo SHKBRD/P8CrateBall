@@ -1998,7 +1998,7 @@ end
 function player_roll_sfx(pl)
 	local poke1=0b10001100
 	local spd=distance(0,0,pl.vx,pl.vy)
-	local norm=(spd/6)-.05
+	local norm=(spd/6)-.01
 	if (norm<0) then 
 		norm=0
 		poke1=0
