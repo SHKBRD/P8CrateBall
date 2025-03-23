@@ -1691,9 +1691,9 @@ function draw_low_bg()
 	map(18, 0, 12-camoff[1], 128-camoff[2], 16, 2)
 end
 
-function draw_crates_rem(tx)
-	if (tx == 15) tx=18
-	spr(10, 55+tx, 130)
+function draw_crates_rem()
+	ox = (gamemode-1)*4
+	spr(10, 69+ox, 130)
 	drawstr = ""
 	if (cratetotal >= 10 and cratesbroken < 10) or cratetotal<10 then
 		drawstr ..= "0"
@@ -1704,14 +1704,24 @@ function draw_crates_rem(tx)
 		drawstr ..= "0"
 	end
 	drawstr ..= tostr(cratetotal)
-	draw_str(drawstr, 65+tx, 131)
+	draw_str(drawstr, 79+ox, 131)
 end
 
 function draw_floor_count()
+	ox = (gamemode-1)*7
+	drawstr = "flr "
+	draw_str(drawstr, 101+ox, 131)
 	drawstr = ""
-	drawstr ..= "floor "
+	
+	if floor_level < 10 then
+		drawstr ..= "0"
+	end
 	drawstr ..= floor_level
-	draw_str(drawstr, 106, 131)
+	if gamemode == 1 then
+		drawstr ..= "/20"
+	end
+	draw_str(drawstr, 116+ox, 131)
+	
 end
 
 function draw_level_text()
@@ -1860,14 +1870,12 @@ function draw_hud()
 	draw_low_bg()
 	if gamemode==1 then
 		timename="time:"
-		tx=17
 	else
 		timename="timer:"
-		tx=15
 	end
-	draw_str(timename, tx, 131)
-	draw_clock(tx+#timename*4,clky)
-	draw_crates_rem(tx)
+	draw_str(timename, 15, 131)
+	draw_clock(15+#timename*4,clky)
+	draw_crates_rem(gamemode)
 	draw_floor_count()
 	draw_wins()
 	//if (debug) draw_debug()
