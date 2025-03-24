@@ -1729,6 +1729,7 @@ function draw_floor_count()
 end
 
 function draw_level_text()
+	draw_blob(41, 20, 40, 16, 4, 0)
 	if floor_level == 1 then
 		draw_wavy_str("use dpad to move!", 44, 23)
 		draw_wavy_str("dpad + 🅾️ /❎  to explode!", 30, 33)
@@ -1967,11 +1968,11 @@ function player_blast(pl)
 	--pvy = pl.vy
 	
 	if l or r or u or d then
-	boost = 6
-		if(l)pl.vx=boost*-1
-		if(r)pl.vx=boost
-		if(u)pl.vy=boost*-1
-		if(d)pl.vy=boost
+	
+		if(l)pl.vx=-6
+		if(r)pl.vx=6
+		if(u)pl.vy=-6
+		if(d)pl.vy=6
 		
 	for particles=1,60 do
 		add_boom_part(pl)
