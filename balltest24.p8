@@ -62,7 +62,7 @@ end
 
 function match_init(mode)
 	menuitem(1, "restart match", restart_match)
-	music(6)
+	music(0)
 	match_persistent_init(mode)
 	floor_init(1)
 end
@@ -501,6 +501,7 @@ function draw_trapdoor()
 end
 
 function match_loop()
+	glob_dest_crate = false
 	level_state_process()
  
  if camabs.y<12 and play_state==0 then
@@ -1063,7 +1064,6 @@ function crate_damage(ac, instant, player)
 		--this is only here because
 		--of _ENV shenanigans
 		add_broken_crate()
-		
 	end
 	if player then
 		if t == 14 then 
@@ -1078,6 +1078,7 @@ end
 
 function add_broken_crate()
 	cratesbroken += 1
+	glob_dest_crate = true
 end
 
 function switch_toggle(a1)
@@ -1703,13 +1704,17 @@ function draw_crates_rem()
 		drawstr ..= "0"
 	end
 	drawstr ..= tostr(cratetotal)
-	draw_str(drawstr, 79+ox, 131)
+	if glob_dest_crate then
+		draw_high_str(drawstr, 79+ox, 130)
+	else
+		draw_str(drawstr, 79+ox, 131)
+	end
 end
 
 function draw_floor_count()
 	ox = (gamemode-1)*7
 	drawstr = "flr "
-	draw_str(drawstr, 101+ox, 131)
+	draw_str(drawstr, 102+ox, 131)
 	drawstr = ""
 	
 	if floor_level < 10 then
@@ -1968,7 +1973,7 @@ function player_blast(pl)
 		if(u)pl.vy=boost*-1
 		if(d)pl.vy=boost
 		
-	for particles=1,30 do
+	for particles=1,60 do
 		add_boom_part(pl)
 	end
 	
