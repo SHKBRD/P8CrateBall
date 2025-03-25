@@ -1729,10 +1729,11 @@ function draw_floor_count()
 end
 
 function draw_level_text()
-	draw_blob(41, 20, 40, 16, 4, 0)
 	if floor_level == 1 then
-		draw_wavy_str("use dpad to move!", 44, 23)
-		draw_wavy_str("dpad + 🅾️ /❎  to explode!", 30, 33)
+		draw_blob(25, 19, 101, 23, 4, 0)
+		draw_wavy_str("use dpad to move!", 43, 23)
+		draw_wavy_str("dpad + 🅾️ /❎  to explode!", 29, 33)
+		draw_blob(22, 96, 107, 23, 4, 0)
 		draw_wavy_str("destroy all of the crates", 26, 101)
 		draw_wavy_str("to reach the next floor!", 29, 110)
 	end
