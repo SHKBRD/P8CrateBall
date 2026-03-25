@@ -6,47 +6,34 @@ function player_init()
 	setmetatable(p,{__index=_𝘦𝘯𝘷})
 	do
 	local _𝘦𝘯𝘷=p
-	t = 1
-	x = 72
-	y = 64
-	px = x
+	t, x, y, colx,coly,colw,colh,despawn,gets_col,z
+    =1,72,64,0.5, 0.5, 7,   7,   -1,     true,    5
+    
+    vx,vy,ax,ay,blast_cool,fire_cool=0,0,0,0,0,0
+    blast_mode,fired,in_fire,control=false,false,false,false
+
+    px = x
 	py = y
-	vx = 0
-	vy = 0
-	pvx = vx
+    pvx = vx
 	pvy = vy
-	colx = 0.5
-	coly = 0.5
-	colw = 7
-	colh = 7
-	--actor's collision start points
+    --actor's collision start points
 	colspx = x + colx
 	colspy = y + coly
-	--actor's collision end points
+    --actor's collision end points
 	colepx = colspx + colw
 	colepy = colspy + colh
-	ax = 0
-	ay = 0
-	blast_cool = 0
-	blast_mode = false
-	fired = false
-	in_fire = false
-	fire_cool = 0
-	despawn = -1
-	control = false
-	gets_col = true
-	z = 5
+
 	end
 	add(o,p)
 end
 
-function add_boom_part(pl)
+function add_boom_part()
 	add(prt, {})
 	boom = prt[#prt]
 	boom.life = rnd(10)+5
 	boom.type = 0
-	boom.x = pl.x
-	boom.y = pl.y
+	boom.x = p.x
+	boom.y = p.y
 	boom.vx = rnd(4)-2
 	boom.vy = rnd(4)-2
 	prt[#prt] = boom
@@ -71,10 +58,7 @@ end
 
 function player_blast(pl)
 	
-	l = btn(0)
-	r = btn(1)
-	u = btn(2)
-	d = btn(3)
+	l,r,u,d=btn(0),btn(1),btn(2),btn(3)
 	
 	--pvx = pl.vx
 	--pvy = pl.vy
@@ -87,7 +71,7 @@ function player_blast(pl)
 		if(d)pl.vy=6
 		
 	for particles=1,60 do
-		add_boom_part(pl)
+		add_boom_part()
 	end
 	
 	destroy_surr(pl)
@@ -145,32 +129,36 @@ function player_bounce_actor(a1, a2)
 	local hit_res2 = will_physa_hit(a1, a2, true)
 	
 	for bit=1,4 do
-		if not hit_res1[bit] and hit_res2[bit] then
-			if not a1.blast_mode then
-				sgnx = sgn(a1.vx)
-				sgny = sgn(a1.vy)
-				if bit == 1 and sgnx == -1 then
-					a1.x = a2.colepx-a2.colx
-					a1.vx *= -0.8
-				elseif bit == 2 and sgnx == 1 then
-					a1.x = a2.x-a1.colw
-					a1.vx *= -0.8
-				elseif bit == 3 and sgny == -1 then
-					a1.y = a2.colepy
-					a1.vy *= -0.8
-				elseif bit == 4 and sgny == 1 then
-					a1.y = a2.y-a1.colh
-					a1.vy *= -0.8
-				end
-			end
-			--crate
-			if is_crate(a2) then
-				if not hit_crate then
-					crate_damage(a2, a1.blast_mode, true)
-					hit_crate = true
-				end
-			end	
-		end
+        -- run rest of code if this frame doesn't have collision and next frame does
+		if not ((not hit_res1[bit]) and hit_res2[bit]) then goto p_col_cont end
+
+        if not a1.blast_mode then
+            sgnx = sgn(a1.vx)
+            sgny = sgn(a1.vy)
+            if bit == 1 and sgnx == -1 then
+                a1.x = a2.colepx-a2.colx
+                a1.vx *= -0.8
+            elseif bit == 2 and sgnx == 1 then
+                a1.x = a2.x-a1.colw
+                a1.vx *= -0.8
+            elseif bit == 3 and sgny == -1 then
+                a1.y = a2.colepy
+                a1.vy *= -0.8
+            elseif bit == 4 and sgny == 1 then
+                a1.y = a2.y-a1.colh
+                a1.vy *= -0.8
+            end
+        end
+        --crate
+        if is_crate(a2) then
+            if not hit_crate then
+                crate_damage(a2, a1.blast_mode, true)
+                hit_crate = true
+            end
+        end	
+
+		::p_col_cont::
+        
 	end
 	
 end
@@ -198,16 +186,16 @@ function player_hit_actor(a1, a2)
 	end
 end
 
-function player_border_check(pl)
+function player_border_check()
 	
-	//same as map offsets, but in pixels and added by one tile
+	--same as map offsets, but in pixels and added by one tile
 	--local offx = (19-lev_w)*4
 	--local offy = (17-lev_h)*4
 	local offex = offx1+(lev_w-1)*8
 	local offey = offy1+(lev_h-1)*8
 	
-	pd=pl.x
-	pv=pl.vx
+	pd=p.x
+	pv=p.vx
 	od1=offx1
 	oe=offex
 	
@@ -226,34 +214,34 @@ function player_border_check(pl)
 	 end
 	 
 	 if i==1 then
-		 pl.x=pd
-			pl.vx=pv
+		 p.x=pd
+			p.vx=pv
 			
-			pd=pl.y
-			pv=pl.vy
+			pd=p.y
+			pv=p.vy
 			od1=offy1
 			oe=offey
  	else
- 		pl.y=pd
-			pl.vy=pv
+ 		p.y=pd
+			p.vy=pv
  	end
  	
  end
 	
 end
 
-function player_control(pl)
+function player_control()
 	
-	if pl.blast_cool<=0 and pl.fired != true then
+	if p.blast_cool<=0 and p.fired != true then
 		if btn(5) or btn(4) then
-			player_blast(pl)
+			player_blast(p)
 		end
 	end
 	
 	// set first calc vars for x
-	pos = pl.x
-	vel = pl.vx
-	acc = pl.ax
+	pos = p.x
+	vel = p.vx
+	acc = p.ax
 	
 	// loop for both x and y calcs
 	for loop=0,2,2 do
@@ -275,7 +263,7 @@ function player_control(pl)
 	 	end
 	 end
 		
-		player_border_check(pl)
+		player_border_check()
 		
 		// apply acceleration
 		vel += acc
@@ -289,25 +277,25 @@ function player_control(pl)
 	 // apply velocity
 	 pos += vel
 	 
-	 player_border_check(pl)
+	 player_border_check()
 	 
 	 // switch calc vars to y
 	 if loop == 0 then
-	 	pl.x = pos
-	 	pos = pl.y
-	 	pl.vx = vel
-	 	vel = pl.vy
-	 	pl.ax = acc
-	 	acc = pl.ay
+	 	p.x = pos
+	 	pos = p.y
+	 	p.vx = vel
+	 	vel = p.vy
+	 	p.ax = acc
+	 	acc = p.ay
 	 else
-	 	pl.y = pos
-	 	pl.vy = vel
-	 	pl.ay = acc
+	 	p.y = pos
+	 	p.vy = vel
+	 	p.ay = acc
 		end	 
 	end
 	
 	do
-	local _𝘦𝘯𝘷=pl
+	local _𝘦𝘯𝘷=p
 	
 		blast_cool -= 1
 		blast_cool = max(0,blast_cool)
@@ -335,9 +323,9 @@ end
 function did_player_enter_trap()
 	local temptrap = {}
 	temptrap.colspx = 73
-	temptrap.colepx = 73+6
+	temptrap.colepx = 79
 	temptrap.colspy = 65
-	temptrap.colepy = 65+6
+	temptrap.colepy = 71
 	
 	if will_a_touch(temptrap, p,false) then
 		return true
@@ -389,9 +377,9 @@ function player_leave_tick()
 	
 end
 
-function draw_cooldown(pl, fire)
+function draw_cooldown(fire)
 	if (play_state>3) return
-	local _𝘦𝘯𝘷=pl
+	local _𝘦𝘯𝘷=p
 	
 	--container edges
 	local x2=x-2

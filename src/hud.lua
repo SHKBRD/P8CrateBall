@@ -295,14 +295,14 @@ function draw_crates_rem()
 	if glob_dest_crate then
 		draw_high_str(drawstr, 79+ox, 130)
 	else
-		draw_str(drawstr, 79+ox, 131)
+		draw_str(drawstr, 79+ox, clky)
 	end
 end
 
 function draw_floor_count()
 	ox = (gamemode-1)*7
 	drawstr = "flr "
-	draw_str(drawstr, 102+ox, 131)
+	draw_str(drawstr, 102+ox, clky)
 	drawstr = ""
 	
 	if floor_level < 10 then
@@ -312,7 +312,7 @@ function draw_floor_count()
 	if gamemode == 1 then
 		drawstr ..= "/20"
 	end
-	draw_str(drawstr, 116+ox, 131)
+	draw_str(drawstr, 116+ox, clky)
 	
 end
 
@@ -447,7 +447,7 @@ function draw_hud()
 	else
 		timename="timer:"
 	end
-	draw_str(timename, 15, 131)
+	draw_str(timename, 15, clky)
 	draw_clock(15+#timename*4,clky)
 	draw_crates_rem(gamemode)
 	draw_floor_count()

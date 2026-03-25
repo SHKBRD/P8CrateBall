@@ -7,6 +7,10 @@ __lua__
 --prime
 
 #include src/main.lua
+#include src/match.lua
+#include src/matchdraw.lua
+#include src/floorgen.lua
+#include src/backgrounds.lua
 #include src/actors.lua
 #include src/helper.lua
 #include src/hud.lua

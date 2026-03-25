@@ -1,10 +1,10 @@
 --actors
 
-o={}
-crates={}
-switches={}
-fires={}
-items={}
+-- o={}
+-- crates={}
+-- switches={}
+-- fires={}
+-- items={}
 
 function load_actor(t, x, y)
 	local a = {}
