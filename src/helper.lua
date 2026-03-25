@@ -14,3 +14,7 @@ end
 function round(num)
 	return flr(num+0.5)
 end
+
+function upsp(s)
+    return unpack(split(s))
+end

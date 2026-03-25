@@ -56,9 +56,11 @@ end
 function floor_init(floor)
     clear_floor()
 	--trapdoor
-	trpdrx,trpcooldown,trpopen,play_state,cratesbroken,cratetotal,switchtotal,switchclear,firecount,loadincool,loadoutcool,leave_state,floor_won
-    =0,    60,         true,   0,         0,           10,        3,          false,      0,        0,         0,          1,          false
+	trpdrx,trpcooldown,play_state,cratesbroken,cratetotal,switchtotal,firecount,loadincool,loadoutcool,leave_state=upsp"0,60,0,0,10,3,0,0,0,1"
 	
+    trpopen,switchclear,floor_won
+    =true,  false,      false
+
 	if (switchtotal == 0) switchclear = true
 	floor_type = gen_floor_type(floor)
 	gen_floor_mods(floor)
@@ -148,46 +150,46 @@ function trpupdate()
 	
 end
 
+--[[
+
+should only be run once
+before next play_state
+change is performed
+
+]]
+function end_stage()
+    if (floor_level==15 and gamemode==1) or (clk[1]==0and clk[2]==0 and clk[3]==0) then
+        music(-1)
+        if not floor_won then
+            floor_won=true
+            endscore=floor_level
+            name_arr={0,0,0}
+            if #windows==0 then
+                add_win(
+                    {76,68,0,0,0},
+                    {32,8,88,99,8},
+                    1,0,1)
+                    
+                upd_lbd(gamemode)
+                
+            end
+        end
+    else
+        next_level_init()
+    end
+end
+
 function level_state_process()
-	if play_state == 0 then
-		loadin_floor_tick()
-	elseif play_state == 1 then
-		start_floor_tick()
-	elseif play_state == 2 then
-		playing_floor_tick()
-	elseif play_state == 3 then
-		postwin_floor_tick()
-	elseif play_state == 4 then
-		end_floor_tick()
-	elseif play_state == 5 then 
-		--[[
-		
-		should only be run once
-		before next play_state
-		change is performed
-		
-		]]
-		if (floor_level==20 and gamemode==1) or (clk[1]==0and clk[2]==0 and clk[3]==0) then
-			music(-1)
-			if not floor_won then
-				floor_won=true
-				endscore=floor_level
-				name_arr={0,0,0}
-				if #windows==0 then
-					add_win(
-						{76,68,0,0,0},
-						{12+20,8,88,99,8},
-						1,0,1)
-						
-					upd_lbd(gamemode)
-					
-				end
-			end
-		else
-			next_level_init()
-		end
-	elseif play_state==7 then run()
-	end
+    local levelstatetickarray = {
+        loadin_floor_tick,
+        start_floor_tick,
+        playing_floor_tick,
+        postwin_floor_tick,
+        end_floor_tick,
+        end_stage,
+        run
+    }
+    levelstatetickarray[play_state+1]()
 end
 
 function loadin_floor_tick()
@@ -285,18 +287,18 @@ function match_loop()
 	glob_dest_crate = false
 	level_state_process()
  
- if camabs.y<12 and play_state==0 then
- 	camabs.y+=1
- elseif camabs.y>12 then
- 	camabs.y=12
- end
- 
- 
- player_tick(p)
- 
- 
- particle_physics()
- tick_actors()
- tick_clock(2-clkdir)
+    if camabs.y<12 and play_state==0 then
+    camabs.y+=1
+    elseif camabs.y>12 then
+    camabs.y=12
+    end
+
+
+    player_tick(p)
+
+
+    particle_physics()
+    tick_actors()
+    tick_clock(2-clkdir)
 end
 
