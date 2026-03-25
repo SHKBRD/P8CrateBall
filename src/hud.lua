@@ -23,15 +23,17 @@ type
 
 windows={}
 
-function add_win(f,t,col,prog,typ)
-	local w={}
-	w.f=f
-	w.t=t
-	w.col=col
-	w.prog=prog
-	w.type=typ
+function add_win(f,t,col,prog,type)
+	local w={
+		f=f,
+		t=t,
+		col=col,
+		prog=prog,
+		type=type
+	}
 	
-	if typ == 1 then
+	
+	if type == 1 then
 		w.timer=0
 	end
 	
@@ -188,44 +190,48 @@ end
 function tick_clock(dir)
 	if (not p.control) return
 	frame = 1/.6
+	c1 = clk[1]
+	c2 = clk[2]
+	c3 = clk[3]
 	if (dir == 1) then
-		clk[3] += frame
-		if clk[3] > 99 then
-			clk[3] = clk[3]-100
-			clk[2] += 1
-			if clk[2] > 59 then
-				clk[2] = clk[2]-60
-				clk[1] += 1
-				if clk[1] > 99 then
-					clk[1] = 99
-					clk[2] = 59
-					clk[3] = 99
+		c3 += frame
+		if c3 > 99 then
+			c3 = c3-100
+			c2 += 1
+			if c2 > 59 then
+				c2 = c2-60
+				c1 += 1
+				if c1 > 99 then
+					c1 = 99
+					c2 = 59
+					c3 = 99
 				end
 			end
 		end
 	else
-		clk[3] -= frame
-		if clk[3] < 0 then
-			clk[3] = 100+clk[3]
-			clk[2] -= 1
-			if clk[2] < 0 then
-				clk[2] = 60+clk[2]
-				clk[1] -= 1
-				if clk[1] < 0 then
-					clk[1] = 0 
-					clk[2] = 0
-					clk[3] = 0
+		c3 -= frame
+		if c3 < 0 then
+			c3 = 100+c3
+			c2 -= 1
+			if c2 < 0 then
+				c2 = 60+c2
+				c1 -= 1
+				if c1 < 0 then
+					c1 = 0 
+					c2 = 0
+					c3 = 0
 				end
 			end
 		end
 	end
 
+
     -- makes sure they dont
 	-- become negative for some
 	-- reason
-	clk[1]=abs(clk[1])
-	clk[2]=abs(clk[2])
-	clk[3]=abs(clk[3])
+	clk[1]=abs(c1)
+	clk[2]=abs(c2)
+	clk[3]=abs(c3)
 end
 
 
@@ -318,17 +324,18 @@ end
 
 function draw_level_text()
 	if floor_level == 1 then
-		rrectfill(25, 19, 101, 23, 4, 0)
+		rrectfill(unpack(split("25,19,101,23,4,0")))
 		draw_wavy_str("use dpad to move!", 43, 23)
 		draw_wavy_str("dpad + 🅾️ /❎  to explode!", 29, 33)
-		rrectfill(22, 96, 107, 23, 4, 0)
+		rrectfill(unpack(split("22,96,107,23,4,0")))
 		draw_wavy_str("destroy all of the crates", 26, 101)
 		draw_wavy_str("to reach the next floor!", 29, 110)
 	end
 end
 
 function draw_listblob(l)
-	rrectfill(l[1],l[2],l[3],l[4],l[5],l[6])
+	--rrectfill(l[1],l[2],l[3],l[4],l[5],l[6])
+	rrectfill(unpack(l))
 end
 
 function gen_win_draw(w)
@@ -349,6 +356,36 @@ function gen_win_draw(w)
 	draw_listblob(midblob)
 end
 
+function draw_score(yoff, idx)
+	local yoffadj = yoff+8+idx*10
+	--timer
+	if gamemode==1 then
+		for t=1,3 do
+			local tmult = t*12+38
+			
+			if #lbd[1]>=(idx-3) then
+				local tscore=lbd[1][idx-3][1][t]
+				if tscore<10 then 
+					draw_str(0,stroff+tmult,yoffadj)
+					draw_str(tscore,stroff+4+tmult,yoffadj)
+				else
+					draw_str(tscore,stroff+tmult,yoffadj)
+				end
+			else
+				draw_str("--",stroff+tmult,yoffadj)
+			end
+			if (t!=3) draw_str(":",stroff+8+tmult,yoffadj)
+		end
+	--score
+	else
+		if #lbd[2]>=(idx-3) then
+			draw_str(lbd[2][idx-3][1],stroff+50,yoffadj)
+		else
+			draw_str("--",stroff+50,yoffadj)
+		end
+	end
+end
+
 function draw_wins()
 	for w in all(windows) do
 		stroff=0
@@ -364,35 +401,11 @@ function draw_wins()
 					
 					local yoff=0
 					if (not inmatch) yoff=4
-					
+					--place
 					draw_str(i-3,stroff+42,yoff+8+i*10)
 					--score values
 					
-					--timer
-					if gamemode==1 then
-						
-						for t=1,3 do
-							if #lbd[1]>=(i-3) then
-								local tscore=lbd[1][i-3][1][t]
-								if tscore<10 then
-									draw_str(0,stroff+38+t*12,yoff+8+i*10)
-									draw_str(tscore,stroff+42+t*12,yoff+8+i*10)
-								else
-									draw_str(tscore,stroff+38+t*12,yoff+8+i*10)
-								end
-							else
-								draw_str("--",stroff+38+t*12,yoff+8+i*10)
-							end
-							if (t!=3) draw_str(":",stroff+46+t*12,yoff+8+i*10)
-						end
-					--score
-					else
-						if #lbd[2]>=(i-3) then
-							draw_str(lbd[2][i-3][1],stroff+50,yoff+8+i*10)
-						else
-							draw_str("--",stroff+50,yoff+8+i*10)
-						end
-					end
+					draw_score(yoff, i)
 					
 					local lind=windows[1].letterind
 					local xoff=0
@@ -452,5 +465,5 @@ function draw_hud()
 	draw_crates_rem(gamemode)
 	draw_floor_count()
 	draw_wins()
-	//if (debug) draw_debug()
+	--if (debug) draw_debug()
 end

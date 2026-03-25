@@ -79,11 +79,7 @@ function draw_base_map()
 end
 
 function def_map_offs()
-	offx1 = (19-lev_w)*4
-	offy1 = (17-lev_h)*4
-	
-	offx2 = (15-lev_w)/2
-	offy2 = (13-lev_h)/2
+	offx1,offy1,offx2,offy2=(19-lev_w)*4,(17-lev_h)*4,(15-lev_w)/2,(13-lev_h)/2
 end
 
 function level_map_load(floor)

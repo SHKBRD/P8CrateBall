@@ -3,8 +3,7 @@
 lbd={}
 
 function get_lbd()
-	tlbd={}
-	slbd={}
+	tlbd,slbd={},{}
 	for i=0,4 do
 		assembletime={}
 		is_valid_time=false
