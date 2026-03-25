@@ -94,8 +94,8 @@ function draw_buttons()
 		onbtn=i==button_high_ind
 		
 		if (onbtn) col=8
-		rrectfill(31,yset-1,62, 10, 3, 0)
-		rrectfill(32,yset,60, 8, 3, col)
+		rrectfill(31,yset-1,62, 12, 3, 0)
+		rrectfill(32,yset,60, 10, 3, col)
 		
 		
 		if trstn_phase >= 2 and onbtn then
@@ -122,8 +122,8 @@ end
 
 function draw_epilepsy()
 	rrectfill(1,107,125,19,3,0)
-	draw_str("! this cart utilizes dizzying !", 3, 110)
-	draw_str("!     and flashing images     !", 3, 118)
+	draw_str("! this cart utilizes dizzying !", 2, 110)
+	draw_str("!     and flashing images     !", 2, 118)
 end
 
 function menu_draw()
