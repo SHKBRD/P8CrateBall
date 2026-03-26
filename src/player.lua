@@ -39,14 +39,14 @@ function add_boom_part()
 	prt[#prt] = boom
 end
 
-function destroy_surr(pl)
+function destroy_surr()
 	
 	dist = 2*8
 	
 	for ac in all(o) do
-		if ac != pl then
+		if ac != p then
 			if ac.t >= 10 and ac.t <=12 or ac.t == 14 then
-				if distance(ac.x, ac.y, pl.x, pl.y) <= dist then
+				if distance(ac.x, ac.y, p.x, p.y) <= dist then
 					crate_damage(ac, true, false)
 				end	
 			end
@@ -56,7 +56,7 @@ function destroy_surr(pl)
 	
 end
 
-function player_blast(pl)
+function player_blast()
 	
 	l,r,u,d=btn(0),btn(1),btn(2),btn(3)
 	
@@ -65,40 +65,40 @@ function player_blast(pl)
 	
 	if l or r or u or d then
 	
-		if(l)pl.vx=-6
-		if(r)pl.vx=6
-		if(u)pl.vy=-6
-		if(d)pl.vy=6
+		if(l)p.vx=-6
+		if(r)p.vx=6
+		if(u)p.vy=-6
+		if(d)p.vy=6
 		
 	for particles=1,60 do
 		add_boom_part()
 	end
 	
-	destroy_surr(pl)
+	destroy_surr()
 	
-	pl.blast_cool = 120
-	pl.blast_mode = true
+	p.blast_cool = 120
+	p.blast_mode = true
 	sfx(1,3)	
 		
 	end
 	
 end
 
-function fire_player(pl)
+function fire_player()
 	--stop(pl.in_fire)
-	if pl.in_fire==false then
+	if p.in_fire==false then
 		sfx(12,2)
 	end
-	pl.in_fire=true
-	pl.fired=true
-	pl.fire_cool = 100
-	pl.blast_mode = false
-	pl.blast_cool = 0
+	p.in_fire=true
+	p.fired=true
+	p.fire_cool = 100
+	p.blast_mode = false
+	p.blast_cool = 0
 end
 
-function player_roll_sfx(pl)
+function player_roll_sfx()
 	local poke1=0b10001100
-	local spd=distance(0,0,pl.vx,pl.vy)
+	local spd=distance(0,0,p.vx,p.vy)
 	local norm=(spd/6)-.01
 	if (norm<0) then 
 		norm=0
@@ -117,10 +117,10 @@ function player_roll_sfx(pl)
 	--print(spd, 16, 34, 8)
 end
 
-function player_tick(pl)
-	if pl.control then
-		player_control(pl)
-		player_roll_sfx(pl)
+function player_tick()
+	if p.control then
+		player_control()
+		player_roll_sfx()
 	end
 end
 

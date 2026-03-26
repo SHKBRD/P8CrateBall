@@ -327,7 +327,7 @@ function hit_action(a1, a2)
 		--player interaction
 		if is_player(a2) and a2.control then
 			fire_touched=true
-			fire_player(a2)
+			fire_player()
 		end			
 	end
 	
