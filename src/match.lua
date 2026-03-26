@@ -1,6 +1,8 @@
 function match_init(mode)
 	menuitem(1, "restart match", restart_match)
-	music(0)
+	if play_music == 0 then
+		music(0)
+	end
 	match_persistent_init(mode)
 	floor_init(1)
 end

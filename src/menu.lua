@@ -10,6 +10,7 @@ function menu_init()
 	button_high_ind=-1
 	menuitem(1,"reset save data", clear_lbd)
 	menuitem(2,"toggle music", toggle_music)
+	menuitem(3,"toggle camshake", function() dset(62, 1-camshake); camshake=1-camshake end)
 end
 
 function toggle_music()

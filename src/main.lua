@@ -2,17 +2,14 @@ function _init()
 	cartdata("shk-unbreakaball")
 	--clear_lbd()
 	get_lbd()
-	play_music=get_music()
+	play_music=dget(63)
+	camshake=dget(62)
 	
 	constant_init()
 	
 	--match_init(2)
 	menu_init()
 	frameoff=0
-end
-
-function get_music()
-	return dget(63)
 end
 
 function _update60()

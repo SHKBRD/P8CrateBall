@@ -47,7 +47,12 @@ end
 
 function match_draw()
 	cls(0)
- 
+	
+	if camshake==1 then
+		camoff[1] = 0
+		camoff[2] = 0
+	end
+
     camera(camabs.x + camoff[1], camabs.y + camoff[2])
 
 	camoff[1] = 0
