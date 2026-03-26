@@ -94,8 +94,8 @@ function draw_buttons()
 		onbtn=i==button_high_ind
 		
 		if (onbtn) col=8
-		rrectfill(31,yset-1,62, 12, 3, 0)
-		rrectfill(32,yset,60, 10, 3, col)
+		rrectfill(31,yset-1,63, 12, 3, 0)
+		rrectfill(32,yset,61, 10, 3, col)
 		
 		
 		if trstn_phase >= 2 and onbtn then
