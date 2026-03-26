@@ -41,8 +41,8 @@ function gen_floor_mods(floor)
 	mod_count=#possible_mods
 	floor_mods={}
 	
-	local mcount=flr((floor-1)/5)
-	if mcount>0 then
+	local mcount=flr((floor-1)/5)+1
+	if mcount>0 and floor != 1 then
 		for i=1,min(mcount, mod_count) do
 			local fmod=rnd(possible_mods)
 			add(floor_mods, fmod)
