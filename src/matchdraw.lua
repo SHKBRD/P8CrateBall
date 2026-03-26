@@ -57,7 +57,7 @@ function match_draw()
  
     draw_map_border()
  
-    map(0, 0, 0, 0, 18, 18)
+    map(upsp"0,0,0,0,18,18")
 	
 	draw_actors()
 	

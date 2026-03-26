@@ -176,7 +176,7 @@ function postgame_lb(w)
 		if inmatch then
 			play_state+=1
 		end
-		if (not inmatch or play_state==7) del(windows, w)
+		if (not inmatch or play_state==6) del(windows, w)
 	end
 end
 
@@ -324,10 +324,10 @@ end
 
 function draw_level_text()
 	if floor_level == 1 then
-		rrectfill(unpack(split("25,19,101,23,4,0")))
+		rrectfill(upsp"25,19,101,23,4,0")
 		draw_wavy_str("use dpad to move!", 43, 23)
 		draw_wavy_str("dpad + 🅾️ /❎  to explode!", 29, 33)
-		rrectfill(unpack(split("22,96,107,23,4,0")))
+		rrectfill(upsp"22,96,107,23,4,0")
 		draw_wavy_str("destroy all of the crates", 26, 101)
 		draw_wavy_str("to reach the next floor!", 29, 110)
 	end
@@ -356,34 +356,53 @@ function gen_win_draw(w)
 	draw_listblob(midblob)
 end
 
-function draw_score(yoff, idx)
-	local yoffadj = yoff+8+idx*10
+function draw_scores(yoff, idx)
 	--timer
 	if gamemode==1 then
 		for t=1,3 do
-			local tmult = t*12+38
+			local tmult = stroff+t*12+38
 			
 			if #lbd[1]>=(idx-3) then
 				local tscore=lbd[1][idx-3][1][t]
 				if tscore<10 then 
-					draw_str(0,stroff+tmult,yoffadj)
-					draw_str(tscore,stroff+4+tmult,yoffadj)
+					draw_str(0,tmult,yoff)
+					draw_str(tscore,4+tmult,yoff)
 				else
-					draw_str(tscore,stroff+tmult,yoffadj)
+					draw_str(tscore,tmult,yoff)
 				end
 			else
-				draw_str("--",stroff+tmult,yoffadj)
+				draw_str("--",tmult,yoff)
 			end
-			if (t!=3) draw_str(":",stroff+8+tmult,yoffadj)
+			if (t!=3) draw_str(":",8+tmult,yoff)
 		end
 	--score
 	else
 		if #lbd[2]>=(idx-3) then
-			draw_str(lbd[2][idx-3][1],stroff+50,yoffadj)
+			draw_str(lbd[2][idx-3][1],stroff+50,yoff)
 		else
-			draw_str("--",stroff+50,yoffadj)
+			draw_str("--",stroff+50,yoff)
 		end
 	end
+end
+
+function draw_names(yoff, i)
+    local lind=windows[1].letterind
+    local xoff=0
+    if (not placeind or placeind==-1) xoff=9
+    for n=1,3 do
+        local xadj=xoff+stroff+85+n*4
+        if #lbd[gamemode]>=(i-3) then
+            local char = chr((lbd[gamemode][i-3][2][n]%26)+97)
+            if (n-1)==lind and i-3==placeind then
+                draw_high_str(char,xadj,yoff)
+                sspr(24, 16, 3, 12,xadj,yoff-3)
+            else
+                draw_str(char,xadj,yoff)
+            end
+        else
+            draw_str("---",xoff+stroff+89,yoff)
+        end
+    end
 end
 
 function draw_wins()
@@ -397,38 +416,22 @@ function draw_wins()
 					local poss=winpos_list[i]
 					draw_str(winstr_list[i],stroff+poss[1],poss[2])
 				else
-														
-					
 					local yoff=0
 					if (not inmatch) yoff=4
+                    yoff = yoff+8+i*10
 					--place
-					draw_str(i-3,stroff+42,yoff+8+i*10)
+					draw_str(i-3,stroff+42,yoff)
 					--score values
 					
-					draw_score(yoff, i)
+					draw_scores(yoff, i)
 					
-					local lind=windows[1].letterind
-					local xoff=0
-					if (not placeind or placeind==-1) xoff=9
-					for n=1,3 do
-						if #lbd[gamemode]>=(i-3) then
-							local char = chr((lbd[gamemode][i-3][2][n]%26)+97)
-							if (n-1)==lind and i-3==placeind then
-								draw_high_str(char,xoff+stroff+85+n*4,yoff+8+i*10)
-								sspr(24, 16, 3, 12,xoff+stroff+85+n*4,yoff+5+i*10)
-							else
-								draw_str(char,xoff+stroff+85+n*4,yoff+8+i*10)
-							end
-						else
-							draw_str("---",xoff+stroff+89,yoff+8+i*10)
-						end
-					end
+                    draw_names(yoff, i)
 					
 					if i-3==placeind then
 						if lind==3 then
-							draw_high_str("ok?",stroff+105,yoff+8+i*10)
+							draw_high_str("ok?",stroff+105,yoff)
 						else
-							draw_str("ok?",stroff+105,yoff+8+i*10)
+							draw_str("ok?",stroff+105,yoff)
 						end
 					end
 					

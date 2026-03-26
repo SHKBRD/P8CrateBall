@@ -9,7 +9,7 @@ function player_init()
 
     
     vx,vy,ax,ay,blast_cool,fire_cool,t,x,y,colx,coly,colw,colh,despawn,z
-	=unpack(split("0,0,0,0,0,0,1,72,64,0.5,0.5,7,7,-1,5"))
+	=upsp"0,0,0,0,0,0,1,72,64,0.5,0.5,7,7,-1,5"
     blast_mode,fired,in_fire,control,gets_col=false,false,false,false,true
 
     px = x

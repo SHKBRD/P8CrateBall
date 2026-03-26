@@ -51,7 +51,7 @@ function draw_bg_vort()
 	local toff=frameoff/8
 	toff-=(sin(toff/8)/2)
 	for i=0.25,1,0.25 do
-		//76,68
+		--76,68
 		local bx=cos(i+toff)*(sin(toff)/2+1)*50+76
 		local by=sin(i+toff)*(sin(toff)/2+1)*50+68
 		local size=22+abs(cos(toff))*10*(1/(sin(toff)+1.3))
@@ -63,9 +63,10 @@ function draw_bg_vort()
 		
 		local subcircs=8
 		for subcir=1,subcircs do
-			local subx=bx+size*cos(subcir/subcircs+toff*1.5)
-			local suby=by+size*sin(subcir/subcircs+toff*1.5)
-			local subsize=4+2*(sin(toff*8+(subcir/subcircs)))
+            cycle=subcir/subcircs+toff*2
+			local subx=bx+size*cos(cycle)
+			local suby=by+size*sin(cycle)
+			local subsize=4+2*(sin(cycle+toff*6))
 			circfill(subx, suby, subsize, bgp1)
 		end
 		
@@ -73,20 +74,17 @@ function draw_bg_vort()
 end
 
 function draw_bg()
-	
-	if bg_type == 0 then
-		draw_bg_hole()
-	elseif bg_type == 1 then
-		draw_bg_polka()
-	elseif bg_type == 2 then
-		draw_bg_vort()
-	end
-	
+	local bgtable={
+        draw_bg_hole,
+        draw_bg_polka,
+        draw_bg_vort
+    }
+	bgtable[bg_type]()
 end
 
 function reset_bg_list()
 	availablebg={}
-	for i=0,bg_types-1 do
+	for i=1,bg_types do
 		add(availablebg, i)
 	end
 end

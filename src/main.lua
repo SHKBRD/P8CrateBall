@@ -60,7 +60,7 @@ function draw_base_map()
  for i=x1,x2 do
 		for f=y1,y2 do
 			if i>x1 and i<x2 then
-				mset(i, f, 19)
+				mset(i, f, rnd(5)+5)
 			end
 			if i==x1 or i==x2 or f==y1 or f==y2 then
 				mset(i, f, 17)

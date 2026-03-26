@@ -15,29 +15,14 @@ function load_actor(t, x, y)
 	
 	do
 	local _𝘦𝘯𝘷=a
-	px = x
-	py = y
-	vx = 0
-	vy = 0
-	pvx = vx
-	pvy = vy
-	ax = 0
-	ay = 0
-	colx = 0.5
-	coly = 0.5
-	colw = 7
-	colh = 7
-	--actor's collision start points
-	colspx = x + colx
-	colspy = y + coly
+	
+	vx,vy,ax,ay,colx,coly,colw,colh,despawn,z=upsp"0,0,0,0,0.5,0.5,7,7,-1,0"
+    pvx,pvy,px,py,acts_col,gets_col,control=vx,vy,x,y,false,false,false
+    --actor's collision start points
+	colspx,colspy=x+colx,y+coly
 	--actor's collision end points
-	colepx = colspx + colw
-	colepy = colspy + colh
-	acts_col = false
-	gets_col = false
-	despawn = -1
-	control = false
-	z = 0
+	colepx,colepy=colspx+colw,colspy+colh
+	
 	end
 	
 	add(o, a)
@@ -137,7 +122,7 @@ function init_actors()
 	
 	if has_mod(1) then
 		--vortecies
-		if voertextype != 0 then
+		if vortextype != 0 then
 			local vxt = 0
 			if vortextype == 1 then
 				vxt = 45
@@ -322,7 +307,7 @@ function actor_collide(a1, a2)
 	
 	if (distance(a1.x, a1.y, a2.x, a2.y) >= 16) return
 	if will_a_touch(a1, a2, true) then
-	 hit_action(a1, a2)
+	    hit_action(a1, a2)
 		hit_action(a2, a1)
 	end
 	
@@ -443,23 +428,24 @@ end
 
 function actor_col()
  
- for cr in all(crates) do
- 	actor_collide(p,cr)
- end
- 
- for sw in all(switches) do
- 	actor_collide(p,sw)
- end
+    for cr in all(crates) do
+        actor_collide(p,cr)
+    end
 
- 	fire_touched=false
- 	for fr in all(fires) do
- 		actor_collide(p,fr)
- 	end
- 	if (fire_touched==false) p.in_fire=false
+    for sw in all(switches) do
+        actor_collide(p,sw)
+    end
+
+    fire_touched=false
+    for fr in all(fires) do
+        if (fire_touched) break
+        actor_collide(p,fr)
+    end
+    if (fire_touched==false) p.in_fire=false
  
- for it in all(items) do
- 		actor_collide(p,it)
- end
+    for it in all(items) do
+        actor_collide(p,it)
+    end
  
 end
 
@@ -486,14 +472,11 @@ end
 
 function actvarapply(act)
 	local _𝘦𝘯𝘷=act
-	pvx = vx
-	pvy = vy
-	px = x
-	py = y
-	vx -= 0.1 * vx/abs(vx)
-	vy -= 0.1 * vy/abs(vy)	
+	pvx,pvy,px,py=vx,vy,x,y
+	vx -= 0.1 * sgn(vx)
+	vy -= 0.1 * sgn(vy)	
 	if sgn(vx) != sgn(pvx) then
-		act.vx = 0
+		vx = 0
 	end
 	if sgn(vy) != sgn(pvy) then
 		vy = 0
@@ -568,7 +551,7 @@ function heal_item_tick(it)
 				if cr.t == 13 or cr.t == 15 then
 					cr.acts_col = true
 					cr.despawn = -1
-					if cratesbroken!=cratestotal then
+					if cratesbroken!=cratetotal then
 						cratesbroken-=1
 					end
 				end
