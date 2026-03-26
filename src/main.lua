@@ -12,20 +12,12 @@ end
 
 function _update60()
 	frameoff += .03333
- if not inmatch then
- 	menu_tick()
- else
- 	match_tick()
- end
+	if (not inmatch) menu_tick() else match_tick()
 end
 
 function _draw()
 	cls()
-	if not inmatch then
- 	menu_draw()
- else
- 	match_draw()
- end
+	if (not inmatch) menu_draw() else match_draw()
 end
 
 function match_tick()
