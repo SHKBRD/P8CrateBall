@@ -19,6 +19,7 @@ x,y,w,h,r
 col
 prog
 type
+timer
 --]]
 
 windows={}
@@ -47,20 +48,25 @@ function win_tick()
 end
 
 function postgame_lb(w)
-	if (w.timer==0) sfx(15,2)
-	if w.timer<0.25 then
-		w.timer+=.01
-		w.prog=-1*sin(w.timer)
-		w.trem=nil
-		if (inmatch)camabs.y-=w.prog
-	elseif w.timer<1 then
-		w.timer+=.01
-		w.prog=1
-		w.ptrem=w.trem
-		w.trem=7-flr((1-w.timer)*(7/0.75))
-		if (w.trem!=w.ptrem) sfx(17,2)
+	prog = w.prog
+	timer = w.timer
+	trem = w.trem
+	letterind = w.letterind
+	
+	if (timer==0) sfx(15,2)
+	if timer<0.25 then
+		timer+=.01
+		prog=-1*sin(timer)
+		trem=nil
+		if (inmatch)camabs.y-=prog
+	elseif timer<1 then
+		timer+=.01
+		prog=1
+		w.ptrem=trem
+		trem=7-flr((1-timer)*(7/0.75))
+		if (trem!=w.ptrem) sfx(17,2)
 		pal(1)
-		--stop(w.trem)
+		--stop(trem)
 		winstr_list={
 			"",
 			"",
@@ -95,7 +101,7 @@ function postgame_lb(w)
 			}
 			
 		end
-	elseif w.timer<1.01 then
+	elseif timer<1.01 then
 		
 		if not inmatch then
 			if gamemode==1 then 
@@ -106,8 +112,8 @@ function postgame_lb(w)
 			winstr_list[3]=lbdstr
 		end
 		
-		if w.letterind==nil then
-			w.letterind=0
+		if letterind==nil then
+			letterind=0
 		end
 		
 		if w.ask_confirm==nil then
@@ -119,18 +125,18 @@ function postgame_lb(w)
 			
 			if (btnp(1) or btnp(4) or btnp(5)) then
 				
-				w.letterind+=1
+				letterind+=1
 			end
-			if (btnp(0)) w.letterind-=1
-			w.letterind%=4
+			if (btnp(0)) letterind-=1
+			letterind%=4
 			
-			if w.letterind != 3 and not nameselected then
+			if letterind != 3 and not nameselected then
 				if btnp(2) then 
-					name_arr[w.letterind+1]+=1
+					name_arr[letterind+1]+=1
 					sfx(14,0)
 				end
 				if btnp(3) then
-					name_arr[w.letterind+1]-=1
+					name_arr[letterind+1]-=1
 					sfx(14,0)
 				end
 			end
@@ -139,8 +145,8 @@ function postgame_lb(w)
 		if btnp(4) or btnp(5) then
 			
 			if not inmatch then
-				w.timer+=.01
-			elseif w.letterind==3 or placeind==-1 then
+				timer+=.01
+			elseif letterind==3 or placeind==-1 then
 				if not nameselected then
 					nameselected=true
 					sfx(13,2)
@@ -155,29 +161,35 @@ function postgame_lb(w)
 				--stop(lbd[2][placeind][2][1])
 				save_lbd()
 			end
-			w.timer+=.01
+			timer+=.01
 		end
 	
-	elseif w.timer<1.25 then
-		w.timer+=.01
-		w.prog=1
-		w.ptrem=w.trem
-		w.trem=flr((1.25-w.timer)*(7/0.25))
-		if (w.trem!=w.ptrem) sfx(17,2)
-	elseif w.timer<1.5 then
-		if (w.timer<1.26) sfx(16,2)
-		w.timer+=.01
-		w.prog=-1*sin(w.timer)
+	elseif timer<1.25 then
+		timer+=.01
+		prog=1
+		w.ptrem=trem
+		trem=flr((1.25-timer)*(7/0.25))
+		if (trem!=w.ptrem) sfx(17,2)
+	elseif timer<1.5 then
+		if (timer<1.26) sfx(16,2)
+		timer+=.01
+		prog=-1*sin(timer)
 		
 	else
-		w.timer=1.5
-		w.prog=0
+		timer=1.5
+		prog=0
 		w.col=0
 		if inmatch then
 			play_state+=1
 		end
 		if (not inmatch or play_state==6) del(windows, w)
 	end
+
+	w.prog = prog
+	w.timer = timer
+	w.trem = trem
+	w.letterind = letterind
+
 end
 
 function win_specific(w)
