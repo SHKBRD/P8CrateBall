@@ -76,10 +76,10 @@ function floor_init(floor)
 	if (bg_type) pastbg=bg_type
 	choose_bg_type()
 	if pastbg then
-		//hAS TO END UP BEING A NEW
-		//TYPE, SINCE THE OLD TYPE
-		//WILL BE REMOVED FROM THE
-		//POOL
+		--hAS TO END UP BEING A NEW
+		--TYPE, SINCE THE OLD TYPE
+		--WILL BE REMOVED FROM THE
+		--POOL
 		if pastbg==bg_type then
 			choose_bg_type()
 		end

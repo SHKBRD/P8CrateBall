@@ -77,11 +77,12 @@ function init_actors()
 	--local offx = (19-lev_w)*4
 	--local offy = (17-lev_h)*4
 	
-	makesteel=has_mod(2)
-	if makesteel then
-		makesteel=true
-		steelmax=flr(cratetotal*0.375)
-		steelsmade=0
+	makeallsteel=has_mod(2)
+	makesteel=true
+	steelsmade=0
+	steelmax=flr(cratetotal*0.125*(floor_level%5+1))
+	if makeallsteel then
+		steelmax=cratetotal
 	end
 	
 	for crate=1,cratetotal do
@@ -201,7 +202,7 @@ function make_crate(x,y)
 	--local offy = (17-lev_h)*4
 
 	local crt=10
-	if makesteel then
+	if makeallsteel or makesteel then
 		crt=14
 		steelsmade+=1
 		if (steelsmade==steelmax) makesteel=false
