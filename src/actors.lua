@@ -80,7 +80,7 @@ function init_actors()
 	makeallsteel=has_mod(2)
 	makesteel=true
 	steelsmade=0
-	steelmax=flr(cratetotal*0.125*(floor_level%5+1))
+	steelmax=flr(cratetotal*0.1*(floor_level%5+1))
 	if makeallsteel then
 		steelmax=cratetotal
 	end
