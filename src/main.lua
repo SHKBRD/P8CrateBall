@@ -54,8 +54,7 @@ function draw_base_map()
 --	mset(i, f, 19)
 	
 	local x1=offx2+1
-	local x2=x1+lev_w+1
-	local y1=offy2+1
+	local x2,y1=x1+lev_w+1,offy2+1
 	local y2=y1+lev_h+1
 	
 	// map draw
