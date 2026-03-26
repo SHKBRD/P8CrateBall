@@ -91,7 +91,7 @@ function postgame_lb(w)
 			winstr_list={
 				"top leaderboard",
 				"spots of all time",
-				"◀ 20 floor dash ▶",
+				"◀ 15 floor dash ▶",
 			}
 			
 		end
@@ -99,7 +99,7 @@ function postgame_lb(w)
 		
 		if not inmatch then
 			if gamemode==1 then 
-				lbdstr="◀ 20 floor dash ▶"
+				lbdstr="◀ 15 floor dash ▶"
 			else
 				lbdstr="◀ 3 minute rush ▶"
 			end
@@ -316,7 +316,7 @@ function draw_floor_count()
 	end
 	drawstr ..= floor_level
 	if gamemode == 1 then
-		drawstr ..= "/20"
+		drawstr ..= "/15"
 	end
 	draw_str(drawstr, 116+ox, clky)
 	
