@@ -160,6 +160,7 @@ change is performed
 function end_stage()
     if (floor_level==15 and gamemode==1) or (clk[1]==0and clk[2]==0 and clk[3]==0) then
         music(-1)
+		menuitem(1)
         if not floor_won then
             floor_won=true
             endscore=floor_level

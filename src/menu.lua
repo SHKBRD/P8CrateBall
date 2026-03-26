@@ -1,12 +1,30 @@
 --menu
 
 function menu_init()
-	music(24)
+	if play_music != 1 then
+		music(24)
+	end
 	m_trstn=-0.25
 	trstn_phase=0
 	gamemode=1
 	button_high_ind=-1
 	menuitem(1,"reset save data", clear_lbd)
+	menuitem(2,"toggle music", toggle_music)
+end
+
+function toggle_music()
+	play_music = 1-play_music
+	dset(63, play_music)
+	
+	if play_music == 0 then
+		if inmatch then
+			music(0)
+		else
+			music(24)
+		end
+	else
+		music(-1)
+	end
 end
 
 function menu_tick()
