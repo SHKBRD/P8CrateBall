@@ -417,47 +417,53 @@ function draw_names(yoff, i)
     end
 end
 
+function draw_ok(yoff, i)
+	if i-3==placeind then
+		if lind==3 then
+			draw_high_str("ok?",stroff+105,yoff)
+		else
+			draw_str("ok?",stroff+105,yoff)
+		end
+	end
+end
+
+function draw_win_rows(w)
+	for i=1,w.trem do
+		if i<=3 then
+			local poss=winpos_list[i]
+			draw_str(winstr_list[i],stroff+poss[1],poss[2])
+		else
+			local yoff=0
+			if (not inmatch) yoff=4
+			yoff = yoff+8+i*10
+			--place
+			draw_str(i-3,stroff+42,yoff)
+			--score values
+			
+			draw_scores(yoff, i)
+			
+			draw_names(yoff, i)
+			
+			draw_ok(yoff, i)
+		end
+		
+		if i==2 and inmatch then
+			if gamemode==1 then
+				draw_clock(stroff+84,24)
+			else
+				draw_str(endscore,stroff+104,24)
+			end
+		end
+	end
+end
+
 function draw_wins()
 	for w in all(windows) do
 		stroff=0
 		if (not inmatch) stroff=-12
 		gen_win_draw(w)
 		if w.trem!=nil then
-			for i=1,w.trem do
-				if i<=3 then
-					local poss=winpos_list[i]
-					draw_str(winstr_list[i],stroff+poss[1],poss[2])
-				else
-					local yoff=0
-					if (not inmatch) yoff=4
-                    yoff = yoff+8+i*10
-					--place
-					draw_str(i-3,stroff+42,yoff)
-					--score values
-					
-					draw_scores(yoff, i)
-					
-                    draw_names(yoff, i)
-					
-					if i-3==placeind then
-						if lind==3 then
-							draw_high_str("ok?",stroff+105,yoff)
-						else
-							draw_str("ok?",stroff+105,yoff)
-						end
-					end
-					
-					
-				end
-				
-				if i==2 and inmatch then
-					if gamemode==1 then
-						draw_clock(stroff+84,24)
-					else
-						draw_str(endscore,stroff+104,24)
-					end
-				end
-			end
+			draw_win_rows(w)
 		end
 	end
 end
